@@ -4,11 +4,11 @@
  * (<Input>, <Textarea>, <Button>). Submits client-side for the template —
  * wire to your support inbox / PrestaShop contact endpoint.
  */
-import { Input, Textarea, Button } from 'webcoreui/astro'
-import Section from '../snippets/section.astro'
-import SectionHeading from '../snippets/section-heading.astro'
-import { shop } from '../../lib/navigation'
-import type { ContactSection } from '../../lib/sections'
+import { Button, Input, Textarea } from 'webcoreui/astro'
+import { shop } from '@lib/navigation'
+import type { ContactSection } from '@lib/sections'
+import Section from '@snippets/section.astro'
+import SectionHeading from '@snippets/section-heading.astro'
 
 interface Props {
     section: ContactSection

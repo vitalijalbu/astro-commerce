@@ -4,14 +4,14 @@
  * availability, price range) and a basic sorting model.
  */
 import Layout from '@components/layout.astro'
+import { getProducts } from '@lib/catalog'
+import { paginateItems, parsePageParam } from '@lib/paginate'
 import CatalogPagination from '@snippets/catalog-pagination.astro'
 import EmptyState from '@snippets/empty-state.astro'
 import FiltersSheet from '@snippets/filters-sheet.astro'
 import ProductGrid from '@snippets/product-grid.astro'
 import SearchFiltersForm from '@snippets/search-filters-form.astro'
-import { Input, Button } from 'webcoreui/astro'
-import { getProducts } from '../lib/catalog'
-import { paginateItems, parsePageParam } from '../lib/paginate'
+import { Button, Input } from 'webcoreui/astro'
 
 const params = Astro.url.searchParams
 const query = (params.get('q') || '').trim()
@@ -56,15 +56,19 @@ const paginated = paginateItems(results, page, 24)
 ---
 
 <Layout title={query ? `Search: ${query} — ATELIER` : 'Search — ATELIER'} noindex>
-    <div class="page py-10 md:py-14">
-        <h1 class="text-3xl md:text-4xl font-semibold tracking-tight mb-6">Search catalog</h1>
+    <div class="page py-12 md:py-16">
+        <!-- Centered search hero -->
+        <div class="mx-auto max-w-2xl text-center mb-12 md:mb-16">
+            <h1 class="text-3xl md:text-5xl font-semibold tracking-tight m-0">Search</h1>
+            <p class="text-muted mt-3 mb-0">Find products by name, brand or category.</p>
 
-        <form action="/search" method="get" class="flex gap-2 max-w-xl mb-8" role="search" aria-label="Catalog search">
-            <div class="flex-1">
-                <Input type="search" name="q" value={query} placeholder="Search products…" aria-label="Search products" />
-            </div>
-            <Button type="submit">Search</Button>
-        </form>
+            <form action="/search" method="get" class="mt-6 flex gap-2" role="search" aria-label="Catalog search">
+                <div class="flex-1">
+                    <Input type="search" name="q" value={query} placeholder="Search products…" aria-label="Search products" autofocus />
+                </div>
+                <Button type="submit">Search</Button>
+            </form>
+        </div>
 
         <div class="mb-5 lg:hidden">
             <FiltersSheet

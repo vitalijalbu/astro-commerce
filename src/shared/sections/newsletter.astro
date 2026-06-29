@@ -4,9 +4,9 @@
  * Submission is handled client-side (vanilla) — wire to your ESP/PrestaShop
  * newsletter endpoint where indicated.
  */
-import { Input, Button } from 'webcoreui/astro'
-import Section from '../snippets/section.astro'
-import type { NewsletterSection } from '../../lib/sections'
+import { Button, Input } from 'webcoreui/astro'
+import type { NewsletterSection } from '@lib/sections'
+import Section from '@snippets/section.astro'
 
 interface Props {
     section: NewsletterSection
@@ -22,7 +22,7 @@ const s = section.settings
         {s.text && <p class="text-lg opacity-80 m-0">{s.text}</p>}
 
         <form data-newsletter class="w-full flex flex-col sm:flex-row gap-2 mt-2">
-            <div class="flex-1">
+            <div class="flex-1 input-on-dark">
                 <Input
                     type="email"
                     name="email"

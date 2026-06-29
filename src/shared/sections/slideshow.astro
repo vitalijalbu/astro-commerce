@@ -2,8 +2,9 @@
 /**
  * Full-bleed hero slideshow built on WebCoreUI <Carousel> (autoplay + dots).
  */
-import { Carousel, CarouselItem, Button } from 'webcoreui/astro'
-import type { SlideshowSection } from '../../lib/sections'
+import { Image } from 'astro:assets'
+import { Button, Carousel, CarouselItem } from 'webcoreui/astro'
+import type { SlideshowSection } from '@lib/sections'
 
 interface Props {
     section: SlideshowSection
@@ -26,27 +27,31 @@ const contentAlignMap = {
 ---
 
 <section class="bg-paper">
-    <div class="page pt-4 md:pt-6">
         <Carousel
             items={slides.length}
             itemsPerSlide={1}
             autoplay={autoplay}
-            pagination={{ type: 'dots' }}
+            pagination={{ previousPageLabel: 'Prev', nextPageLabel: 'Next', showChevrons: true }}
             className="w-full"
+            paginationClassName="page -mt-18 relative z-20 pb-6"
         >
             {slides.map((slide, i) => (
                 <CarouselItem>
-                    <article class="relative isolate min-h-130 overflow-hidden rounded-3xl border border-line bg-paper-dark md:min-h-170">
-                        <img
+                    <article class="relative isolate aspect-4/5 overflow-hidden bg-paper-dark md:aspect-video xl:aspect-2/1">
+                        <Image
                             src={slide.image}
                             alt={slide.heading}
+                            width={2000}
+                            height={1100}
                             loading={i === 0 ? 'eager' : 'lazy'}
+                            fetchpriority={i === 0 ? 'high' : 'auto'}
+                            sizes="100vw"
                             class="absolute inset-0 h-full w-full object-cover"
                         />
                         <div class="absolute inset-0 bg-linear-to-r from-black/60 via-black/25 to-black/10"></div>
                         <div class="absolute inset-0 bg-linear-to-t from-black/35 via-transparent to-transparent"></div>
 
-                        <div class:list={['relative z-10 flex h-full p-5 md:p-10 lg:p-14', panelAlignMap[slide.align ?? 'left']]}> 
+                        <div class:list={['page relative z-10 flex h-full p-6 md:p-10 lg:p-14', panelAlignMap[slide.align ?? 'left']]}> 
                             <div class:list={[
                                 'flex w-full max-w-136 flex-col gap-4 rounded-2xl border border-white/15 bg-white/92 p-6 text-ink shadow-[0_24px_80px_rgba(0,0,0,0.22)] backdrop-blur-sm md:p-8 lg:p-10',
                                 contentAlignMap[slide.align ?? 'left']
@@ -75,5 +80,4 @@ const contentAlignMap = {
                 </CarouselItem>
             ))}
         </Carousel>
-    </div>
 </section>

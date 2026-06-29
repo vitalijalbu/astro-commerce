@@ -1,13 +1,13 @@
 ---
+import AccountNav from '@components/account-nav.astro'
 /**
  * Order history (protected). Orders would come from PrestaShop's `orders`
  * resource filtered by the signed-in customer id; a demo list is shown here.
  */
 import Layout from '@components/layout.astro'
-import AccountNav from '@components/account-nav.astro'
-import { Badge, Button } from 'webcoreui/astro'
-import { requireAuth } from '../../lib/auth'
 import { formatMoney } from '@utils/format'
+import { Badge, Button } from 'webcoreui/astro'
+import { requireAuth } from '@lib/auth'
 
 const guard = requireAuth(Astro)
 if (guard) return guard

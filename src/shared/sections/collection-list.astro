@@ -1,11 +1,11 @@
 ---
+import { getCollections } from '@lib/catalog'
+import type { CollectionListSection } from '@lib/sections'
 /**
  * Collection list — image cards linking to category pages.
  */
-import Section from '../snippets/section.astro'
-import SectionHeading from '../snippets/section-heading.astro'
-import { getCollections } from '../../lib/catalog'
-import type { CollectionListSection } from '../../lib/sections'
+import Section from '@snippets/section.astro'
+import SectionHeading from '@snippets/section-heading.astro'
 
 interface Props {
     section: CollectionListSection

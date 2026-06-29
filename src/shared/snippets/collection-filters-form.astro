@@ -108,3 +108,15 @@ const formatTag = (tag: string): string => tag
 
     <Button type="submit" className="w-full">Apply filters</Button>
 </form>
+
+<script>
+    // WebCoreUI's RangeSlider renders two unlabelled <input type="range">.
+    // Give them accessible names (axe: "Form elements must have labels").
+    const label = (selector: string, name: string) => {
+        document.querySelectorAll<HTMLInputElement>(selector).forEach(el => {
+            if (!el.getAttribute('aria-label')) el.setAttribute('aria-label', name)
+        })
+    }
+    label('input[type="range"][data-min]', 'Minimum price')
+    label('input[type="range"][data-max]', 'Maximum price')
+</script>

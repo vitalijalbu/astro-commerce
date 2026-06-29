@@ -1,15 +1,16 @@
 {
-    "extends": "astro/tsconfigs/base",
-    "compilerOptions": {
-        "baseUrl": ".",
-        "strictNullChecks": true,
-        "types": ["node"],
-        "paths": {
-            "@components/*": ["src/shared/components/*"],
-            "@sections/*": ["src/shared/sections/*"],
-            "@snippets/*": ["src/shared/snippets/*"],
-            "@utils/*": ["src/shared/utils/*"],
-            "@hooks/*": ["src/shared/hooks/*"],
-        }
-    }
+	"extends": "astro/tsconfigs/base",
+	"compilerOptions": {
+		"baseUrl": ".",
+		"strictNullChecks": true,
+		"types": ["node"],
+		"paths": {
+			"@components/*": ["src/shared/components/*"],
+			"@sections/*": ["src/shared/sections/*"],
+			"@snippets/*": ["src/shared/snippets/*"],
+			"@utils/*": ["src/shared/utils/*"],
+			"@lib/*": ["src/lib/*"],
+			"@styles/*": ["src/styles/*"]
+		}
+	}
 }

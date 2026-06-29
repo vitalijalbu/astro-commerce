@@ -1,12 +1,12 @@
 ---
+import AccountNav from '@components/account-nav.astro'
 /**
  * Profile settings (protected). SSR POST updates the auth_user cookie; a real
  * integration would PATCH the PrestaShop customer resource.
  */
 import Layout from '@components/layout.astro'
-import AccountNav from '@components/account-nav.astro'
-import { Input, Button, Alert } from 'webcoreui/astro'
-import { getCurrentUser, requireAuth } from '../../lib/auth'
+import { Alert, Button, Input } from 'webcoreui/astro'
+import { getCurrentUser, requireAuth } from '@lib/auth'
 
 const guard = requireAuth(Astro)
 if (guard) return guard

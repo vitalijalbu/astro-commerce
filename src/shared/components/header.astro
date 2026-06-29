@@ -1,14 +1,14 @@
 ---
+import type { AuthUser } from '@lib/auth'
 /**
  * Sticky storefront header (Dawn layout):
  *   - left: mobile menu button + inline nav with mega-menu panels
  *   - center: wordmark logo
  *   - right: search / wishlist / account (login or UserDropdown) / cart with live badge
  */
-import { mainMenu, shop } from '../../lib/navigation'
-import Icon from '../snippets/icon.astro'
+import { mainMenu, shop } from '@lib/navigation'
+import Icon from '@snippets/icon.astro'
 import UserDropdown from './user-dropdown.astro'
-import type { AuthUser } from '../../lib/auth'
 
 interface Props {
     user: AuthUser | null
@@ -112,8 +112,7 @@ const { user } = Astro.props
                 <span
                     data-wishlist-count
                     hidden
-                    aria-live="polite"
-                    aria-atomic="true"
+                    aria-hidden="true"
                     class="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 grid place-items-center text-[10px] font-semibold rounded-full bg-accent text-white"
                 >0</span>
             </a>
@@ -140,8 +139,7 @@ const { user } = Astro.props
                 <span
                     data-cart-count
                     hidden
-                    aria-live="polite"
-                    aria-atomic="true"
+                    aria-hidden="true"
                     class="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 grid place-items-center text-[10px] font-semibold rounded-full bg-accent text-white"
                 >0</span>
             </button>

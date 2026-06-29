@@ -11,17 +11,16 @@ import FiltersSheet from '@snippets/filters-sheet.astro'
 import ProductGrid from '@snippets/product-grid.astro'
 import {
     Breadcrumb,
-    Button,
     Select
 } from 'webcoreui/astro'
-import { paginateItems, parsePageParam } from '../../lib/paginate'
 import {
     getCollectionByHandle,
     getCollectionProducts,
     getCollections,
     getProducts
-} from '../../lib/catalog'
-import type { Collection } from '../../lib/types'
+} from '@lib/catalog'
+import { paginateItems, parsePageParam } from '@lib/paginate'
+import type { Collection } from '@lib/types'
 
 const humanize = (value: string): string => value
     .split('-')

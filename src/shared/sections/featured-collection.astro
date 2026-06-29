@@ -3,12 +3,12 @@
  * Featured product collection — grid or WebCoreUI <Carousel>. Products are
  * fetched server-side from the catalog (PrestaShop, with mock fallback).
  */
-import { Carousel, CarouselItem } from 'webcoreui/astro'
-import Section from '../snippets/section.astro'
-import SectionHeading from '../snippets/section-heading.astro'
-import ProductCard from '../snippets/product-card.astro'
-import { getCollectionProducts } from '../../lib/catalog'
-import type { FeaturedCollectionSection } from '../../lib/sections'
+import { getCollectionProducts } from '@lib/catalog'
+import type { FeaturedCollectionSection } from '@lib/sections'
+import ProductCard from '@snippets/product-card.astro'
+import ProductCarousel from '@snippets/product-carousel.astro'
+import Section from '@snippets/section.astro'
+import SectionHeading from '@snippets/section-heading.astro'
 
 interface Props {
     section: FeaturedCollectionSection
@@ -24,17 +24,7 @@ const isCarousel = s.layout === 'carousel'
     <SectionHeading heading={s.heading} subheading={s.subheading} align="left" cta={s.cta} />
 
     {isCarousel ? (
-        <Carousel
-            items={products.length}
-            itemsPerSlide={{ default: 1, sm: 2, lg: 4 }}
-            pagination={{ type: 'arrows' }}
-        >
-            {products.map(product => (
-                <CarouselItem>
-                    <ProductCard product={product} />
-                </CarouselItem>
-            ))}
-        </Carousel>
+        <ProductCarousel products={products} ariaLabel={s.heading} />
     ) : (
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
             {products.map((product, i) => (

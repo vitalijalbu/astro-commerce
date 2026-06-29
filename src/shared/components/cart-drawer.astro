@@ -4,7 +4,7 @@
  * Line items, quantities and totals are rendered client-side by
  * `utils/cart.ts` into [data-cart-lines] / [data-cart-subtotal].
  */
-import { Sheet, Button } from 'webcoreui/astro'
+import { Button, Sheet } from 'webcoreui/astro'
 ---
 
 <Sheet id="cart-drawer" title="Your cart">
@@ -21,11 +21,27 @@ import { Sheet, Button } from 'webcoreui/astro'
 
     <!-- Footer / totals -->
     <div data-cart-footer hidden class="mt-4 pt-4 border-t border-line">
+        <div class="mb-4 rounded-[--radius-card] bg-paper-soft p-4">
+            <div class="mb-2 flex items-center justify-between gap-3 text-sm">
+                <span class="font-medium">Free shipping progress</span>
+                <span data-cart-free-shipping-amount class="text-ink-soft">Add €100</span>
+            </div>
+            <div class="h-2 overflow-hidden rounded-full bg-line/60">
+                <div data-cart-free-shipping-progress class="h-full w-0 rounded-full bg-ink transition-[width] duration-300"></div>
+            </div>
+            <p data-cart-free-shipping-message class="mt-2 mb-0 text-xs text-muted">Add more to unlock free shipping.</p>
+        </div>
+
         <div class="flex items-center justify-between mb-1">
             <span class="font-medium">Subtotal</span>
             <span data-cart-subtotal class="font-semibold">€0</span>
         </div>
         <p class="text-xs text-muted mb-4">Shipping &amp; taxes calculated at checkout.</p>
+        <ul class="mb-4 flex flex-col gap-1 text-xs text-ink-soft">
+            <li>Fast dispatch from our EU warehouse</li>
+            <li>30-day returns on unworn items</li>
+            <li>Secure checkout with encrypted payments</li>
+        </ul>
         <div class="flex flex-col gap-2">
             <Button data-cart-checkout>Checkout</Button>
             <Button href="/cart" theme="secondary">View cart</Button>

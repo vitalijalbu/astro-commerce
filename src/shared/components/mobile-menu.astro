@@ -1,72 +1,165 @@
 ---
+import type { AuthUser } from '@lib/auth'
+import { mainMenu, shop } from '@lib/navigation'
+import Icon from '@snippets/icon.astro'
 /**
  * Mobile navigation drawer (WebCoreUI <Sheet>, slides from the left).
- * Opened by the header's [data-menu-toggle] button via the modal() helper.
- * Shows nav + account links (login/register or account/sign-out).
+ *
+ * Dawn-style multi-level navigation: top-level items with sub-links push a
+ * child panel that slides in over the root; a "Back" control returns. All
+ * panels are server-rendered; a tiny click handler toggles `is-active`.
  */
 import { Sheet } from 'webcoreui/astro'
-import { mainMenu, shop } from '../../lib/navigation'
-import type { AuthUser } from '../../lib/auth'
 
 interface Props {
     user: AuthUser | null
 }
 
 const { user } = Astro.props
+
+// Only items with columns get a child panel. Pre-flatten their sub-links.
+const panels = mainMenu
+    .map((item, index) => ({ item, index }))
+    .filter(({ item }) => item.columns?.length)
+    .map(({ item, index }) => ({
+        index,
+        label: item.label,
+        href: item.href,
+        links: item.columns!.flatMap(c => c.items)
+    }))
 ---
 
 <Sheet id="mobile-menu" position="left" title={shop.name} className="lg:hidden">
-    <nav class="flex flex-col gap-1 mt-4" aria-label="Mobile">
-        {mainMenu.map(item => (
-            <div>
-                <a href={item.href} class="block py-3 text-base font-medium border-b border-line">
-                    {item.label}
-                </a>
-                {item.columns && (
-                    <div class="flex flex-col pl-3 py-1">
-                        {item.columns.flatMap(c => c.items).map(child => (
-                            <a href={child.href} class="py-2 text-sm text-ink-soft">{child.label}</a>
-                        ))}
-                    </div>
-                )}
-            </div>
-        ))}
-    </nav>
+    <div data-mobile-nav class="relative min-h-[60vh] overflow-hidden">
+        <!-- Root panel -->
+        <nav data-panel="root" class="mobile-panel flex flex-col" aria-label="Mobile">
+            {mainMenu.map((item, index) => (
+                item.columns?.length ? (
+                    <button
+                        type="button"
+                        data-open-panel={index}
+                        aria-expanded="false"
+                        class="flex items-center justify-between gap-2 py-3 text-base font-medium border-b border-line text-left"
+                    >
+                        {item.label}
+                        <Icon type="chevron-right" size={18} />
+                    </button>
+                ) : (
+                    <a href={item.href} class="block py-3 text-base font-medium border-b border-line">
+                        {item.label}
+                    </a>
+                )
+            ))}
 
-    <div class="mt-6 pt-4 border-t border-line flex flex-col gap-1">
-        {user ? (
-            <>
-                <a href="/account" class="py-2 text-sm font-medium">My account</a>
-                <a href="/account/orders" class="py-2 text-sm text-ink-soft">Orders</a>
-                <a href="/logout" class="py-2 text-sm text-sale">Sign out</a>
-            </>
-        ) : (
-            <>
-                <a href="/login" class="py-2 text-sm font-medium">Sign in</a>
-                <a href="/register" class="py-2 text-sm text-ink-soft">Create account</a>
-            </>
-        )}
-        <a href={`mailto:${shop.email}`} class="py-2 text-sm text-muted">{shop.email}</a>
+            <div class="mt-6 pt-4 border-t border-line flex flex-col gap-1">
+                {user ? (
+                    <>
+                        <a href="/account" class="py-2 text-sm font-medium">My account</a>
+                        <a href="/account/orders" class="py-2 text-sm text-ink-soft">Orders</a>
+                        <a href="/wishlist" class="py-2 text-sm text-ink-soft">Wishlist</a>
+                        <a href="/logout" class="py-2 text-sm text-sale">Sign out</a>
+                    </>
+                ) : (
+                    <>
+                        <a href="/login" class="py-2 text-sm font-medium">Sign in</a>
+                        <a href="/register" class="py-2 text-sm text-ink-soft">Create account</a>
+                        <a href="/wishlist" class="py-2 text-sm text-ink-soft">Wishlist</a>
+                    </>
+                )}
+                <a href={`mailto:${shop.email}`} class="py-2 text-sm text-muted">{shop.email}</a>
+            </div>
+        </nav>
+
+        <!-- Child panels (one per top-level item with sub-links) -->
+        {panels.map(panel => (
+            <nav
+                data-panel={panel.index}
+                class="mobile-panel mobile-panel--child flex flex-col"
+                aria-label={panel.label}
+                aria-hidden="true"
+            >
+                <button
+                    type="button"
+                    data-close-panel
+                    class="flex items-center gap-1.5 py-3 text-sm font-medium text-muted border-b border-line text-left"
+                >
+                    <Icon type="chevron-left" size={18} />
+                    Back
+                </button>
+                <a href={panel.href} class="py-3 text-base font-semibold border-b border-line">
+                    All {panel.label}
+                </a>
+                {panel.links.map(link => (
+                    <a href={link.href} class="py-2.5 text-sm text-ink-soft border-b border-line/60">
+                        {link.label}
+                    </a>
+                ))}
+            </nav>
+        ))}
     </div>
 </Sheet>
 
+<style>
+    .mobile-panel {
+        transition: transform 0.28s ease;
+    }
+    .mobile-panel--child {
+        position: absolute;
+        inset: 0;
+        background: var(--color-paper);
+        transform: translateX(100%);
+        overflow-y: auto;
+        pointer-events: none;
+    }
+    .mobile-panel--child.is-active {
+        transform: translateX(0);
+        pointer-events: auto;
+    }
+</style>
+
 <script>
     import { modal } from 'webcoreui'
-    const trigger = document.querySelector<HTMLElement>('[data-menu-toggle]')
 
-    if (trigger && trigger.dataset.webcoreBound !== 'true') {
-        trigger.dataset.webcoreBound = 'true'
+    const initMobileNav = () => {
+        const nav = document.querySelector<HTMLElement>('[data-mobile-nav]')
+        if (!nav || nav.dataset.bound === 'true') return
+        nav.dataset.bound = 'true'
 
-        modal({
-            trigger: '[data-menu-toggle]',
-            modal: '#mobile-menu',
-            onOpen() {
-                trigger.setAttribute('aria-expanded', 'true')
-            },
-            onClose() {
-                trigger.setAttribute('aria-expanded', 'false')
-                trigger.focus()
+        const closeAll = () => {
+            nav.querySelectorAll('.mobile-panel--child.is-active').forEach(p => p.classList.remove('is-active'))
+            nav.querySelectorAll('[data-open-panel]').forEach(b => b.setAttribute('aria-expanded', 'false'))
+        }
+
+        nav.addEventListener('click', e => {
+            const opener = (e.target as HTMLElement).closest<HTMLElement>('[data-open-panel]')
+            if (opener) {
+                nav.querySelector(`[data-panel="${opener.dataset.openPanel}"]`)?.classList.add('is-active')
+                opener.setAttribute('aria-expanded', 'true')
+                return
             }
+            const closer = (e.target as HTMLElement).closest<HTMLElement>('[data-close-panel]')
+            if (closer) closer.closest('.mobile-panel--child')?.classList.remove('is-active')
         })
+
+        // Bind the drawer trigger and reset to root whenever it's dismissed.
+        const trigger = document.querySelector<HTMLElement>('[data-menu-toggle]')
+        if (trigger && trigger.dataset.webcoreBound !== 'true') {
+            trigger.dataset.webcoreBound = 'true'
+            modal({
+                trigger: '[data-menu-toggle]',
+                modal: '#mobile-menu',
+                onOpen() {
+                    trigger.setAttribute('aria-expanded', 'true')
+                },
+                onClose() {
+                    trigger.setAttribute('aria-expanded', 'false')
+                    trigger.focus()
+                    closeAll()
+                }
+            })
+        }
     }
+
+    initMobileNav()
+    document.addEventListener('astro:after-swap', initMobileNav)
 </script>

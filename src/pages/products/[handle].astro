@@ -1,4 +1,5 @@
 ---
+import { Image } from 'astro:assets'
 /**
  * Product detail page (PDP), rendered on demand (SSR).
  *
@@ -6,15 +7,15 @@
  * <Button>, <Accordion>. Quantity uses a native number input for accessibility.
  */
 import Layout from '@components/layout.astro'
+import { getProductByHandle, getProducts } from '@lib/catalog'
 import EmptyState from '@snippets/empty-state.astro'
-import ProductGrid from '@snippets/product-grid.astro'
-import Price from '@snippets/price.astro'
 import Icon from '@snippets/icon.astro'
 import JsonLd from '@snippets/json-ld.astro'
+import Price from '@snippets/price.astro'
+import ProductCarousel from '@snippets/product-carousel.astro'
 import QuantityPicker from '@snippets/quantity-picker.astro'
-import { Breadcrumb, Rating, Badge, Carousel, CarouselItem, Button, Accordion } from 'webcoreui/astro'
-import { getProductByHandle, getProducts } from '../../lib/catalog'
 import { discountPercent } from '@utils/format'
+import { Accordion, Badge, Breadcrumb, Button, Carousel, CarouselItem, Rating } from 'webcoreui/astro'
 
 const { handle } = Astro.params
 const product = await getProductByHandle(handle!)
@@ -91,12 +92,14 @@ const accordionItems = product ? [
                     >
                         {galleryImages.map((image, i) => (
                             <CarouselItem>
-                                <img
+                                <Image
                                     src={image.url}
                                     alt={image.alt || `${product.title} image ${i + 1}`}
-                                    width={image.width}
-                                    height={image.height}
+                                    width={image.width ?? 1000}
+                                    height={image.height ?? 1250}
                                     loading={i === 0 ? 'eager' : 'lazy'}
+                                    fetchpriority={i === 0 ? 'high' : 'auto'}
+                                    sizes="(min-width: 768px) 50vw, 100vw"
                                     class="w-full object-cover aspect-4/5"
                                 />
                             </CarouselItem>
@@ -107,10 +110,13 @@ const accordionItems = product ? [
                 <ul role="list" class="mt-3 grid grid-cols-5 gap-2">
                     {galleryImages.slice(0, 5).map((image, i) => (
                         <li class="overflow-hidden rounded-[--radius-card] border border-line bg-paper-soft">
-                            <img
+                            <Image
                                 src={image.url}
                                 alt={image.alt || `${product.title} thumbnail ${i + 1}`}
+                                width={image.width ?? 200}
+                                height={image.height ?? 250}
                                 loading="lazy"
+                                sizes="20vw"
                                 class="aspect-4/5 w-full object-cover"
                             />
                         </li>
@@ -137,11 +143,12 @@ const accordionItems = product ? [
                     class="fixed inset-x-0 top-0 z-60 border-b border-line bg-paper/95 shadow-sm backdrop-blur"
                 >
                     <div class="page flex items-center gap-3 py-3">
-                        <img
+                        <Image
                             src={product.featuredImage.url}
                             alt={product.title}
                             width={52}
                             height={52}
+                            sizes="52px"
                             class="h-13 w-13 rounded-[--radius-card] object-cover bg-paper-soft"
                         />
                         <div class="min-w-0 flex-1">
@@ -214,7 +221,7 @@ const accordionItems = product ? [
         {recommended.length > 0 && (
             <section class="mt-16 md:mt-24">
                 <h2 class="text-2xl font-semibold tracking-tight mb-8">You may also like</h2>
-                <ProductGrid products={recommended} />
+                <ProductCarousel products={recommended} ariaLabel="Recommended products" />
             </section>
         )}
 

@@ -5,7 +5,12 @@
  * with the drawer's selectors.
  */
 import Layout from '@components/layout.astro'
+import { getProducts } from '@lib/catalog'
+import ProductCarousel from '@snippets/product-carousel.astro'
 import { Button } from 'webcoreui/astro'
+
+const recommended = (await getProducts(12)).slice(0, 8)
+const payments = ['Visa', 'Mastercard', 'Amex', 'PayPal', 'Apple Pay']
 ---
 
 <Layout title="Your cart — ATELIER">
@@ -22,20 +27,50 @@ import { Button } from 'webcoreui/astro'
 
             <aside class="h-fit border border-line rounded-[--radius-card] p-6 bg-paper-soft">
                 <h2 class="text-lg font-semibold m-0 mb-4">Order summary</h2>
+                <div class="mb-5 rounded-[--radius-card] bg-paper px-4 py-4">
+                    <div class="mb-2 flex items-center justify-between gap-3 text-sm">
+                        <span class="font-medium">Free shipping progress</span>
+                        <span data-page-cart-free-shipping-amount class="text-ink-soft">Add €100</span>
+                    </div>
+                    <div class="h-2 overflow-hidden rounded-full bg-line/60">
+                        <div data-page-cart-free-shipping-progress class="h-full w-0 rounded-full bg-ink transition-[width] duration-300"></div>
+                    </div>
+                    <p data-page-cart-free-shipping-message class="mt-2 mb-0 text-xs text-muted">Add more to unlock free shipping.</p>
+                </div>
                 <div class="flex items-center justify-between mb-2">
                     <span class="text-ink-soft">Subtotal</span>
                     <span data-page-cart-subtotal class="font-semibold">€0</span>
                 </div>
                 <p class="text-xs text-muted mb-5">Shipping &amp; taxes calculated at checkout.</p>
+                <ul class="mb-5 flex flex-col gap-1 text-xs text-ink-soft">
+                    <li>Fast dispatch from our EU warehouse</li>
+                    <li>30-day returns on unworn items</li>
+                    <li>Secure checkout with encrypted payments</li>
+                </ul>
                 <Button data-cart-checkout className="w-full">Checkout</Button>
                 <Button href="/collections/all" theme="secondary" className="w-full mt-2">Continue shopping</Button>
+
+                <div class="mt-4 flex flex-wrap items-center justify-center gap-2 text-[11px] text-muted" aria-label="Accepted payment methods">
+                    {payments.map(method => (
+                        <span class="rounded-full border border-line px-2 py-1">{method}</span>
+                    ))}
+                </div>
             </aside>
         </div>
+
+        <!-- Recommendations: keep shoppers in the funnel -->
+        {recommended.length > 0 && (
+            <section class="mt-16 md:mt-24">
+                <h2 class="text-2xl font-semibold tracking-tight mb-8">You may also like</h2>
+                <ProductCarousel products={recommended} ariaLabel="Recommended products" />
+            </section>
+        )}
     </div>
 </Layout>
 
 <script>
     const KEY = 'storefront-cart'
+    const FREE_SHIPPING_THRESHOLD = 100
     const read = () => { try { return JSON.parse(localStorage.getItem(KEY) || '[]') } catch { return [] } }
     const write = (l: any[]) => { localStorage.setItem(KEY, JSON.stringify(l)); render() }
     const fmt = (a: number, c: string) =>
@@ -54,6 +89,8 @@ import { Button } from 'webcoreui/astro'
 
         const currency = lines[0]?.currency || 'EUR'
         const subtotal = lines.reduce((s: number, l: any) => s + l.price * l.quantity, 0)
+        const remaining = Math.max(0, FREE_SHIPPING_THRESHOLD - subtotal)
+        const progress = Math.min(100, subtotal / FREE_SHIPPING_THRESHOLD * 100)
 
         list.innerHTML = lines.map((l: any) => `
             <li class="flex gap-4 py-5 border-b border-line">
@@ -75,6 +112,18 @@ import { Button } from 'webcoreui/astro'
         `).join('')
 
         subtotalEl.textContent = fmt(subtotal, currency)
+
+        const amount = document.querySelector<HTMLElement>('[data-page-cart-free-shipping-amount]')
+        const message = document.querySelector<HTMLElement>('[data-page-cart-free-shipping-message]')
+        const progressEl = document.querySelector<HTMLElement>('[data-page-cart-free-shipping-progress]')
+
+        if (amount && message && progressEl) {
+            progressEl.style.width = `${progress}%`
+            amount.textContent = remaining > 0 ? `Add ${fmt(remaining, currency)}` : 'Unlocked'
+            message.textContent = remaining > 0
+                ? `${fmt(remaining, currency)} away from free shipping.`
+                : 'Free shipping unlocked for this order.'
+        }
     }
 
     document.addEventListener('click', e => {

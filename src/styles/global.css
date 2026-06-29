@@ -1,8 +1,8 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 /* Explicit content sources: our components live under src/shared (non-default
    layout), so make sure Tailwind scans the whole src tree for class names. */
-@source "../**/*.{astro,html,js,ts,jsx,tsx}";
+@source '../**/*.{astro,html,js,ts,jsx,tsx}';
 
 /**
  * Design tokens — light-only monochrome palette inspired by luxury ecommerce.
@@ -10,28 +10,29 @@
  * utilities like `bg-paper-soft`, `text-ink`, `border-line`, `text-accent`.
  */
 @theme {
-    /* Monochrome scale */
-    --color-ink: #111111;
-    --color-ink-soft: #3a3a3a;
-    --color-muted: #6e6e6e;
-    --color-line: #dfdfdf;
-    --color-line-strong: #c9c9c9;
-    --color-paper: #ffffff;
-    --color-paper-soft: #f4f4f4;
-    --color-paper-dark: #181516;
+	/* Monochrome scale */
+	--color-ink: #111111;
+	--color-ink-soft: #3a3a3a;
+	--color-muted: #6e6e6e;
+	--color-line: #dfdfdf;
+	--color-line-strong: #c9c9c9;
+	--color-paper: #ffffff;
+	--color-paper-soft: #f4f4f4;
+	--color-paper-dark: #181516;
 
-    /* Brand + accent */
-    --color-brand: #111111;
-    --color-brand-contrast: #ffffff;
-    --color-accent: #111111;
-    --color-accent-soft: #ededed;
-    --color-sale: #9c2f2f;
+	/* Brand + accent */
+	--color-brand: #111111;
+	--color-brand-contrast: #ffffff;
+	--color-accent: #111111;
+	--color-accent-soft: #ededed;
+	--color-sale: #9c2f2f;
 
-    /* Layout + type */
-    --spacing-section: 5.5rem;
-    --container-page: 82rem;
-    --font-sans: var(--font-inter), "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
-    --radius-card: 8px;
+	/* Layout + type */
+	--spacing-section: 5.5rem;
+	--container-page: 82rem;
+	--font-sans:
+		var(--font-inter), 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+	--radius-card: 8px;
 }
 
 /* WebCoreUI's built-in `light` theme (configured in Layout's setup()) already
@@ -39,101 +40,150 @@
    buttons with white text, which matches our editorial look. We only align
    the font family and lock the color scheme to light. */
 :root {
-    --w-font-family: var(--font-sans);
-    color-scheme: light;
+	--w-font-family: var(--font-sans);
+	color-scheme: light;
 }
 
 @layer base {
-    html {
-        scroll-behavior: smooth;
-        background: var(--color-paper);
-    }
+	html {
+		scroll-behavior: smooth;
+		background: var(--color-paper);
+	}
 
-    body {
-        font-family: var(--font-sans);
-        color: var(--color-ink);
-        background: linear-gradient(180deg, #ffffff 0%, #fbfbfb 100%);
-        -webkit-font-smoothing: antialiased;
-        text-rendering: optimizeLegibility;
-    }
+	body {
+		font-family: var(--font-sans);
+		color: var(--color-ink);
+		background: linear-gradient(180deg, #ffffff 0%, #fbfbfb 100%);
+		-webkit-font-smoothing: antialiased;
+		text-rendering: optimizeLegibility;
+	}
 
-    a { color: inherit; text-decoration: none; }
-    img { display: block; max-width: 100%; }
+	a {
+		color: inherit;
+		text-decoration: none;
+	}
+	img {
+		display: block;
+		max-width: 100%;
+	}
 
-    h1, h2, h3, h4 { letter-spacing: -0.01em; }
+	h1,
+	h2,
+	h3,
+	h4 {
+		letter-spacing: -0.01em;
+	}
 
-    :focus-visible {
-        outline: 2px solid var(--color-accent);
-        outline-offset: 2px;
-    }
+	:focus-visible {
+		outline: 2px solid var(--color-accent);
+		outline-offset: 2px;
+	}
 }
 
 @layer components {
-    .page {
-        width: 100%;
-        max-width: var(--container-page);
-        margin-inline: auto;
-        padding-inline: 1rem;
-    }
-    @media (min-width: 768px) {
-        .page { padding-inline: 3rem; }
-    }
+	.page {
+		width: 100%;
+		max-width: var(--container-page);
+		margin-inline: auto;
+		padding-inline: 1rem;
+	}
+	@media (min-width: 768px) {
+		.page {
+			padding-inline: 3rem;
+		}
+	}
 
-    .skip-link {
-        position: fixed;
-        top: 0.75rem;
-        left: 0.75rem;
-        z-index: 100;
-        background: var(--color-ink);
-        color: #fff;
-        padding: 0.5rem 0.75rem;
-        border-radius: var(--radius-card);
-        transform: translateY(-150%);
-        transition: transform 0.2s ease;
-    }
+	.skip-link {
+		position: fixed;
+		top: 0.75rem;
+		left: 0.75rem;
+		z-index: 100;
+		background: var(--color-ink);
+		color: #fff;
+		padding: 0.5rem 0.75rem;
+		border-radius: var(--radius-card);
+		transform: translateY(-150%);
+		transition: transform 0.2s ease;
+	}
 
-    .skip-link:focus {
-        transform: translateY(0);
-    }
+	.skip-link:focus {
+		transform: translateY(0);
+	}
 
-    .eyebrow {
-        font-size: 0.72rem;
-        letter-spacing: 0.16em;
-        text-transform: uppercase;
-        color: var(--color-muted);
-        font-weight: 600;
-    }
+	.eyebrow {
+		font-size: 0.72rem;
+		letter-spacing: 0.16em;
+		text-transform: uppercase;
+		color: var(--color-muted);
+		font-weight: 600;
+	}
 
-    .link-underline { position: relative; }
-    .link-underline::after {
-        content: "";
-        position: absolute;
-        left: 0; bottom: -2px;
-        width: 100%; height: 1px;
-        background: currentColor;
-        transform: scaleX(0);
-        transform-origin: right;
-        transition: transform 0.25s ease;
-    }
-    .link-underline:hover::after {
-        transform: scaleX(1);
-        transform-origin: left;
-    }
+	.link-underline {
+		position: relative;
+	}
+	.link-underline::after {
+		content: '';
+		position: absolute;
+		left: 0;
+		bottom: -2px;
+		width: 100%;
+		height: 1px;
+		background: currentColor;
+		transform: scaleX(0);
+		transform-origin: right;
+		transition: transform 0.25s ease;
+	}
+	.link-underline:hover::after {
+		transform: scaleX(1);
+		transform-origin: left;
+	}
 
-    /* Simple dropdown shown on hover/focus-within (header mega-menu). */
-    .has-menu > .menu-panel {
-        opacity: 0;
-        visibility: hidden;
-        transform: translateY(6px);
-        transition: opacity .18s ease, transform .18s ease, visibility .18s;
-    }
-    .has-menu:hover > .menu-panel,
-    .has-menu:focus-within > .menu-panel {
-        opacity: 1;
-        visibility: visible;
-        transform: translateY(0);
-    }
+	/* Simple dropdown shown on hover/focus-within (header mega-menu). */
+	.has-menu > .menu-panel {
+		opacity: 0;
+		visibility: hidden;
+		transform: translateY(6px);
+		transition:
+			opacity 0.18s ease,
+			transform 0.18s ease,
+			visibility 0.18s;
+	}
+	.has-menu:hover > .menu-panel,
+	.has-menu:focus-within > .menu-panel {
+		opacity: 1;
+		visibility: visible;
+		transform: translateY(0);
+	}
 }
 
-.no-scrollbar { scrollbar-width: none; }
-.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar {
+	scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+	display: none;
+}
+
+/* Inputs placed on dark surfaces (footer / dark newsletter) need an explicit
+   light fill so the text keeps a readable contrast ratio (WCAG AA) instead of
+   inheriting the dark background. */
+.input-on-dark input,
+.input-on-dark textarea {
+	background: var(--color-paper);
+	color: var(--color-ink);
+	border-color: transparent;
+}
+.input-on-dark input::placeholder,
+.input-on-dark textarea::placeholder {
+	color: var(--color-muted);
+}
+
+/* Enlarge the WebCoreUI RangeSlider thumbs to meet the 24px touch-target
+   minimum (axe: "Touch targets must have sufficient size"). */
+input[type='range']::-webkit-slider-thumb {
+	width: 24px;
+	height: 24px;
+}
+input[type='range']::-moz-range-thumb {
+	width: 24px;
+	height: 24px;
+}

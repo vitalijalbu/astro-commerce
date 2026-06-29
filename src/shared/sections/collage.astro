@@ -1,10 +1,10 @@
 ---
+import type { CollageSection } from '@lib/sections'
 /**
  * Editorial collage — one large tile + stacked small tiles (Dawn "collage").
  */
-import Section from '../snippets/section.astro'
-import SectionHeading from '../snippets/section-heading.astro'
-import type { CollageSection } from '../../lib/sections'
+import Section from '@snippets/section.astro'
+import SectionHeading from '@snippets/section-heading.astro'
 
 interface Props {
     section: CollageSection

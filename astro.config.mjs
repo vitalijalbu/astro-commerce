@@ -1,9 +1,9 @@
 // @ts-check
+
+import node from '@astrojs/node';
+import tailwindcss from '@tailwindcss/vite';
 import { defineConfig, fontProviders, memoryCache } from 'astro/config';
 import { webcore } from 'webcoreui/integration';
-import tailwindcss from '@tailwindcss/vite';
-import node from '@astrojs/node';
-import react from '@astrojs/react';
 
 // https://astro.build/config
 export default defineConfig({
@@ -17,6 +17,15 @@ export default defineConfig({
 	cache: {
 		provider: memoryCache(),
 	},
+
+	// Prefetch dei link in viewport: navigazioni interne quasi istantanee.
+	prefetch: {
+		prefetchAll: true,
+		defaultStrategy: 'viewport',
+	},
+
+	// Comprimi l'HTML emesso (rimuove whitespace inutile dalle pagine SSR).
+	compressHTML: true,
 
 	// Astro v6+: gestione font nativa (self-hosted + preload automatico).
 	fonts: [
@@ -53,6 +62,11 @@ export default defineConfig({
 			// SVG/asset piccoli (<4KB) inlined come data-URI: meno richieste HTTP.
 			assetsInlineLimit: 4096,
 		},
+		// Pre-bundla il runtime client di WebCoreUI (modal helper) una sola volta,
+		// così il dev server non lo ri-ottimizza ad ogni pagina.
+		optimizeDeps: {
+			include: ['webcoreui'],
+		},
 	},
-	integrations: [react(), webcore()],
+	integrations: [webcore()],
 });

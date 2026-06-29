@@ -1,0 +1,24 @@
+---
+import Layout from '@components/layout.astro'
+import BrandLogos from '@sections/brand-logos.astro'
+import { Breadcrumb } from 'webcoreui/astro'
+import { homepageBrands } from '@lib/sections'
+---
+
+<Layout title="Brands — ATELIER" description="All partner brands and labels available across the ATELIER catalog.">
+    <div class="page py-8 md:py-12">
+        <Breadcrumb items={[{ href: '/', label: 'Home' }, { label: 'Brands' }]} />
+    </div>
+
+    <BrandLogos section={{
+        id: 'brands-index',
+        type: 'brand-logos',
+        spacing: 'md',
+        background: 'default',
+        settings: {
+            heading: 'All brands',
+            subheading: 'Browse every label currently represented in the catalog.',
+            brands: homepageBrands.map(brand => ({ ...brand, href: '/collections/all' }))
+        }
+    }} />
+</Layout>

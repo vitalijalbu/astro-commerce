@@ -4,8 +4,8 @@
  * demo) and signs them in. Form uses WebCoreUI components.
  */
 import Layout from '@components/layout.astro'
-import { Input, Button, Checkbox, Alert } from 'webcoreui/astro'
-import { register, requireGuest } from '../lib/auth'
+import { Alert, Button, Checkbox, Input } from 'webcoreui/astro'
+import { register, requireGuest } from '@lib/auth'
 
 const guard = requireGuest(Astro)
 if (guard) return guard

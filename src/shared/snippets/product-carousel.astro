@@ -1,0 +1,39 @@
+---
+import type { Product } from '@lib/types'
+/**
+ * Reusable product carousel (WebCoreUI <Carousel> of <ProductCard>s).
+ * Used for PDP "You may also like", homepage rails, and any related-products
+ * rail — keeps the carousel wiring in one place (DRY).
+ */
+import { Carousel, CarouselItem } from 'webcoreui/astro'
+import ProductCard from './product-card.astro'
+
+interface Props {
+    products: Product[]
+    /** Visible cards per breakpoint. Defaults to a 1 / 2 / 4 responsive ramp. */
+    itemsPerSlide?: number | Record<string, number>
+    ariaLabel?: string
+}
+
+const {
+    products,
+    itemsPerSlide = { default: 1, sm: 2, lg: 4 },
+    ariaLabel = 'Products'
+} = Astro.props
+---
+
+{products.length > 0 && (
+    <div aria-label={ariaLabel}>
+        <Carousel
+            items={products.length}
+            itemsPerSlide={itemsPerSlide}
+            pagination={{ type: 'arrows' }}
+        >
+            {products.map(product => (
+                <CarouselItem>
+                    <ProductCard product={product} />
+                </CarouselItem>
+            ))}
+        </Carousel>
+    </div>
+)}

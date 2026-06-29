@@ -1,11 +1,11 @@
 ---
+import type { BlogPostsSection } from '@lib/sections'
+import BlogCard from '@snippets/blog-card.astro'
 /**
  * Latest journal/blog posts as image cards.
  */
-import Section from '../snippets/section.astro'
-import SectionHeading from '../snippets/section-heading.astro'
-import BlogCard from '../snippets/blog-card.astro'
-import type { BlogPostsSection } from '../../lib/sections'
+import Section from '@snippets/section.astro'
+import SectionHeading from '@snippets/section-heading.astro'
 
 interface Props {
     section: BlogPostsSection

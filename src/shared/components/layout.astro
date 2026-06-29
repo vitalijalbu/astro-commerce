@@ -4,18 +4,17 @@
  * header (auth-aware), the three Sheets (mobile menu, search, cart) and
  * footer. Page content goes in the slot. Light theme only.
  */
-import '../../styles/global.css'
+import '@styles/global.css'
 import { Font } from 'astro:assets'
-
+import { getCurrentUser, isAuthenticated } from '@lib/auth'
+import { shop } from '@lib/navigation'
+import JsonLd from '@snippets/json-ld.astro'
 import AnnouncementBar from './announcement-bar.astro'
+import CartDrawer from './cart-drawer.astro'
+import Footer from './footer.astro'
 import Header from './header.astro'
 import MobileMenu from './mobile-menu.astro'
 import SearchSheet from './search-sheet.astro'
-import CartDrawer from './cart-drawer.astro'
-import Footer from './footer.astro'
-import JsonLd from '../snippets/json-ld.astro'
-import { shop } from '../../lib/navigation'
-import { getCurrentUser, isAuthenticated } from '../../lib/auth'
 
 interface Props {
     title?: string
@@ -112,8 +111,8 @@ const orgSchema = {
         <CartDrawer />
 
         <script>
-            import { initCart } from '../utils/cart'
-            import { initWishlist } from '../utils/wishlist'
+            import { initCart } from '@utils/cart'
+            import { initWishlist } from '@utils/wishlist'
             initCart()
             initWishlist()
             document.addEventListener('astro:after-swap', initCart)

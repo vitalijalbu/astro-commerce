@@ -1,4 +1,17 @@
 ---
+import type { Section } from '@lib/sections'
+import BlogPosts from '@sections/blog-posts.astro'
+import BrandLogos from '@sections/brand-logos.astro'
+import Collage from '@sections/collage.astro'
+import CollectionList from '@sections/collection-list.astro'
+import Contact from '@sections/contact.astro'
+import Faq from '@sections/faq.astro'
+import FeaturedCollection from '@sections/featured-collection.astro'
+import ImageBanner from '@sections/image-banner.astro'
+import ImageWithText from '@sections/image-with-text.astro'
+import Multicolumn from '@sections/multicolumn.astro'
+import Newsletter from '@sections/newsletter.astro'
+import RichText from '@sections/rich-text.astro'
 /**
  * Page-builder renderer: maps each section's `type` to its component.
  *
@@ -6,21 +19,8 @@
  * To drive the page from Statamic, fetch sections and pass them in — no
  * component changes required.
  */
-import Slideshow from '../sections/slideshow.astro'
-import ImageBanner from '../sections/image-banner.astro'
-import FeaturedCollection from '../sections/featured-collection.astro'
-import CollectionList from '../sections/collection-list.astro'
-import Collage from '../sections/collage.astro'
-import RichText from '../sections/rich-text.astro'
-import ImageWithText from '../sections/image-with-text.astro'
-import Multicolumn from '../sections/multicolumn.astro'
-import Newsletter from '../sections/newsletter.astro'
-import Testimonials from '../sections/testimonials.astro'
-import BlogPosts from '../sections/blog-posts.astro'
-import BrandLogos from '../sections/brand-logos.astro'
-import Faq from '../sections/faq.astro'
-import Contact from '../sections/contact.astro'
-import type { Section } from '../../lib/sections'
+import Slideshow from '@sections/slideshow.astro'
+import Testimonials from '@sections/testimonials.astro'
 
 interface Props {
     sections: Section[]

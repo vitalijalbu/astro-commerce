@@ -5,8 +5,8 @@
 import Layout from '@components/layout.astro'
 import CatalogPagination from '@snippets/catalog-pagination.astro'
 import { Breadcrumb } from 'webcoreui/astro'
-import { getCollections } from '../../lib/catalog'
-import { paginateItems, parsePageParam } from '../../lib/paginate'
+import { getCollections } from '@lib/catalog'
+import { paginateItems, parsePageParam } from '@lib/paginate'
 
 const page = parsePageParam(Astro.url.searchParams.get('page'))
 const collections = await getCollections(120)

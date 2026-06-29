@@ -16,96 +16,101 @@
  * Real checkout should POST this cart to PrestaShop (cart + cart rules API);
  * `checkout()` is the single integration point for that.
  */
-import { modal } from 'webcoreui'
+import { modal } from 'webcoreui';
 
 export interface ClientCartLine {
-    id: string
-    handle: string
-    title: string
-    variantTitle?: string
-    image: string
-    price: number
-    currency: string
-    quantity: number
+	id: string;
+	handle: string;
+	title: string;
+	variantTitle?: string;
+	image: string;
+	price: number;
+	currency: string;
+	quantity: number;
 }
 
-const KEY = 'storefront-cart'
-let listenersBound = false
-let openDrawer: (() => void) | undefined
+const KEY = 'storefront-cart';
+const FREE_SHIPPING_THRESHOLD = 100;
+let listenersBound = false;
+let openDrawer: (() => void) | undefined;
 
 const read = (): ClientCartLine[] => {
-    try {
-        return JSON.parse(localStorage.getItem(KEY) || '[]')
-    } catch {
-        return []
-    }
-}
+	try {
+		return JSON.parse(localStorage.getItem(KEY) || '[]');
+	} catch {
+		return [];
+	}
+};
 
 const write = (lines: ClientCartLine[]) => {
-    localStorage.setItem(KEY, JSON.stringify(lines))
-    render()
-}
+	localStorage.setItem(KEY, JSON.stringify(lines));
+	render();
+};
 
 const formatMoney = (amount: number, currency: string) =>
-    new Intl.NumberFormat(document.documentElement.lang || 'en', {
-        style: 'currency',
-        currency,
-        minimumFractionDigits: Number.isInteger(amount) ? 0 : 2
-    }).format(amount)
+	new Intl.NumberFormat(document.documentElement.lang || 'en', {
+		style: 'currency',
+		currency,
+		minimumFractionDigits: Number.isInteger(amount) ? 0 : 2,
+	}).format(amount);
 
-const count = (lines: ClientCartLine[]) =>
-    lines.reduce((sum, l) => sum + l.quantity, 0)
+const count = (lines: ClientCartLine[]) => lines.reduce((sum, l) => sum + l.quantity, 0);
 
 const subtotal = (lines: ClientCartLine[]) =>
-    lines.reduce((sum, l) => sum + l.quantity * l.price, 0)
+	lines.reduce((sum, l) => sum + l.quantity * l.price, 0);
 
 function addLine(line: ClientCartLine) {
-    const lines = read()
-    const existing = lines.find(l => l.id === line.id)
-    if (existing) {
-        existing.quantity += line.quantity
-    } else {
-        lines.push(line)
-    }
-    write(lines)
+	const lines = read();
+	const existing = lines.find((l) => l.id === line.id);
+	if (existing) {
+		existing.quantity += line.quantity;
+	} else {
+		lines.push(line);
+	}
+	write(lines);
 }
 
 function removeLine(id: string) {
-    write(read().filter(l => l.id !== id))
+	write(read().filter((l) => l.id !== id));
 }
 
 function setQuantity(id: string, quantity: number) {
-    const lines = read()
-    const line = lines.find(l => l.id === id)
-    if (!line) return
-    line.quantity = Math.max(1, quantity)
-    write(lines)
+	const lines = read();
+	const line = lines.find((l) => l.id === id);
+	if (!line) return;
+	line.quantity = Math.max(1, quantity);
+	write(lines);
 }
 
 /** Render the badge, the drawer lines and the subtotal. */
 function render() {
-    const lines = read()
-    const currency = lines[0]?.currency || 'EUR'
+	const lines = read();
+	const currency = lines[0]?.currency || 'EUR';
+	const currentSubtotal = subtotal(lines);
+	const remaining = Math.max(0, FREE_SHIPPING_THRESHOLD - currentSubtotal);
+	const progress = Math.min(100, (currentSubtotal / FREE_SHIPPING_THRESHOLD) * 100);
 
-    document.querySelectorAll<HTMLElement>('[data-cart-count]').forEach(el => {
-        const n = count(lines)
-        el.textContent = String(n)
-        el.toggleAttribute('hidden', n === 0)
-    })
+	document.querySelectorAll<HTMLElement>('[data-cart-count]').forEach((el) => {
+		const n = count(lines);
+		el.textContent = String(n);
+		el.toggleAttribute('hidden', n === 0);
+	});
 
-    const container = document.querySelector<HTMLElement>('[data-cart-lines]')
-    const empty = document.querySelector<HTMLElement>('[data-cart-empty]')
-    const footer = document.querySelector<HTMLElement>('[data-cart-footer]')
+	const container = document.querySelector<HTMLElement>('[data-cart-lines]');
+	const empty = document.querySelector<HTMLElement>('[data-cart-empty]');
+	const footer = document.querySelector<HTMLElement>('[data-cart-footer]');
 
-    if (container) {
-        if (!lines.length) {
-            container.innerHTML = ''
-            empty?.toggleAttribute('hidden', false)
-            footer?.toggleAttribute('hidden', true)
-        } else {
-            empty?.toggleAttribute('hidden', true)
-            footer?.toggleAttribute('hidden', false)
-            container.innerHTML = lines.map(l => `
+	if (container) {
+		if (!lines.length) {
+			container.innerHTML = '';
+			empty?.toggleAttribute('hidden', false);
+			footer?.toggleAttribute('hidden', true);
+		} else {
+			empty?.toggleAttribute('hidden', true);
+			footer?.toggleAttribute('hidden', false);
+			container.innerHTML = lines
+				.map(
+					(l) => `
                 <li class="flex gap-4 py-4 border-b border-line">
                     <a href="/products/${l.handle}" class="shrink-0">
                         <img src="${l.image}" alt="${l.title}" width="72" height="90"
@@ -113,8 +118,11 @@ function render() {
                     </a>
                     <div class="flex-1 min-w-0">
                         <a href="/products/${l.handle}" class="font-medium leading-tight">${l.title}</a>
-                        ${l.variantTitle && l.variantTitle !== 'Default'
-                            ? `<p class="text-sm text-muted mt-0.5">${l.variantTitle}</p>` : ''}
+                        ${
+													l.variantTitle && l.variantTitle !== 'Default'
+														? `<p class="text-sm text-muted mt-0.5">${l.variantTitle}</p>`
+														: ''
+												}
                         <div class="flex items-center gap-3 mt-2">
                             <input type="number" min="1" value="${l.quantity}" data-cart-qty="${l.id}"
                                 aria-label="Quantity"
@@ -125,87 +133,109 @@ function render() {
                     </div>
                     <div class="text-right font-medium">${formatMoney(l.price * l.quantity, l.currency)}</div>
                 </li>
-            `).join('')
-        }
-    }
+            `,
+				)
+				.join('');
+		}
+	}
 
-    document.querySelectorAll<HTMLElement>('[data-cart-subtotal]').forEach(el => {
-        el.textContent = formatMoney(subtotal(lines), currency)
-    })
+	document.querySelectorAll<HTMLElement>('[data-cart-subtotal]').forEach((el) => {
+		el.textContent = formatMoney(currentSubtotal, currency);
+	});
+
+	const freeShippingAmount = document.querySelector<HTMLElement>(
+		'[data-cart-free-shipping-amount]',
+	);
+	const freeShippingMessage = document.querySelector<HTMLElement>(
+		'[data-cart-free-shipping-message]',
+	);
+	const freeShippingProgress = document.querySelector<HTMLElement>(
+		'[data-cart-free-shipping-progress]',
+	);
+
+	if (freeShippingAmount && freeShippingMessage && freeShippingProgress) {
+		freeShippingProgress.style.width = `${progress}%`;
+		freeShippingAmount.textContent =
+			remaining > 0 ? `Add ${formatMoney(remaining, currency)}` : 'Unlocked';
+		freeShippingMessage.textContent =
+			remaining > 0
+				? `${formatMoney(remaining, currency)} away from free shipping.`
+				: 'Free shipping unlocked for this order.';
+	}
 }
 
 /** Placeholder checkout — wire to PrestaShop cart/order API here. */
 function checkout() {
-    const lines = read()
-    if (!lines.length) return
-    // TODO: POST `lines` to a /api/checkout endpoint that creates a
-    // PrestaShop cart and returns the hosted checkout URL.
-    window.location.href = '/cart'
+	const lines = read();
+	if (!lines.length) return;
+	// TODO: POST `lines` to a /api/checkout endpoint that creates a
+	// PrestaShop cart and returns the hosted checkout URL.
+	window.location.href = '/cart';
 }
 
 export function initCart() {
-    const toggle = document.querySelector<HTMLElement>('[data-cart-toggle]')
+	const toggle = document.querySelector<HTMLElement>('[data-cart-toggle]');
 
-    if (toggle && toggle.dataset.webcoreBound !== 'true') {
-        toggle.dataset.webcoreBound = 'true'
+	if (toggle && toggle.dataset.webcoreBound !== 'true') {
+		toggle.dataset.webcoreBound = 'true';
 
-        const drawer = modal({
-            trigger: '[data-cart-toggle]',
-            modal: '#cart-drawer',
-            onOpen() {
-                toggle.setAttribute('aria-expanded', 'true')
-            },
-            onClose() {
-                toggle.setAttribute('aria-expanded', 'false')
-                toggle.focus()
-            }
-        })
+		const drawer = modal({
+			trigger: '[data-cart-toggle]',
+			modal: '#cart-drawer',
+			onOpen() {
+				toggle.setAttribute('aria-expanded', 'true');
+			},
+			onClose() {
+				toggle.setAttribute('aria-expanded', 'false');
+				toggle.focus();
+			},
+		});
 
-        openDrawer = () => drawer?.open()
-    }
+		openDrawer = () => drawer?.open();
+	}
 
-    if (!listenersBound) {
-        listenersBound = true
+	if (!listenersBound) {
+		listenersBound = true;
 
-        document.addEventListener('click', event => {
-            const target = event.target as HTMLElement
+		document.addEventListener('click', (event) => {
+			const target = event.target as HTMLElement;
 
-            const add = target.closest<HTMLElement>('[data-add-to-cart]')
-            if (add) {
-                event.preventDefault()
-                addLine({
-                    id: add.dataset.id!,
-                    handle: add.dataset.handle!,
-                    title: add.dataset.title!,
-                    variantTitle: add.dataset.variant,
-                    image: add.dataset.image!,
-                    price: Number(add.dataset.price),
-                    currency: add.dataset.currency || 'EUR',
-                    quantity: Number(add.dataset.quantity || 1)
-                })
-                openDrawer?.()
-                return
-            }
+			const add = target.closest<HTMLElement>('[data-add-to-cart]');
+			if (add) {
+				event.preventDefault();
+				addLine({
+					id: add.dataset.id!,
+					handle: add.dataset.handle!,
+					title: add.dataset.title!,
+					variantTitle: add.dataset.variant,
+					image: add.dataset.image!,
+					price: Number(add.dataset.price),
+					currency: add.dataset.currency || 'EUR',
+					quantity: Number(add.dataset.quantity || 1),
+				});
+				openDrawer?.();
+				return;
+			}
 
-            const remove = target.closest<HTMLElement>('[data-cart-remove]')
-            if (remove) {
-                removeLine(remove.dataset.cartRemove!)
-                return
-            }
+			const remove = target.closest<HTMLElement>('[data-cart-remove]');
+			if (remove) {
+				removeLine(remove.dataset.cartRemove!);
+				return;
+			}
 
-            if (target.closest('[data-cart-checkout]')) {
-                event.preventDefault()
-                checkout()
-            }
-        })
+			if (target.closest('[data-cart-checkout]')) {
+				event.preventDefault();
+				checkout();
+			}
+		});
 
-        document.addEventListener('input', event => {
-            const qty = (event.target as HTMLElement).closest<HTMLInputElement>('[data-cart-qty]')
-            if (qty) {
-                setQuantity(qty.dataset.cartQty!, Number(qty.value))
-            }
-        })
-    }
+		document.addEventListener('input', (event) => {
+			const qty = (event.target as HTMLElement).closest<HTMLInputElement>('[data-cart-qty]');
+			if (qty) {
+				setQuantity(qty.dataset.cartQty!, Number(qty.value));
+			}
+		});
+	}
 
-    render()
+	render();
 }

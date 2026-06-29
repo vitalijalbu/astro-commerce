@@ -2,9 +2,9 @@
 /**
  * Dark, ecommerce-ready footer with newsletter, support links and trust signals.
  */
-import { Input, Button } from 'webcoreui/astro'
-import { footerMenu, shop } from '../../lib/navigation'
-import Icon from '../snippets/icon.astro'
+import { Button, Input } from 'webcoreui/astro'
+import { footerMenu, shop } from '@lib/navigation'
+import Icon from '@snippets/icon.astro'
 
 const year = new Date().getFullYear()
 
@@ -33,7 +33,7 @@ const payments = ['Visa', 'Mastercard', 'Amex', 'PayPal', 'Apple Pay']
                 <p class="m-0 text-xs uppercase tracking-[0.2em] text-white/55">Members get early access and private offers.</p>
 
                 <form data-footer-newsletter class="flex flex-col sm:flex-row gap-2 max-w-md" aria-label="Footer newsletter signup">
-                    <div class="flex-1">
+                    <div class="flex-1 input-on-dark">
                         <Input
                             type="email"
                             name="email"
