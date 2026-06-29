@@ -6,8 +6,9 @@
 import Layout from '@components/layout.astro'
 import CatalogPagination from '@snippets/catalog-pagination.astro'
 import EmptyState from '@snippets/empty-state.astro'
+import FiltersSheet from '@snippets/filters-sheet.astro'
 import ProductGrid from '@snippets/product-grid.astro'
-import SearchFilters from '@snippets/search-filters.astro'
+import SearchFiltersForm from '@snippets/search-filters-form.astro'
 import { Input, Button } from 'webcoreui/astro'
 import { getProducts } from '../lib/catalog'
 import { paginateItems, parsePageParam } from '../lib/paginate'
@@ -65,15 +66,35 @@ const paginated = paginateItems(results, page, 24)
             <Button type="submit">Search</Button>
         </form>
 
+        <div class="mb-5 lg:hidden">
+            <FiltersSheet
+                id="search-filters-sheet"
+                title="Search filters"
+                description="Refine results by availability, brand and price."
+                buttonLabel="Open filters"
+            >
+                <SearchFiltersForm
+                    query={query}
+                    vendors={vendors}
+                    selectedVendors={selectedVendors}
+                    onlyAvailable={onlyAvailable}
+                    minPrice={minPrice}
+                    maxPrice={maxPrice}
+                />
+            </FiltersSheet>
+        </div>
+
         <div class="grid lg:grid-cols-[280px_1fr] gap-8 items-start">
-            <SearchFilters
-                query={query}
-                vendors={vendors}
-                selectedVendors={selectedVendors}
-                onlyAvailable={onlyAvailable}
-                minPrice={minPrice}
-                maxPrice={maxPrice}
-            />
+            <aside class="hidden lg:block rounded-[--radius-card] border border-line bg-paper-soft p-5 md:p-6 h-fit" aria-label="Search filters">
+                <SearchFiltersForm
+                    query={query}
+                    vendors={vendors}
+                    selectedVendors={selectedVendors}
+                    onlyAvailable={onlyAvailable}
+                    minPrice={minPrice}
+                    maxPrice={maxPrice}
+                />
+            </aside>
 
             <div>
                 <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">

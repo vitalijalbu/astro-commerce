@@ -5,14 +5,13 @@
  */
 import Layout from '@components/layout.astro'
 import CatalogPagination from '@snippets/catalog-pagination.astro'
+import CollectionFiltersForm from '@snippets/collection-filters-form.astro'
 import EmptyState from '@snippets/empty-state.astro'
+import FiltersSheet from '@snippets/filters-sheet.astro'
 import ProductGrid from '@snippets/product-grid.astro'
 import {
     Breadcrumb,
     Button,
-    Checkbox,
-    List,
-    RangeSlider,
     Select
 } from 'webcoreui/astro'
 import { paginateItems, parsePageParam } from '../../lib/paginate'
@@ -123,11 +122,6 @@ const sortItems = [
 const allTags = [...new Set(baseProducts.flatMap(product => product.tags.map(tag => tag.toLowerCase())))]
     .sort((a, b) => a.localeCompare(b))
 
-const formatTag = (tag: string): string => tag
-    .split('-')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ')
-
 const filteredProducts = baseProducts
     .filter(product => selectedTags.length > 0
         ? selectedTags.some(tag => product.tags.map(t => t.toLowerCase()).includes(tag))
@@ -204,76 +198,44 @@ const notFoundCollection = !collectionEntity && handle !== 'all'
             </form>
         </div>
 
-        <div class="grid lg:grid-cols-[280px_1fr] gap-8 items-start mt-8">
-            <aside class="rounded-[--radius-card] border border-line bg-paper-soft p-5 md:p-6 h-fit" aria-label="Collection filters">
-                <form action={`/collections/${handle}`} method="get" class="flex flex-col gap-6">
-                    <input type="hidden" name="sort" value={sort} />
+        <div class="mt-5 lg:hidden">
+            <FiltersSheet
+                id="collection-filters-sheet"
+                title="Collection filters"
+                description="Filter by tag, availability, price and linked subcollections."
+                buttonLabel="Open filters"
+            >
+                <CollectionFiltersForm
+                    action={`/collections/${handle}`}
+                    sort={sort}
+                    clearHref={clearHref}
+                    subCollectionLinks={subCollectionLinks}
+                    allTags={allTags}
+                    selectedTags={selectedTags}
+                    onlyAvailable={onlyAvailable}
+                    priceFloor={priceFloor}
+                    priceCeiling={priceCeiling}
+                    sliderMin={sliderMin}
+                    sliderMax={sliderMax}
+                />
+            </FiltersSheet>
+        </div>
 
-                    <div class="flex items-center justify-between gap-3">
-                        <h2 class="text-base font-semibold m-0">Filters</h2>
-                        <a href={clearHref} class="text-xs text-muted link-underline">Clear all</a>
-                    </div>
-
-                    {subCollectionLinks.length > 0 && (
-                        <div class="flex flex-col gap-2">
-                            <h3 class="text-sm font-medium m-0">Subcollections</h3>
-                            <List
-                                secondary
-                                itemGroups={[
-                                    {
-                                        items: subCollectionLinks.slice(0, 10).map(sub => ({
-                                            name: sub.title,
-                                            href: `/collections/${sub.handle}`
-                                        }))
-                                    }
-                                ]}
-                            />
-                        </div>
-                    )}
-
-                    {allTags.length > 0 && (
-                        <fieldset class="flex flex-col gap-2 border-0 p-0 m-0">
-                            <legend class="text-sm font-medium mb-1">Tags</legend>
-                            <div class="flex flex-col gap-2">
-                                {allTags.map(tag => (
-                                    <Checkbox
-                                        name="tag"
-                                        value={tag}
-                                        checked={selectedTags.includes(tag)}
-                                        label={formatTag(tag)}
-                                    />
-                                ))}
-                            </div>
-                        </fieldset>
-                    )}
-
-                    <fieldset class="flex flex-col gap-2 border-0 p-0 m-0">
-                        <legend class="text-sm font-medium mb-1">Availability</legend>
-                        <Checkbox
-                            name="available"
-                            value="1"
-                            checked={onlyAvailable}
-                            label="In stock only"
-                        />
-                    </fieldset>
-
-                    <fieldset class="border-0 p-0 m-0">
-                        <legend class="text-sm font-medium mb-2">Price range</legend>
-                        <RangeSlider
-                            name="price"
-                            min={priceFloor}
-                            max={priceCeiling}
-                            selectedMin={sliderMin}
-                            selectedMax={sliderMax}
-                            minGap={1}
-                            updateLabels
-                            minLabel={`€${sliderMin}`}
-                            maxLabel={`€${sliderMax}`}
-                        />
-                    </fieldset>
-
-                    <Button type="submit" className="w-full">Apply filters</Button>
-                </form>
+        <div class="mt-8 grid lg:grid-cols-[280px_1fr] gap-8 items-start">
+            <aside class="hidden lg:block rounded-[--radius-card] border border-line bg-paper-soft p-5 md:p-6 h-fit" aria-label="Collection filters">
+                <CollectionFiltersForm
+                    action={`/collections/${handle}`}
+                    sort={sort}
+                    clearHref={clearHref}
+                    subCollectionLinks={subCollectionLinks}
+                    allTags={allTags}
+                    selectedTags={selectedTags}
+                    onlyAvailable={onlyAvailable}
+                    priceFloor={priceFloor}
+                    priceCeiling={priceCeiling}
+                    sliderMin={sliderMin}
+                    sliderMax={sliderMax}
+                />
             </aside>
 
             <div>

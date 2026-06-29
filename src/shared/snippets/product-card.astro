@@ -5,6 +5,7 @@
  * to the client cart via [data-add-to-cart].
  */
 import { Badge, Rating, Button } from 'webcoreui/astro'
+import Icon from './icon.astro'
 import Price from './price.astro'
 import { discountPercent } from '../utils/format'
 import type { Product } from '../../lib/types'
@@ -34,6 +35,26 @@ const variant = product.variants[0]
                     class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                 />
             </div>
+            <button
+                type="button"
+                data-wishlist-toggle
+                data-wishlist-id={product.id}
+                data-wishlist-handle={product.handle}
+                data-wishlist-title={product.title}
+                data-wishlist-vendor={product.vendor ?? ''}
+                data-wishlist-image={product.featuredImage.url}
+                data-wishlist-price={product.price.amount}
+                data-wishlist-currency={product.price.currencyCode}
+                data-wishlist-compare-price={product.compareAtPrice?.amount ?? ''}
+                data-wishlist-rating={product.rating ?? ''}
+                data-wishlist-review-count={product.reviewCount ?? ''}
+                data-wishlist-available={product.available ? '1' : '0'}
+                aria-pressed="false"
+                aria-label="Add to wishlist"
+                class="absolute top-3 right-3 z-10 grid h-10 w-10 place-items-center rounded-full border border-white/60 bg-white/92 text-ink shadow-sm transition hover:bg-white data-[active=true]:bg-ink data-[active=true]:text-white"
+            >
+                <Icon type="heart" size={18} />
+            </button>
             <div class="absolute top-3 left-3 flex flex-col gap-1.5">
                 {discount && <Badge theme="alert" small>-{discount}%</Badge>}
                 {isNew && !discount && <Badge small>New</Badge>}
@@ -41,7 +62,7 @@ const variant = product.variants[0]
             </div>
         </a>
 
-        <div class="flex flex-1 flex-col gap-2 p-0 pt-2">
+        <div class="flex flex-1 flex-col gap-2 p-2">
             {product.vendor && <span class="text-xs text-muted">{product.vendor}</span>}
             <h3 class="m-0 text-base">
                 <a href={`/products/${product.handle}`} data-product-title class="font-medium leading-snug link-underline self-start">

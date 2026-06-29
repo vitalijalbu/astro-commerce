@@ -1,0 +1,29 @@
+---
+import Layout from '@components/layout.astro'
+import EmptyState from '@snippets/empty-state.astro'
+---
+
+<Layout title="Wishlist — ATELIER" noindex>
+    <div class="page py-10 md:py-14" data-wishlist-page>
+        <div class="mb-8 flex flex-col gap-2">
+            <h1 class="m-0 text-3xl font-semibold tracking-tight md:text-4xl">Wishlist</h1>
+            <p class="m-0 max-w-2xl text-ink-soft">Saved pieces live locally in your browser so you can come back to them later.</p>
+        </div>
+
+        <div data-wishlist-empty>
+            <EmptyState
+                title="Your wishlist is empty"
+                text="Save products with the heart icon and they will appear here for quick comparison later."
+                image="/images/placeholder.png"
+                actionHref="/collections/all"
+                actionLabel="Browse all products"
+                secondaryHref="/"
+                secondaryLabel="Back home"
+            />
+        </div>
+
+        <section data-wishlist-body hidden>
+            <div data-wishlist-grid class="grid grid-cols-2 gap-4 md:gap-6 lg:grid-cols-4"></div>
+        </section>
+    </div>
+</Layout>

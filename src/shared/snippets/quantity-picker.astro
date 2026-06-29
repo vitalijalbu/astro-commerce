@@ -29,13 +29,11 @@ const labelId = `${id}-label`
 ---
 
 <div class:list={['flex flex-col gap-1.5', className]} data-quantity-picker role="group" aria-labelledby={labelId}>
-    <label id={labelId} for={id} class="text-sm font-medium">{label}</label>
     <div class="flex items-center gap-2">
         <Button
             type="button"
             theme="secondary"
             data-qty-dec
-            className="!h-11 !w-11 !min-w-11 !rounded-[--radius-card] !px-0"
             aria-controls={id}
             aria-label="Decrease quantity"
         >−</Button>
@@ -49,13 +47,11 @@ const labelId = `${id}-label`
             value={value}
             data-quantity-input
             aria-label={label}
-            className="!h-11 !w-18 !min-w-18 !rounded-[--radius-card] !px-0 !text-center [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
         />
         <Button
             type="button"
             theme="secondary"
             data-qty-inc
-            className="!h-11 !w-11 !min-w-11 !rounded-[--radius-card] !px-0"
             aria-controls={id}
             aria-label="Increase quantity"
         >+</Button>

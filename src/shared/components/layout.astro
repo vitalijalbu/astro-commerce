@@ -113,8 +113,11 @@ const orgSchema = {
 
         <script>
             import { initCart } from '../utils/cart'
+            import { initWishlist } from '../utils/wishlist'
             initCart()
+            initWishlist()
             document.addEventListener('astro:after-swap', initCart)
+            document.addEventListener('astro:after-swap', initWishlist)
         </script>
 
         <style lang="scss" is:global>

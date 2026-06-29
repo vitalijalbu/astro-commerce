@@ -123,7 +123,7 @@ const accordionItems = product ? [
                 {product.vendor && <span class="eyebrow mb-2">{product.vendor}</span>}
                 <h1 class="text-3xl md:text-4xl font-semibold tracking-tight m-0">{product.title}</h1>
 
-                <div class="flex items-center gap-3 mt-3">
+                <div class="flex items-center gap-3 mt-8" data-pdp-buy-block>
                     {product.rating && (
                         <Rating score={product.rating} size={16} reviewCount={product.reviewCount} showText />
                     )}
@@ -131,6 +131,43 @@ const accordionItems = product ? [
 
                 <div class="flex items-center gap-3 mt-4">
                     <Price price={product.price} compareAtPrice={product.compareAtPrice} className="text-2xl" />
+                <div
+                    data-pdp-sticky-bar
+                    hidden
+                    class="fixed inset-x-0 top-0 z-60 border-b border-line bg-paper/95 shadow-sm backdrop-blur"
+                >
+                    <div class="page flex items-center gap-3 py-3">
+                        <img
+                            src={product.featuredImage.url}
+                            alt={product.title}
+                            width={52}
+                            height={52}
+                            class="h-13 w-13 rounded-[--radius-card] object-cover bg-paper-soft"
+                        />
+                        <div class="min-w-0 flex-1">
+                            <p class="m-0 truncate text-sm font-medium">{product.title}</p>
+                            <p class="m-0 text-sm text-ink-soft">{product.price.currencyCode} {product.price.amount}</p>
+                        </div>
+                        <Button
+                            theme="secondary"
+                            data-add-to-cart
+                            data-id={productVariantId}
+                            data-handle={product.handle}
+                            data-title={product.title}
+                            data-variant={productVariantTitle}
+                            data-image={product.featuredImage.url}
+                            data-price={product.price.amount}
+                            data-currency={product.price.currencyCode}
+                            data-quantity="1"
+                            aria-label={`Add ${product.title} to cart`}
+                            disabled={!product.available}
+                            className="shrink-0"
+                        >
+                            {product.available ? 'Add to cart' : 'Sold out'}
+                        </Button>
+                    </div>
+                </div>
+
                     {discount && <Badge theme="alert" small>-{discount}%</Badge>}
                     {!product.available && <Badge theme="outline" small>Sold out</Badge>}
                 </div>
@@ -139,9 +176,9 @@ const accordionItems = product ? [
 
                 <!-- Quantity + add to cart -->
                 <div class="flex items-center gap-3 mt-8">
-                    <div class="w-32">
+                   
                         <QuantityPicker id="pdp-quantity" name="quantity" value={1} min={1} max={12} />
-                    </div>
+                    
                     <Button
                         className="flex-1"
                         disabled={!product.available}
@@ -200,15 +237,17 @@ const accordionItems = product ? [
 <script>
     const syncPdpQuantity = () => {
         const input = document.querySelector<HTMLInputElement>('#pdp-quantity')
-        const btn = document.querySelector<HTMLElement>('[data-add-to-cart]')
-        if (!input || !btn) return
+        const buttons = document.querySelectorAll<HTMLElement>('[data-add-to-cart]')
+        if (!input || buttons.length === 0) return
         if (input.dataset.bound === 'true') return
         input.dataset.bound = 'true'
 
         const update = () => {
             const qty = Math.max(1, Number(input.value) || 1)
             input.value = String(qty)
-            btn.dataset.quantity = String(qty)
+            buttons.forEach(button => {
+                button.dataset.quantity = String(qty)
+            })
         }
 
         update()
@@ -219,4 +258,27 @@ const accordionItems = product ? [
 
     syncPdpQuantity()
     document.addEventListener('astro:after-swap', syncPdpQuantity)
+
+    const initStickyBar = () => {
+        const observed = document.querySelector<HTMLElement>('[data-pdp-buy-block]')
+        const bar = document.querySelector<HTMLElement>('[data-pdp-sticky-bar]')
+        if (!observed || !bar) return
+        if (bar.dataset.bound === 'true') return
+        bar.dataset.bound = 'true'
+
+        const updateVisibility = (visible: boolean) => {
+            bar.toggleAttribute('hidden', !visible)
+        }
+
+        if ('IntersectionObserver' in window) {
+            const observer = new IntersectionObserver(([entry]) => {
+                updateVisibility(!entry.isIntersecting)
+            }, { threshold: 0.15 })
+
+            observer.observe(observed)
+        }
+    }
+
+    initStickyBar()
+    document.addEventListener('astro:after-swap', initStickyBar)
 </script>

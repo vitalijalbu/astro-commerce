@@ -1,0 +1,73 @@
+---
+import { Button, Sheet } from 'webcoreui/astro'
+
+interface Props {
+    id: string
+    title: string
+    description?: string
+    buttonLabel?: string
+    buttonClassName?: string
+}
+
+const {
+    id,
+    title,
+    description,
+    buttonLabel = 'Filters',
+    buttonClassName = ''
+} = Astro.props
+---
+
+<div data-filters-sheet-root data-sheet-id={id} class="lg:hidden">
+    <Button
+        type="button"
+        theme="secondary"
+        data-filters-toggle={id}
+        aria-controls={id}
+        aria-haspopup="dialog"
+        aria-expanded="false"
+        className={buttonClassName}
+    >
+        {buttonLabel}
+    </Button>
+
+    <Sheet id={id} position="left" title={title} subTitle={description} className="max-w-[92vw]">
+        <div class="mt-4 flex flex-col gap-5">
+            <slot />
+
+            <Button type="button" theme="secondary" data-filters-close={id} className="w-full">
+                Close filters
+            </Button>
+        </div>
+    </Sheet>
+</div>
+
+<script>
+    import { closeModal, modal } from 'webcoreui'
+
+    document.querySelectorAll<HTMLElement>('[data-filters-sheet-root]').forEach(root => {
+        if (root.dataset.bound === 'true') return
+        root.dataset.bound = 'true'
+
+        const id = root.dataset.sheetId
+        if (!id) return
+
+        const trigger = root.querySelector<HTMLElement>(`[data-filters-toggle="${id}"]`)
+        const closeButton = root.querySelector<HTMLElement>(`[data-filters-close="${id}"]`)
+        const selector = `#${id}`
+
+        modal({
+            trigger: `[data-filters-toggle="${id}"]`,
+            modal: selector,
+            onOpen() {
+                trigger?.setAttribute('aria-expanded', 'true')
+            },
+            onClose() {
+                trigger?.setAttribute('aria-expanded', 'false')
+                trigger?.focus()
+            }
+        })
+
+        closeButton?.addEventListener('click', () => closeModal(selector))
+    })
+</script>
