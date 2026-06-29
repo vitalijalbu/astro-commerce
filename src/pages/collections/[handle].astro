@@ -1,0 +1,345 @@
+---
+/**
+ * Collection page (SSR).
+ * Handles /collections/all as a first-class route and supports GET filters.
+ */
+import Layout from '@components/layout.astro'
+import CatalogPagination from '@snippets/catalog-pagination.astro'
+import EmptyState from '@snippets/empty-state.astro'
+import ProductGrid from '@snippets/product-grid.astro'
+import {
+    Breadcrumb,
+    Button,
+    Checkbox,
+    List,
+    RangeSlider,
+    Select
+} from 'webcoreui/astro'
+import { paginateItems, parsePageParam } from '../../lib/paginate'
+import {
+    getCollectionByHandle,
+    getCollectionProducts,
+    getCollections,
+    getProducts
+} from '../../lib/catalog'
+import type { Collection } from '../../lib/types'
+
+const humanize = (value: string): string => value
+    .split('-')
+    .filter(Boolean)
+    .map(part => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(' ')
+
+const parsePrice = (value: string | null): number | null => {
+    if (!value) return null
+    const parsed = Number(value)
+    return Number.isFinite(parsed) && parsed >= 0 ? parsed : null
+}
+
+const { handle: rawHandle } = Astro.params
+const handle = (rawHandle || 'all').toLowerCase()
+const params = Astro.url.searchParams
+const page = parsePageParam(params.get('page'))
+
+const sort = params.get('sort') || 'featured'
+const selectedTags = Array.from(
+    new Set(params.getAll('tag').map(value => value.toLowerCase()).filter(Boolean))
+) as string[]
+const onlyAvailable = params.get('available') === '1'
+const queryPrice = params.getAll('price')
+    .map(value => Number(value))
+    .filter((value): value is number => Number.isFinite(value) && value >= 0)
+const legacyMinPrice = parsePrice(params.get('min'))
+const legacyMaxPrice = parsePrice(params.get('max'))
+
+let minPrice = queryPrice.length > 0 ? queryPrice[0] : legacyMinPrice
+let maxPrice = queryPrice.length > 1 ? queryPrice[1] : legacyMaxPrice
+
+const allCollections = await getCollections(120)
+const collectionEntity = handle === 'all'
+    ? {
+        id: 'all',
+        handle: 'all',
+        title: 'All products',
+        description: 'Explore the full catalog.'
+    }
+    : await getCollectionByHandle(handle)
+
+if (!collectionEntity && handle !== 'all') {
+    Astro.response.status = 404
+}
+
+const collection: Collection = collectionEntity ?? {
+    id: handle,
+    handle,
+    title: humanize(handle),
+    description: 'Explore this collection.'
+}
+
+const baseProducts = handle === 'all'
+    ? await getProducts(500)
+    : await getCollectionProducts(handle, 500)
+
+const priceFloor = baseProducts.length > 0
+    ? Math.floor(Math.min(...baseProducts.map(product => product.price.amount)))
+    : 0
+
+const priceCeiling = baseProducts.length > 0
+    ? Math.ceil(Math.max(...baseProducts.map(product => product.price.amount)))
+    : 500
+
+if (minPrice !== null) {
+    minPrice = Math.max(priceFloor, Math.min(minPrice, priceCeiling))
+}
+
+if (maxPrice !== null) {
+    maxPrice = Math.max(priceFloor, Math.min(maxPrice, priceCeiling))
+}
+
+if (minPrice !== null && maxPrice !== null && minPrice > maxPrice) {
+    const swappedMin = minPrice
+    minPrice = maxPrice
+    maxPrice = swappedMin
+}
+
+const sliderMin = minPrice ?? priceFloor
+const sliderMax = maxPrice ?? priceCeiling
+
+const subCollectionLinks = [
+    { handle: 'all', title: 'All products' },
+    ...allCollections.map(item => ({ handle: item.handle, title: item.title }))
+].filter(item => item.handle !== handle)
+
+const sortItems = [
+    { name: 'Featured', value: 'featured', selected: sort === 'featured' },
+    { name: 'Best selling', value: 'best-selling', selected: sort === 'best-selling' },
+    { name: 'Newest', value: 'newest', selected: sort === 'newest' },
+    { name: 'Price low to high', value: 'price-asc', selected: sort === 'price-asc' },
+    { name: 'Price high to low', value: 'price-desc', selected: sort === 'price-desc' },
+    { name: 'Title A-Z', value: 'title-asc', selected: sort === 'title-asc' },
+    { name: 'Title Z-A', value: 'title-desc', selected: sort === 'title-desc' }
+]
+
+const allTags = [...new Set(baseProducts.flatMap(product => product.tags.map(tag => tag.toLowerCase())))]
+    .sort((a, b) => a.localeCompare(b))
+
+const formatTag = (tag: string): string => tag
+    .split('-')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ')
+
+const filteredProducts = baseProducts
+    .filter(product => selectedTags.length > 0
+        ? selectedTags.some(tag => product.tags.map(t => t.toLowerCase()).includes(tag))
+        : true
+    )
+    .filter(product => onlyAvailable ? product.available : true)
+    .filter(product => minPrice !== null ? product.price.amount >= minPrice : true)
+    .filter(product => maxPrice !== null ? product.price.amount <= maxPrice : true)
+
+const products = [...filteredProducts].sort((a, b) => {
+    if (sort === 'price-asc') return a.price.amount - b.price.amount
+    if (sort === 'price-desc') return b.price.amount - a.price.amount
+    if (sort === 'title-asc') return a.title.localeCompare(b.title)
+    if (sort === 'title-desc') return b.title.localeCompare(a.title)
+    if (sort === 'newest') {
+        const aNew = a.tags.map(tag => tag.toLowerCase()).includes('new') ? 1 : 0
+        const bNew = b.tags.map(tag => tag.toLowerCase()).includes('new') ? 1 : 0
+        return bNew - aNew
+    }
+    if (sort === 'best-selling') {
+        const aScore = (a.reviewCount || 0) * (a.rating || 0)
+        const bScore = (b.reviewCount || 0) * (b.rating || 0)
+        return bScore - aScore
+    }
+    return 0
+})
+
+const paginated = paginateItems(products, page, 24)
+const clearHref = `/collections/${handle}`
+const notFoundCollection = !collectionEntity && handle !== 'all'
+---
+
+<Layout
+    title={`${collection.title} — ATELIER`}
+    description={collection.description || `Shop ${collection.title}`}
+>
+    <div class="page py-8 md:py-10">
+        <Breadcrumb items={[
+            { href: '/', label: 'Home' },
+            { href: '/collections', label: 'Collections' },
+            { label: collection.title }
+        ]} />
+
+        <div class="mt-6 flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+            <div>
+                <h1 class="text-3xl md:text-4xl font-semibold tracking-tight m-0">{collection.title}</h1>
+                {collection.description && (
+                    <p class="text-ink-soft mt-3 mb-0 max-w-3xl">{collection.description}</p>
+                )}
+            </div>
+
+            <form
+                action={`/collections/${handle}`}
+                method="get"
+                class="flex items-center gap-2"
+                aria-label="Sort products"
+                data-collection-sort-form
+            >
+                {selectedTags.map(tag => <input type="hidden" name="tag" value={tag} />)}
+                {onlyAvailable && <input type="hidden" name="available" value="1" />}
+                {minPrice !== null && <input type="hidden" name="price" value={String(minPrice)} />}
+                {maxPrice !== null && <input type="hidden" name="price" value={String(maxPrice)} />}
+                <input type="hidden" name="sort" value={sort} data-sort-input />
+
+                <div class="min-w-56">
+                    <Select
+                        name="collection-sort"
+                        value={sort}
+                        label="Sort"
+                        itemGroups={[{ items: sortItems }]}
+                        updateValue
+                    />
+                </div>
+            </form>
+        </div>
+
+        <div class="grid lg:grid-cols-[280px_1fr] gap-8 items-start mt-8">
+            <aside class="rounded-[--radius-card] border border-line bg-paper-soft p-5 md:p-6 h-fit" aria-label="Collection filters">
+                <form action={`/collections/${handle}`} method="get" class="flex flex-col gap-6">
+                    <input type="hidden" name="sort" value={sort} />
+
+                    <div class="flex items-center justify-between gap-3">
+                        <h2 class="text-base font-semibold m-0">Filters</h2>
+                        <a href={clearHref} class="text-xs text-muted link-underline">Clear all</a>
+                    </div>
+
+                    {subCollectionLinks.length > 0 && (
+                        <div class="flex flex-col gap-2">
+                            <h3 class="text-sm font-medium m-0">Subcollections</h3>
+                            <List
+                                secondary
+                                itemGroups={[
+                                    {
+                                        items: subCollectionLinks.slice(0, 10).map(sub => ({
+                                            name: sub.title,
+                                            href: `/collections/${sub.handle}`
+                                        }))
+                                    }
+                                ]}
+                            />
+                        </div>
+                    )}
+
+                    {allTags.length > 0 && (
+                        <fieldset class="flex flex-col gap-2 border-0 p-0 m-0">
+                            <legend class="text-sm font-medium mb-1">Tags</legend>
+                            <div class="flex flex-col gap-2">
+                                {allTags.map(tag => (
+                                    <Checkbox
+                                        name="tag"
+                                        value={tag}
+                                        checked={selectedTags.includes(tag)}
+                                        label={formatTag(tag)}
+                                    />
+                                ))}
+                            </div>
+                        </fieldset>
+                    )}
+
+                    <fieldset class="flex flex-col gap-2 border-0 p-0 m-0">
+                        <legend class="text-sm font-medium mb-1">Availability</legend>
+                        <Checkbox
+                            name="available"
+                            value="1"
+                            checked={onlyAvailable}
+                            label="In stock only"
+                        />
+                    </fieldset>
+
+                    <fieldset class="border-0 p-0 m-0">
+                        <legend class="text-sm font-medium mb-2">Price range</legend>
+                        <RangeSlider
+                            name="price"
+                            min={priceFloor}
+                            max={priceCeiling}
+                            selectedMin={sliderMin}
+                            selectedMax={sliderMax}
+                            minGap={1}
+                            updateLabels
+                            minLabel={`€${sliderMin}`}
+                            maxLabel={`€${sliderMax}`}
+                        />
+                    </fieldset>
+
+                    <Button type="submit" className="w-full">Apply filters</Button>
+                </form>
+            </aside>
+
+            <div>
+                <p class="text-ink-soft m-0 mb-6" aria-live="polite">
+                    {paginated.totalItems} product{paginated.totalItems === 1 ? '' : 's'}
+                </p>
+
+                {paginated.totalItems > 0 ? (
+                    <>
+                        <ProductGrid products={paginated.items} eagerCount={4} columns={3} />
+                        <CatalogPagination
+                            basePath={`/collections/${handle}`}
+                            params={params}
+                            currentPage={paginated.currentPage}
+                            totalPages={paginated.totalPages}
+                            ariaLabel={`${collection.title} pages`}
+                        />
+                    </>
+                ) : (
+                    <EmptyState
+                        title={notFoundCollection ? 'Collection not found' : 'No products found'}
+                        text={notFoundCollection
+                            ? 'This collection does not exist. Browse the full catalog or return to the collections index.'
+                            : 'No products matched your current filters. Reset them or explore the full catalog.'}
+                        image="/images/placeholder.png"
+                        actionHref="/collections/all"
+                        actionLabel="Browse all products"
+                        secondaryHref={notFoundCollection ? '/collections' : clearHref}
+                        secondaryLabel={notFoundCollection ? 'View collections' : 'Reset filters'}
+                    />
+                )}
+            </div>
+        </div>
+    </div>
+</Layout>
+
+<script>
+    const bindCollectionSort = () => {
+        const scopedWindow = window as Window & { __collectionSortBound?: boolean }
+
+        if (scopedWindow.__collectionSortBound) {
+            return
+        }
+
+        scopedWindow.__collectionSortBound = true
+
+        document.addEventListener('selectOnChange', (event: Event) => {
+            const customEvent = event as CustomEvent<{ select?: string; value?: string }>
+            const detail = customEvent.detail
+
+            if (!detail || detail.select !== 'collection-sort' || typeof detail.value !== 'string') {
+                return
+            }
+
+            const form = document.querySelector<HTMLFormElement>('[data-collection-sort-form]')
+            const sortInput = form?.querySelector<HTMLInputElement>('[data-sort-input]')
+
+            if (!form || !sortInput) {
+                return
+            }
+
+            sortInput.value = detail.value
+            form.requestSubmit()
+        })
+    }
+
+    bindCollectionSort()
+    document.addEventListener('astro:after-swap', bindCollectionSort)
+</script>

@@ -4,10 +4,10 @@
  * Line items, quantities and totals are rendered client-side by
  * `utils/cart.ts` into [data-cart-lines] / [data-cart-subtotal].
  */
-import { Sheet, Button } from 'webcoreui/react'
+import { Sheet, Button } from 'webcoreui/astro'
 ---
 
-<Sheet id="cart-drawer" position="left" title="Your cart">
+<Sheet id="cart-drawer" title="Your cart">
     <!-- Empty state -->
     <div data-cart-empty class="py-16 text-center">
         <p class="text-muted">Your cart is empty.</p>

@@ -1,0 +1,393 @@
+{
+  "currencyCode": "EUR",
+  "products": [
+    {
+      "id": "linen-blazer",
+      "handle": "linen-blazer",
+      "title": "Linen Blazer",
+      "description": "Softly tailored linen blazer with a relaxed shoulder and breathable half lining for warm-weather layering.",
+      "descriptionHtml": "<p>Softly tailored linen blazer with a relaxed shoulder and breathable half lining for warm-weather layering.</p><ul><li>European linen blend</li><li>Relaxed single-breasted fit</li><li>Lightweight construction</li></ul>",
+      "vendor": "ATELIER",
+      "available": true,
+      "price": 189,
+      "compareAtPrice": 240,
+      "rating": 4.8,
+      "reviewCount": 38,
+      "tags": ["new", "tailoring", "menswear", "new-arrivals"],
+      "imageSeeds": ["linen-blazer", "linen-blazer-detail"]
+    },
+    {
+      "id": "merino-knit",
+      "handle": "merino-knit",
+      "title": "Merino Wool Knit",
+      "description": "Fine merino crewneck designed for easy layering under tailoring or over shirting.",
+      "descriptionHtml": "<p>Fine merino crewneck designed for easy layering under tailoring or over shirting.</p><ul><li>Extra-fine merino wool</li><li>Clean rib trims</li><li>Transitional weight</li></ul>",
+      "vendor": "ATELIER",
+      "available": true,
+      "price": 129,
+      "compareAtPrice": null,
+      "rating": 4.7,
+      "reviewCount": 24,
+      "tags": ["new", "knitwear", "menswear", "new-arrivals"],
+      "imageSeeds": ["merino-knit", "merino-knit-detail"]
+    },
+    {
+      "id": "canvas-tote",
+      "handle": "canvas-tote",
+      "title": "Canvas Tote Bag",
+      "description": "Structured daily tote with reinforced handles and enough space for work or weekend essentials.",
+      "descriptionHtml": "<p>Structured daily tote with reinforced handles and enough space for work or weekend essentials.</p><ul><li>Heavy cotton canvas</li><li>Inside slip pocket</li><li>Shoulder-length handles</li></ul>",
+      "vendor": "ATELIER",
+      "available": true,
+      "price": 59,
+      "compareAtPrice": null,
+      "rating": 4.6,
+      "reviewCount": 19,
+      "tags": ["accessories", "gift-ideas", "travel"],
+      "imageSeeds": ["canvas-tote", "canvas-tote-detail"]
+    },
+    {
+      "id": "leather-loafers",
+      "handle": "leather-loafers",
+      "title": "Leather Loafers",
+      "description": "Polished leather loafers with a slim profile and cushioned leather insole.",
+      "descriptionHtml": "<p>Polished leather loafers with a slim profile and cushioned leather insole.</p><ul><li>Full-grain leather upper</li><li>Leather lining</li><li>Rubber-tipped sole</li></ul>",
+      "vendor": "ATELIER",
+      "available": true,
+      "price": 159,
+      "compareAtPrice": 199,
+      "rating": 4.9,
+      "reviewCount": 41,
+      "tags": ["footwear", "sale", "menswear"],
+      "imageSeeds": ["leather-loafers", "leather-loafers-detail"]
+    },
+    {
+      "id": "silk-scarf",
+      "handle": "silk-scarf",
+      "title": "Printed Silk Scarf",
+      "description": "A lightweight silk scarf with a graphic print made to finish understated outfits.",
+      "descriptionHtml": "<p>A lightweight silk scarf with a graphic print made to finish understated outfits.</p><ul><li>100% silk twill</li><li>Hand-rolled edge</li><li>Soft drape</li></ul>",
+      "vendor": "ATELIER",
+      "available": true,
+      "price": 79,
+      "compareAtPrice": null,
+      "rating": 4.5,
+      "reviewCount": 14,
+      "tags": ["new", "accessories", "gift-ideas", "new-arrivals"],
+      "imageSeeds": ["silk-scarf", "silk-scarf-detail"]
+    },
+    {
+      "id": "selvedge-denim-jacket",
+      "handle": "selvedge-denim-jacket",
+      "title": "Selvedge Denim Jacket",
+      "description": "Clean-cut denim jacket with subtle workwear references and sturdy Japanese-inspired fabric.",
+      "descriptionHtml": "<p>Clean-cut denim jacket with subtle workwear references and sturdy Japanese-inspired fabric.</p><ul><li>Midweight selvedge denim</li><li>Metal shank buttons</li><li>Two chest pockets</li></ul>",
+      "vendor": "ATELIER",
+      "available": true,
+      "price": 219,
+      "compareAtPrice": null,
+      "rating": 4.7,
+      "reviewCount": 27,
+      "tags": ["outerwear", "menswear"],
+      "imageSeeds": ["selvedge-denim-jacket", "selvedge-denim-jacket-detail"]
+    },
+    {
+      "id": "cashmere-beanie",
+      "handle": "cashmere-beanie",
+      "title": "Cashmere Beanie",
+      "description": "Soft cashmere rib beanie with a close fit that works through the colder months.",
+      "descriptionHtml": "<p>Soft cashmere rib beanie with a close fit that works through the colder months.</p><ul><li>Pure cashmere yarn</li><li>Ribbed construction</li><li>Warm without bulk</li></ul>",
+      "vendor": "ATELIER",
+      "available": true,
+      "price": 69,
+      "compareAtPrice": 89,
+      "rating": 4.8,
+      "reviewCount": 33,
+      "tags": ["accessories", "sale", "gift-ideas"],
+      "imageSeeds": ["cashmere-beanie", "cashmere-beanie-detail"]
+    },
+    {
+      "id": "oxford-cotton-shirt",
+      "handle": "oxford-cotton-shirt",
+      "title": "Oxford Cotton Shirt",
+      "description": "Classic button-down shirt in washed Oxford cotton with a comfortable all-day hand feel.",
+      "descriptionHtml": "<p>Classic button-down shirt in washed Oxford cotton with a comfortable all-day hand feel.</p><ul><li>Washed Oxford cotton</li><li>Regular fit</li><li>Button-down collar</li></ul>",
+      "vendor": "ATELIER",
+      "available": true,
+      "price": 89,
+      "compareAtPrice": null,
+      "rating": 4.6,
+      "reviewCount": 22,
+      "tags": ["new", "menswear", "shirts", "new-arrivals"],
+      "imageSeeds": ["oxford-cotton-shirt", "oxford-cotton-shirt-detail"]
+    }
+  ],
+  "productSeries": [
+    {
+      "handlePrefix": "linen-shirt",
+      "title": "Linen Shirt",
+      "description": "Relaxed summer shirt cut from breathable linen for warm days and effortless layering.",
+      "vendor": "Northline",
+      "basePrice": 84,
+      "priceStep": 2,
+      "count": 12,
+      "tags": ["shirts", "summer-linen", "menswear", "new-arrivals"],
+      "rating": 4.5,
+      "reviewCount": 16,
+      "compareAtDelta": 18,
+      "saleEvery": 4,
+      "imageSeedPrefix": "linen-shirt"
+    },
+    {
+      "handlePrefix": "merino-cardigan",
+      "title": "Merino Cardigan",
+      "description": "Light merino cardigan for refined layering with a smooth hand and clean finish.",
+      "vendor": "Meridian",
+      "basePrice": 136,
+      "priceStep": 3,
+      "count": 10,
+      "tags": ["knitwear", "menswear", "essentials"],
+      "rating": 4.6,
+      "reviewCount": 18,
+      "imageSeedPrefix": "merino-cardigan"
+    },
+    {
+      "handlePrefix": "cotton-tee",
+      "title": "Heavy Cotton Tee",
+      "description": "Structured cotton jersey tee designed to sit cleanly under tailoring or outerwear.",
+      "vendor": "Common Thread",
+      "basePrice": 42,
+      "priceStep": 1,
+      "count": 14,
+      "tags": ["essentials", "menswear", "new-arrivals"],
+      "rating": 4.4,
+      "reviewCount": 12,
+      "imageSeedPrefix": "cotton-tee"
+    },
+    {
+      "handlePrefix": "travel-trouser",
+      "title": "Travel Trouser",
+      "description": "Easy tailored trouser with comfort stretch and a clean drape built for travel days.",
+      "vendor": "Studio Forma",
+      "basePrice": 118,
+      "priceStep": 2,
+      "count": 10,
+      "tags": ["travel", "tailoring", "menswear"],
+      "rating": 4.7,
+      "reviewCount": 21,
+      "imageSeedPrefix": "travel-trouser"
+    },
+    {
+      "handlePrefix": "wool-overshirt",
+      "title": "Wool Overshirt",
+      "description": "Soft brushed overshirt that works as a transitional outer layer through the season.",
+      "vendor": "House of Oak",
+      "basePrice": 164,
+      "priceStep": 4,
+      "count": 10,
+      "tags": ["outerwear", "menswear", "new-arrivals"],
+      "rating": 4.8,
+      "reviewCount": 25,
+      "imageSeedPrefix": "wool-overshirt"
+    },
+    {
+      "handlePrefix": "suede-sneaker",
+      "title": "Suede Sneaker",
+      "description": "Minimal suede sneaker with a low profile and lightweight sole for daily wear.",
+      "vendor": "Northline",
+      "basePrice": 122,
+      "priceStep": 3,
+      "count": 8,
+      "tags": ["footwear", "travel", "menswear"],
+      "rating": 4.5,
+      "reviewCount": 17,
+      "imageSeedPrefix": "suede-sneaker"
+    },
+    {
+      "handlePrefix": "leather-belt",
+      "title": "Leather Belt",
+      "description": "Vegetable-tanned leather belt with a slim buckle and understated finish.",
+      "vendor": "Atelier Supply",
+      "basePrice": 58,
+      "priceStep": 2,
+      "count": 8,
+      "tags": ["accessories", "gift-ideas", "leather-goods"],
+      "rating": 4.6,
+      "reviewCount": 13,
+      "imageSeedPrefix": "leather-belt"
+    },
+    {
+      "handlePrefix": "weekender-bag",
+      "title": "Weekender Bag",
+      "description": "Spacious weekender bag with smart internal organization and durable trim.",
+      "vendor": "Atelier Supply",
+      "basePrice": 198,
+      "priceStep": 5,
+      "count": 8,
+      "tags": ["accessories", "travel", "leather-goods"],
+      "rating": 4.7,
+      "reviewCount": 15,
+      "imageSeedPrefix": "weekender-bag"
+    },
+    {
+      "handlePrefix": "tailored-trouser",
+      "title": "Tailored Trouser",
+      "description": "Straight tailored trouser with a slightly cropped break and clean waistband finish.",
+      "vendor": "Meridian",
+      "basePrice": 126,
+      "priceStep": 2,
+      "count": 12,
+      "tags": ["tailoring", "menswear"],
+      "rating": 4.8,
+      "reviewCount": 19,
+      "compareAtDelta": 24,
+      "saleEvery": 3,
+      "imageSeedPrefix": "tailored-trouser"
+    },
+    {
+      "handlePrefix": "lightweight-parka",
+      "title": "Lightweight Parka",
+      "description": "Technical parka with a matte finish, storm placket and packable hood.",
+      "vendor": "Northline",
+      "basePrice": 214,
+      "priceStep": 4,
+      "count": 10,
+      "tags": ["outerwear", "travel", "new-arrivals"],
+      "rating": 4.6,
+      "reviewCount": 14,
+      "imageSeedPrefix": "lightweight-parka"
+    },
+    {
+      "handlePrefix": "cashmere-sock",
+      "title": "Cashmere Sock",
+      "description": "Soft rib cashmere-blend sock designed for gifting and cold-weather comfort.",
+      "vendor": "Common Thread",
+      "basePrice": 26,
+      "priceStep": 1,
+      "count": 8,
+      "tags": ["accessories", "gift-ideas", "sale"],
+      "rating": 4.4,
+      "reviewCount": 9,
+      "compareAtDelta": 8,
+      "saleEvery": 2,
+      "imageSeedPrefix": "cashmere-sock"
+    },
+    {
+      "handlePrefix": "weekend-short",
+      "title": "Weekend Short",
+      "description": "Relaxed drawstring short in garment-dyed cotton twill for warm-weather ease.",
+      "vendor": "Studio Forma",
+      "basePrice": 64,
+      "priceStep": 2,
+      "count": 10,
+      "tags": ["summer-linen", "essentials", "new-arrivals"],
+      "rating": 4.3,
+      "reviewCount": 11,
+      "imageSeedPrefix": "weekend-short"
+    }
+  ],
+  "collections": [
+    {
+      "id": "new-arrivals",
+      "handle": "new-arrivals",
+      "title": "New Arrivals",
+      "description": "The latest additions to the collection.",
+      "imageSeed": "collection-new-arrivals",
+      "productCount": 8
+    },
+    {
+      "id": "menswear",
+      "handle": "menswear",
+      "title": "Menswear",
+      "description": "Tailored essentials for the modern wardrobe.",
+      "imageSeed": "collection-menswear",
+      "productCount": 18
+    },
+    {
+      "id": "accessories",
+      "handle": "accessories",
+      "title": "Accessories",
+      "description": "Finishing touches that make the outfit.",
+      "imageSeed": "collection-accessories",
+      "productCount": 12
+    },
+    {
+      "id": "sale",
+      "handle": "sale",
+      "title": "Sale",
+      "description": "Selected pieces at a reduced price.",
+      "imageSeed": "collection-sale",
+      "productCount": 6
+    },
+    {
+      "id": "knitwear",
+      "handle": "knitwear",
+      "title": "Knitwear",
+      "description": "Layering essentials in merino, wool and cashmere blends.",
+      "imageSeed": "collection-knitwear"
+    },
+    {
+      "id": "shirts",
+      "handle": "shirts",
+      "title": "Shirts",
+      "description": "From Oxford staples to airy summer shirting.",
+      "imageSeed": "collection-shirts"
+    },
+    {
+      "id": "outerwear",
+      "handle": "outerwear",
+      "title": "Outerwear",
+      "description": "Coats, overshirts and jackets built for daily wear.",
+      "imageSeed": "collection-outerwear"
+    },
+    {
+      "id": "footwear",
+      "handle": "footwear",
+      "title": "Footwear",
+      "description": "Minimal shoes that balance comfort and polish.",
+      "imageSeed": "collection-footwear"
+    },
+    {
+      "id": "tailoring",
+      "handle": "tailoring",
+      "title": "Tailoring",
+      "description": "Relaxed tailoring with soft structure and clean lines.",
+      "imageSeed": "collection-tailoring"
+    },
+    {
+      "id": "travel",
+      "handle": "travel",
+      "title": "Travel",
+      "description": "Smart, packable essentials for weekends and longer journeys.",
+      "imageSeed": "collection-travel"
+    },
+    {
+      "id": "summer-linen",
+      "handle": "summer-linen",
+      "title": "Summer Linen",
+      "description": "Breathable pieces for high summer and transitional layering.",
+      "imageSeed": "collection-summer-linen"
+    },
+    {
+      "id": "gift-ideas",
+      "handle": "gift-ideas",
+      "title": "Gift Ideas",
+      "description": "Small luxuries and easy wins for gifting season.",
+      "imageSeed": "collection-gift-ideas"
+    },
+    {
+      "id": "leather-goods",
+      "handle": "leather-goods",
+      "title": "Leather Goods",
+      "description": "Belts, bags and everyday companions in durable leather.",
+      "imageSeed": "collection-leather-goods"
+    },
+    {
+      "id": "essentials",
+      "handle": "essentials",
+      "title": "Essentials",
+      "description": "Reliable building blocks for a cleaner wardrobe.",
+      "imageSeed": "collection-essentials"
+    }
+  ]
+}

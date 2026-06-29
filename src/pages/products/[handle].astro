@@ -6,11 +6,13 @@
  * <Button>, <Accordion>. Quantity uses a native number input for accessibility.
  */
 import Layout from '@components/layout.astro'
+import EmptyState from '@snippets/empty-state.astro'
 import ProductGrid from '@snippets/product-grid.astro'
 import Price from '@snippets/price.astro'
 import Icon from '@snippets/icon.astro'
+import JsonLd from '@snippets/json-ld.astro'
 import QuantityPicker from '@snippets/quantity-picker.astro'
-import { Breadcrumb, Rating, Badge, Carousel, CarouselItem, Button, Accordion } from 'webcoreui/react'
+import { Breadcrumb, Rating, Badge, Carousel, CarouselItem, Button, Accordion } from 'webcoreui/astro'
 import { getProductByHandle, getProducts } from '../../lib/catalog'
 import { discountPercent } from '@utils/format'
 
@@ -18,29 +20,60 @@ const { handle } = Astro.params
 const product = await getProductByHandle(handle!)
 
 if (!product) {
-    return new Response(null, { status: 404, statusText: 'Product not found' })
+    Astro.response.status = 404
 }
 
-const variant = product.variants[0]
-const discount = discountPercent(product.price, product.compareAtPrice)
-const recommended = (await getProducts(8)).filter(p => p.handle !== product.handle).slice(0, 4)
-const galleryImages = product.images.length > 0 ? product.images : [product.featuredImage]
+const productVariantId = product?.variants[0]?.id ?? ''
+const productVariantTitle = product?.variants[0]?.title ?? 'Default'
+const discount = product ? discountPercent(product.price, product.compareAtPrice) : null
+const recommended = product ? (await getProducts(12)).filter(p => p.handle !== product.handle).slice(0, 4) : []
+const galleryImages = product ? (product.images.length > 0 ? product.images : [product.featuredImage]) : []
+const productUrl = product ? new URL(`/products/${product.handle}`, Astro.url).toString() : ''
+const productSchema = product ? {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: product.title,
+    description: product.description,
+    image: galleryImages.map(image => image.url),
+    sku: productVariantId || undefined,
+    brand: product.vendor ? {
+        '@type': 'Brand',
+        name: product.vendor
+    } : undefined,
+    offers: {
+        '@type': 'Offer',
+        url: productUrl,
+        priceCurrency: product.price.currencyCode,
+        price: product.price.amount,
+        availability: product.available
+            ? 'https://schema.org/InStock'
+            : 'https://schema.org/OutOfStock',
+        itemCondition: 'https://schema.org/NewCondition'
+    },
+    aggregateRating: product.rating ? {
+        '@type': 'AggregateRating',
+        ratingValue: product.rating,
+        reviewCount: product.reviewCount || 1
+    } : undefined
+} : null
 
-const accordionItems = [
+const accordionItems = product ? [
     { title: 'Description', content: product.descriptionHtml, expanded: true },
     { title: 'Shipping & returns', content: 'Free standard shipping on orders over €100. Easy 30-day returns — items must be unworn with tags attached.' },
     { title: 'Materials & care', content: 'Made from premium natural materials. Follow the care label; cool wash and lay flat to dry where possible.' }
-]
+] : []
 ---
 
 <Layout
-    title={`${product.title} — ATELIER`}
-    description={product.description}
-    image={product.featuredImage.url}
+    title={product ? `${product.title} — ATELIER` : 'Product not found — ATELIER'}
+    description={product?.description ?? 'This product could not be found.'}
+    image={product?.featuredImage.url}
     type="product"
 >
     <div class="page py-6 md:py-10">
-        <Breadcrumb items={[
+        {product ? (
+            <>
+                <Breadcrumb items={[
             { href: '/', label: 'Home' },
             { href: '/collections/all', label: 'Shop' },
             { label: product.title }
@@ -64,7 +97,7 @@ const accordionItems = [
                                     width={image.width}
                                     height={image.height}
                                     loading={i === 0 ? 'eager' : 'lazy'}
-                                    class="w-full object-cover aspect-[4/5]"
+                                    class="w-full object-cover aspect-4/5"
                                 />
                             </CarouselItem>
                         ))}
@@ -78,7 +111,7 @@ const accordionItems = [
                                 src={image.url}
                                 alt={image.alt || `${product.title} thumbnail ${i + 1}`}
                                 loading="lazy"
-                                class="aspect-[4/5] w-full object-cover"
+                                class="aspect-4/5 w-full object-cover"
                             />
                         </li>
                     ))}
@@ -113,10 +146,10 @@ const accordionItems = [
                         className="flex-1"
                         disabled={!product.available}
                         data-add-to-cart
-                        data-id={variant.id}
+                        data-id={productVariantId}
                         data-handle={product.handle}
                         data-title={product.title}
-                        data-variant={variant.title}
+                        data-variant={productVariantTitle}
                         data-image={product.featuredImage.url}
                         data-price={product.price.amount}
                         data-currency={product.price.currencyCode}
@@ -146,6 +179,20 @@ const accordionItems = [
                 <h2 class="text-2xl font-semibold tracking-tight mb-8">You may also like</h2>
                 <ProductGrid products={recommended} />
             </section>
+        )}
+
+                {productSchema && <JsonLd slot="structured-data" data={productSchema} />}
+            </>
+        ) : (
+            <EmptyState
+                title="Product not found"
+                text="This product is no longer available or may have moved. Explore the full catalog or return to the homepage."
+                image="/images/placeholder.png"
+                actionHref="/collections/all"
+                actionLabel="Browse all products"
+                secondaryHref="/"
+                secondaryLabel="Back home"
+            />
         )}
     </div>
 </Layout>

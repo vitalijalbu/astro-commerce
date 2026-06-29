@@ -4,7 +4,7 @@
  * (<Input>, <Textarea>, <Button>). Submits client-side for the template —
  * wire to your support inbox / PrestaShop contact endpoint.
  */
-import { Input, Textarea, Button } from 'webcoreui/react'
+import { Input, Textarea, Button } from 'webcoreui/astro'
 import Section from '../snippets/section.astro'
 import SectionHeading from '../snippets/section-heading.astro'
 import { shop } from '../../lib/navigation'
@@ -30,8 +30,8 @@ const s = section.settings
 
         <form data-contact class="flex flex-col gap-4">
             <div class="grid sm:grid-cols-2 gap-4">
-                <Input name="name" label="Name" required autoComplete="name" />
-                <Input type="email" name="email" label="Email" required autoComplete="email" />
+                <Input name="name" label="Name" required {...{ autocomplete: 'name' }} />
+                <Input type="email" name="email" label="Email" required {...{ autocomplete: 'email' }} />
             </div>
             <Input name="subject" label="Subject" />
             <Textarea name="message" label="Message" rows={5} required />

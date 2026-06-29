@@ -3,10 +3,14 @@
  * Collections index — grid of all categories.
  */
 import Layout from '@components/layout.astro'
-import { Breadcrumb } from 'webcoreui/react'
+import CatalogPagination from '@snippets/catalog-pagination.astro'
+import { Breadcrumb } from 'webcoreui/astro'
 import { getCollections } from '../../lib/catalog'
+import { paginateItems, parsePageParam } from '../../lib/paginate'
 
-const collections = await getCollections(24)
+const page = parsePageParam(Astro.url.searchParams.get('page'))
+const collections = await getCollections(120)
+const paginated = paginateItems(collections, page, 12)
 ---
 
 <Layout title="Collections — ATELIER">
@@ -15,7 +19,7 @@ const collections = await getCollections(24)
         <h1 class="text-3xl md:text-4xl font-semibold tracking-tight mt-6 mb-8">Collections</h1>
 
         <div class="grid grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-            {collections.map(collection => (
+            {paginated.items.map(collection => (
                 <a href={`/collections/${collection.handle}`} class="group block relative overflow-hidden rounded-[--radius-card] bg-paper-soft">
                     <div class="aspect-[4/3] overflow-hidden">
                         <img src={collection.image?.url} alt={collection.title} loading="lazy"
@@ -29,5 +33,13 @@ const collections = await getCollections(24)
                 </a>
             ))}
         </div>
+
+        <CatalogPagination
+            basePath="/collections"
+            params={Astro.url.searchParams}
+            currentPage={paginated.currentPage}
+            totalPages={paginated.totalPages}
+            ariaLabel="Collection pages"
+        />
     </div>
 </Layout>

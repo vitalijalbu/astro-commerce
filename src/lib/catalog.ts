@@ -69,13 +69,11 @@ export async function getCollectionByHandle(handle: string): Promise<Collection 
 
 /** Products for a given collection. Mock fallback returns a tag/handle slice. */
 export async function getCollectionProducts(handle: string, limit = 12): Promise<Product[]> {
-    // The PrestaShop category->products association requires extra calls; for
-    // the template we reuse the product list. Real integrations should filter
-    // by `id_category_default` or the category `products` association.
     const all = await getProducts(limit)
     if (handle === 'sale') return all.filter(p => p.onSale)
-    if (handle === 'new-arrivals') return all.filter(p => p.tags.includes('new'))
-    return all
+    if (handle === 'new-arrivals') return all.filter(p => p.tags.map(tag => tag.toLowerCase()).includes('new') || p.tags.map(tag => tag.toLowerCase()).includes('new-arrivals'))
+    if (handle === 'all') return all
+    return all.filter(product => product.tags.map(tag => tag.toLowerCase()).includes(handle.toLowerCase()))
 }
 
 export { mockCollections, mockProducts }

@@ -1,8 +1,10 @@
 ---
 /**
- * Accessible quantity picker with native number input + step buttons.
+ * Accessible quantity picker using WebCoreUI buttons and input.
  * Emits a bubbling `quantity-change` event whenever the value changes.
  */
+import { Button, Input } from 'webcoreui/astro'
+
 interface Props {
     id?: string
     name?: string
@@ -22,41 +24,49 @@ const {
     max = 20,
     className
 } = Astro.props
+
+const labelId = `${id}-label`
 ---
 
-<div class:list={['flex flex-col gap-1', className]} data-quantity-picker>
-    <label for={id} class="text-sm font-medium">{label}</label>
-    <div class="inline-flex items-stretch overflow-hidden rounded-[--radius-card] border border-line bg-paper">
-        <button
+<div class:list={['flex flex-col gap-1.5', className]} data-quantity-picker role="group" aria-labelledby={labelId}>
+    <label id={labelId} for={id} class="text-sm font-medium">{label}</label>
+    <div class="flex items-center gap-2">
+        <Button
             type="button"
+            theme="secondary"
             data-qty-dec
-            class="h-11 w-10 border-r border-line text-lg leading-none hover:bg-paper-soft"
+            className="!h-11 !w-11 !min-w-11 !rounded-[--radius-card] !px-0"
             aria-controls={id}
             aria-label="Decrease quantity"
-        >−</button>
-        <input
+        >−</Button>
+        <Input
             id={id}
             name={name}
             type="number"
-            inputmode="numeric"
             min={min}
             max={max}
+            step="1"
             value={value}
             data-quantity-input
-            class="h-11 w-16 border-0 text-center text-base [appearance:textfield] focus:outline-none"
-            aria-live="polite"
+            aria-label={label}
+            className="!h-11 !w-18 !min-w-18 !rounded-[--radius-card] !px-0 !text-center [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
         />
-        <button
+        <Button
             type="button"
+            theme="secondary"
             data-qty-inc
-            class="h-11 w-10 border-l border-line text-lg leading-none hover:bg-paper-soft"
+            className="!h-11 !w-11 !min-w-11 !rounded-[--radius-card] !px-0"
             aria-controls={id}
             aria-label="Increase quantity"
-        >+</button>
+        >+</Button>
     </div>
 </div>
 
 <script>
+    type WindowWithQuantityPicker = Window & {
+        __quantityPickerSwapBound?: boolean
+    }
+
     const clamp = (value: number, min: number, max: number) => {
         if (Number.isNaN(value)) return min
         return Math.min(max, Math.max(min, value))
@@ -74,9 +84,16 @@ const {
         const min = Number(input.min || 1)
         const max = Number(input.max || 999)
 
-        const emit = () => {
+        const syncState = () => {
             const value = clamp(Number(input.value), min, max)
             input.value = String(value)
+            dec.disabled = value <= min
+            inc.disabled = value >= max
+            return value
+        }
+
+        const emit = () => {
+            const value = syncState()
             picker.dispatchEvent(new CustomEvent('quantity-change', {
                 bubbles: true,
                 detail: { value }
@@ -103,5 +120,10 @@ const {
     }
 
     initQuantityPickers()
-    document.addEventListener('astro:after-swap', initQuantityPickers)
+
+    const win = window as WindowWithQuantityPicker
+    if (!win.__quantityPickerSwapBound) {
+        win.__quantityPickerSwapBound = true
+        document.addEventListener('astro:after-swap', initQuantityPickers)
+    }
 </script>

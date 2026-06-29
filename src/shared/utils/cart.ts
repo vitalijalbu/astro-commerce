@@ -30,6 +30,8 @@ export interface ClientCartLine {
 }
 
 const KEY = 'storefront-cart'
+let listenersBound = false
+let openDrawer: (() => void) | undefined
 
 const read = (): ClientCartLine[] => {
     try {
@@ -107,7 +109,7 @@ function render() {
                 <li class="flex gap-4 py-4 border-b border-line">
                     <a href="/products/${l.handle}" class="shrink-0">
                         <img src="${l.image}" alt="${l.title}" width="72" height="90"
-                            class="w-18 h-[90px] object-cover rounded-[--radius-card] bg-paper-soft" />
+                            class="object-cover rounded-[--radius-card] bg-paper-soft" />
                     </a>
                     <div class="flex-1 min-w-0">
                         <a href="/products/${l.handle}" class="font-medium leading-tight">${l.title}</a>
@@ -142,53 +144,68 @@ function checkout() {
 }
 
 export function initCart() {
-    const drawer = modal('#cart-drawer')
+    const toggle = document.querySelector<HTMLElement>('[data-cart-toggle]')
 
-    document.addEventListener('click', event => {
-        const target = event.target as HTMLElement
+    if (toggle && toggle.dataset.webcoreBound !== 'true') {
+        toggle.dataset.webcoreBound = 'true'
 
-        const add = target.closest<HTMLElement>('[data-add-to-cart]')
-        if (add) {
-            event.preventDefault()
-            addLine({
-                id: add.dataset.id!,
-                handle: add.dataset.handle!,
-                title: add.dataset.title!,
-                variantTitle: add.dataset.variant,
-                image: add.dataset.image!,
-                price: Number(add.dataset.price),
-                currency: add.dataset.currency || 'EUR',
-                quantity: Number(add.dataset.quantity || 1)
-            })
-            drawer?.open()
-            return
-        }
+        const drawer = modal({
+            trigger: '[data-cart-toggle]',
+            modal: '#cart-drawer',
+            onOpen() {
+                toggle.setAttribute('aria-expanded', 'true')
+            },
+            onClose() {
+                toggle.setAttribute('aria-expanded', 'false')
+                toggle.focus()
+            }
+        })
 
-        const toggle = target.closest<HTMLElement>('[data-cart-toggle]')
-        if (toggle) {
-            event.preventDefault()
-            drawer?.open()
-            return
-        }
+        openDrawer = () => drawer?.open()
+    }
 
-        const remove = target.closest<HTMLElement>('[data-cart-remove]')
-        if (remove) {
-            removeLine(remove.dataset.cartRemove!)
-            return
-        }
+    if (!listenersBound) {
+        listenersBound = true
 
-        if (target.closest('[data-cart-checkout]')) {
-            event.preventDefault()
-            checkout()
-        }
-    })
+        document.addEventListener('click', event => {
+            const target = event.target as HTMLElement
 
-    document.addEventListener('input', event => {
-        const qty = (event.target as HTMLElement).closest<HTMLInputElement>('[data-cart-qty]')
-        if (qty) {
-            setQuantity(qty.dataset.cartQty!, Number(qty.value))
-        }
-    })
+            const add = target.closest<HTMLElement>('[data-add-to-cart]')
+            if (add) {
+                event.preventDefault()
+                addLine({
+                    id: add.dataset.id!,
+                    handle: add.dataset.handle!,
+                    title: add.dataset.title!,
+                    variantTitle: add.dataset.variant,
+                    image: add.dataset.image!,
+                    price: Number(add.dataset.price),
+                    currency: add.dataset.currency || 'EUR',
+                    quantity: Number(add.dataset.quantity || 1)
+                })
+                openDrawer?.()
+                return
+            }
+
+            const remove = target.closest<HTMLElement>('[data-cart-remove]')
+            if (remove) {
+                removeLine(remove.dataset.cartRemove!)
+                return
+            }
+
+            if (target.closest('[data-cart-checkout]')) {
+                event.preventDefault()
+                checkout()
+            }
+        })
+
+        document.addEventListener('input', event => {
+            const qty = (event.target as HTMLElement).closest<HTMLInputElement>('[data-cart-qty]')
+            if (qty) {
+                setQuantity(qty.dataset.cartQty!, Number(qty.value))
+            }
+        })
+    }
 
     render()
 }

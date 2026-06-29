@@ -4,7 +4,7 @@
  * Submits to the /search page (server-rendered results). Popular searches are
  * quick links. Forms always use WebCoreUI inputs/buttons (never hand-rolled).
  */
-import { Sheet, Input, Button } from 'webcoreui/react'
+import { Sheet, Input, Button } from 'webcoreui/astro'
 
 const popular = ['Linen', 'Knitwear', 'Loafers', 'Tote bag', 'Sale']
 ---
@@ -17,7 +17,7 @@ const popular = ['Linen', 'Knitwear', 'Loafers', 'Tote bag', 'Sale']
                 name="q"
                 placeholder="Search products…"
                 aria-label="Search products"
-                autoComplete="off"
+                {...{ autocomplete: 'off' }}
             />
         </div>
         <Button type="submit">Search</Button>
@@ -32,9 +32,22 @@ const popular = ['Linen', 'Knitwear', 'Loafers', 'Tote bag', 'Sale']
 
 <script>
     import { modal } from 'webcoreui'
-    modal({ trigger: '[data-search-toggle]', modal: '#search-sheet' })
-    // Focus the field when the sheet opens.
-    document.querySelector('[data-search-toggle]')?.addEventListener('click', () => {
-        setTimeout(() => document.querySelector<HTMLInputElement>('#search-sheet input')?.focus(), 50)
-    })
+    const trigger = document.querySelector<HTMLElement>('[data-search-toggle]')
+
+    if (trigger && trigger.dataset.webcoreBound !== 'true') {
+        trigger.dataset.webcoreBound = 'true'
+
+        modal({
+            trigger: '[data-search-toggle]',
+            modal: '#search-sheet',
+            onOpen() {
+                trigger.setAttribute('aria-expanded', 'true')
+                setTimeout(() => document.querySelector<HTMLInputElement>('#search-sheet input')?.focus(), 50)
+            },
+            onClose() {
+                trigger.setAttribute('aria-expanded', 'false')
+                trigger.focus()
+            }
+        })
+    }
 </script>

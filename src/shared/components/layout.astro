@@ -13,6 +13,7 @@ import MobileMenu from './mobile-menu.astro'
 import SearchSheet from './search-sheet.astro'
 import CartDrawer from './cart-drawer.astro'
 import Footer from './footer.astro'
+import JsonLd from '../snippets/json-ld.astro'
 import { shop } from '../../lib/navigation'
 import { getCurrentUser, isAuthenticated } from '../../lib/auth'
 
@@ -90,8 +91,9 @@ const orgSchema = {
         <Font cssVariable="--font-inter" preload />
         <title>{title}</title>
 
-        <script type="application/ld+json" set:html={JSON.stringify(websiteSchema)}></script>
-        <script type="application/ld+json" set:html={JSON.stringify(orgSchema)}></script>
+        <JsonLd data={websiteSchema} />
+        <JsonLd data={orgSchema} />
+        <slot name="structured-data" />
     </head>
     <body class="min-h-screen flex flex-col bg-paper text-ink">
         <a href="#main-content" class="skip-link">Skip to main content</a>

@@ -4,20 +4,22 @@
  */
 import Layout from '@components/layout.astro'
 import BlogCard from '@snippets/blog-card.astro'
-import { Breadcrumb, Badge, Button } from 'webcoreui/react'
+import EmptyState from '@snippets/empty-state.astro'
+import JsonLd from '@snippets/json-ld.astro'
+import { Breadcrumb, Badge, Button } from 'webcoreui/astro'
 import { getBlogPostBySlug, getRelatedBlogSummaries, formatBlogDate } from '../../lib/blog'
 
 const { slug } = Astro.params
 const post = getBlogPostBySlug(slug || '')
 
 if (!post) {
-    return new Response(null, { status: 404, statusText: 'Article not found' })
+    Astro.response.status = 404
 }
 
-const related = getRelatedBlogSummaries(post.slug, 3)
-const date = formatBlogDate(post.publishedAt)
+const related = post ? getRelatedBlogSummaries(post.slug, 3) : []
+const date = post ? formatBlogDate(post.publishedAt) : ''
 
-const articleSchema = {
+const articleSchema = post ? {
     '@context': 'https://schema.org',
     '@type': 'Article',
     headline: post.title,
@@ -37,17 +39,19 @@ const articleSchema = {
         '@type': 'WebPage',
         '@id': new URL(`/blog/${post.slug}`, Astro.url).toString()
     }
-}
+} : null
 ---
 
 <Layout
-    title={`${post.title} — Journal — ATELIER`}
-    description={post.excerpt}
-    image={post.image}
+    title={post ? `${post.title} — Journal — ATELIER` : 'Article not found — ATELIER'}
+    description={post?.excerpt ?? 'This journal article could not be found.'}
+    image={post?.image}
     type="article"
 >
     <div class="page py-8 md:py-12">
-        <Breadcrumb items={[
+        {post ? (
+            <>
+                <Breadcrumb items={[
             { href: '/', label: 'Home' },
             { href: '/blog', label: 'Journal' },
             { label: post.title }
@@ -112,7 +116,19 @@ const articleSchema = {
                 </ul>
             </section>
         )}
+            </>
+        ) : (
+            <EmptyState
+                title="Article not found"
+                text="The journal article you requested is unavailable. Explore the latest stories or continue shopping from the main catalog."
+                image="/images/placeholder.png"
+                actionHref="/blog"
+                actionLabel="View all articles"
+                secondaryHref="/collections/all"
+                secondaryLabel="Shop the catalog"
+            />
+        )}
     </div>
 
-    <script type="application/ld+json" set:html={JSON.stringify(articleSchema)}></script>
+    {articleSchema && <JsonLd slot="structured-data" data={articleSchema} />}
 </Layout>

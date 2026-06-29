@@ -2,7 +2,7 @@
 /**
  * Dark, ecommerce-ready footer with newsletter, support links and trust signals.
  */
-import { Input, Button } from 'webcoreui/react'
+import { Input, Button } from 'webcoreui/astro'
 import { footerMenu, shop } from '../../lib/navigation'
 import Icon from '../snippets/icon.astro'
 
@@ -40,10 +40,10 @@ const payments = ['Visa', 'Mastercard', 'Amex', 'PayPal', 'Apple Pay']
                             required
                             placeholder="Your email"
                             aria-label="Email address"
-                            autoComplete="email"
+                            {...{ autocomplete: 'email' }}
                         />
                     </div>
-                    <Button type="submit" className="sm:!px-5">Join</Button>
+                    <Button type="submit">Join</Button>
                 </form>
                 <p data-footer-newsletter-success hidden class="m-0 text-sm text-white/75">Thank you. You're on the list.</p>
 

@@ -1,0 +1,51 @@
+---
+import { Pagination } from 'webcoreui/astro'
+
+interface Props {
+    basePath: string
+    params: URLSearchParams
+    currentPage: number
+    totalPages: number
+    ariaLabel?: string
+}
+
+const {
+    basePath,
+    params,
+    currentPage,
+    totalPages,
+    ariaLabel = 'Pagination'
+} = Astro.props
+
+const buildHref = (page: number) => {
+    const next = new URLSearchParams(params)
+
+    if (page <= 1) next.delete('page')
+    else next.set('page', String(page))
+
+    const query = next.toString()
+    return query ? `${basePath}?${query}` : basePath
+}
+
+const pages = Array.from({ length: totalPages }, (_, index) => ({
+    label: index + 1,
+    active: index + 1 === currentPage,
+    link: buildHref(index + 1)
+}))
+
+const previousLink = currentPage > 1 ? buildHref(currentPage - 1) : undefined
+const nextLink = currentPage < totalPages ? buildHref(currentPage + 1) : undefined
+---
+
+{totalPages > 1 && (
+    <nav aria-label={ariaLabel} class="mt-10 flex justify-center">
+        <Pagination
+            pages={pages}
+            currentPage={currentPage}
+            totalPages={totalPages}
+            previousLink={previousLink}
+            nextLink={nextLink}
+            showChevrons
+        />
+    </nav>
+)}

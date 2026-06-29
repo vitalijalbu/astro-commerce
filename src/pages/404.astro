@@ -1,0 +1,18 @@
+---
+import Layout from '@components/layout.astro'
+import EmptyState from '@snippets/empty-state.astro'
+---
+
+<Layout title="Page not found — ATELIER" noindex>
+    <div class="page py-16 md:py-24">
+        <EmptyState
+            title="Page not found"
+            text="The page you requested does not exist or may have moved. Continue shopping from the catalog or head back home."
+            image="/images/placeholder.png"
+            actionHref="/collections/all"
+            actionLabel="Browse all products"
+            secondaryHref="/"
+            secondaryLabel="Back home"
+        />
+    </div>
+</Layout>

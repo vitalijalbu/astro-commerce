@@ -25,6 +25,7 @@ const { user } = Astro.props
                 type="button"
                 data-menu-toggle
                 aria-label="Open menu"
+                aria-haspopup="dialog"
                 aria-controls="mobile-menu"
                 aria-expanded="false"
                 class="lg:hidden p-2 -ml-2"
@@ -39,7 +40,6 @@ const { user } = Astro.props
                             href={item.href}
                             class="text-sm font-medium px-3 h-20 inline-flex items-center gap-1.5 hover:text-accent transition"
                             aria-haspopup={item.columns ? 'menu' : undefined}
-                            aria-expanded={item.columns ? 'false' : undefined}
                         >
                             {item.label}
                             {item.badge && (
@@ -99,6 +99,7 @@ const { user } = Astro.props
                 type="button"
                 data-search-toggle
                 aria-label="Search"
+                aria-haspopup="dialog"
                 aria-controls="search-sheet"
                 aria-expanded="false"
                 class="p-2 hover:text-accent transition"
@@ -119,6 +120,7 @@ const { user } = Astro.props
                 type="button"
                 data-cart-toggle
                 aria-label="Open cart"
+                aria-haspopup="dialog"
                 aria-controls="cart-drawer"
                 aria-expanded="false"
                 class="p-2 relative hover:text-accent transition"

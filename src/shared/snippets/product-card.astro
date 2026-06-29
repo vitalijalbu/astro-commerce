@@ -1,10 +1,10 @@
 ---
 /**
- * Product card — WebCoreUI <Card> as the container, with a Dawn-style image,
+ * Product card — minimal square media-first card with Dawn-like composition.
  * sale <Badge>, <Rating> stars, <Price>, and a quick-add <Button> that pushes
  * to the client cart via [data-add-to-cart].
  */
-import { Card, Badge, Rating, Button } from 'webcoreui/react'
+import { Badge, Rating, Button } from 'webcoreui/astro'
 import Price from './price.astro'
 import { discountPercent } from '../utils/format'
 import type { Product } from '../../lib/types'
@@ -22,9 +22,9 @@ const variant = product.variants[0]
 ---
 
 <article aria-label={product.title} class="h-full">
-    <Card flat compact className="group !p-0 !border-line overflow-hidden h-full">
-        <a href={`/products/${product.handle}`} class="block relative" aria-label={`View ${product.title}`}>
-            <div class="aspect-[4/5] overflow-hidden bg-paper-soft">
+    <div class="group flex h-full flex-col overflow-hidden rounded-[--radius-card] border border-line bg-paper">
+        <a href={`/products/${product.handle}`} class="relative block" aria-label={`View ${product.title}`}>
+            <div class="aspect-square overflow-hidden bg-paper-soft">
                 <img
                     src={product.featuredImage.url}
                     alt={product.featuredImage.alt}
@@ -41,7 +41,7 @@ const variant = product.variants[0]
             </div>
         </a>
 
-        <div class="p-4 flex flex-col gap-1.5">
+        <div class="flex flex-1 flex-col gap-2 p-0 pt-2">
             {product.vendor && <span class="text-xs text-muted">{product.vendor}</span>}
             <h3 class="m-0 text-base">
                 <a href={`/products/${product.handle}`} data-product-title class="font-medium leading-snug link-underline self-start">
@@ -51,7 +51,7 @@ const variant = product.variants[0]
             {product.rating && (
                 <Rating score={product.rating} size={14} reviewCount={product.reviewCount} />
             )}
-            <div class="flex items-center justify-between mt-1 gap-2">
+            <div class="mt-auto flex items-center justify-between gap-2 pt-1">
                 <Price price={product.price} compareAtPrice={product.compareAtPrice} />
                 <Button
                     theme="secondary"
@@ -70,5 +70,5 @@ const variant = product.variants[0]
                 </Button>
             </div>
         </div>
-    </Card>
+    </div>
 </article>

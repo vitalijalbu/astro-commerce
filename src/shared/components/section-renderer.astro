@@ -17,6 +17,7 @@ import Multicolumn from '../sections/multicolumn.astro'
 import Newsletter from '../sections/newsletter.astro'
 import Testimonials from '../sections/testimonials.astro'
 import BlogPosts from '../sections/blog-posts.astro'
+import BrandLogos from '../sections/brand-logos.astro'
 import Faq from '../sections/faq.astro'
 import Contact from '../sections/contact.astro'
 import type { Section } from '../../lib/sections'
@@ -39,6 +40,7 @@ const registry: Record<Section['type'], any> = {
     'newsletter': Newsletter,
     'testimonials': Testimonials,
     'blog-posts': BlogPosts,
+    'brand-logos': BrandLogos,
     'faq': Faq,
     'contact': Contact
 }

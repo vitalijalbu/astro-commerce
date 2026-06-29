@@ -28,6 +28,7 @@ export type SectionType =
     | 'image-banner'
     | 'featured-collection'
     | 'collection-list'
+    | 'brand-logos'
     | 'collage'
     | 'rich-text'
     | 'image-with-text'
@@ -121,6 +122,19 @@ export interface CollectionListSection extends BaseSection {
     }
 }
 
+export interface BrandLogosSection extends BaseSection {
+    type: 'brand-logos'
+    settings: {
+        heading: string
+        subheading?: string
+        brands: {
+            name: string
+            logo: string
+            href?: string
+        }[]
+    }
+}
+
 export interface RichTextSection extends BaseSection {
     type: 'rich-text'
     settings: {
@@ -193,6 +207,7 @@ export type Section =
     | ImageBannerSection
     | FeaturedCollectionSection
     | CollectionListSection
+    | BrandLogosSection
     | CollageSection
     | RichTextSection
     | ImageWithTextSection
@@ -274,8 +289,24 @@ export const homepageSections: Section[] = [
         background: 'muted',
         settings: {
             heading: 'Shop by category',
-            handles: ['new-arrivals', 'menswear', 'accessories', 'sale'],
+            handles: ['new-arrivals', 'menswear', 'knitwear', 'shirts', 'outerwear', 'accessories', 'footwear', 'travel'],
             columns: 4
+        }
+    },
+    {
+        id: 'brands',
+        type: 'brand-logos',
+        settings: {
+            heading: 'Selected brands',
+            subheading: 'A partner network built around quality, consistency and long-term sourcing.',
+            brands: [
+                { name: 'Northline', logo: '/images/placeholder.png', href: '/collections/all' },
+                { name: 'Meridian', logo: '/images/placeholder.png', href: '/collections/all' },
+                { name: 'House of Oak', logo: '/images/placeholder.png', href: '/collections/all' },
+                { name: 'Studio Forma', logo: '/images/placeholder.png', href: '/collections/all' },
+                { name: 'Common Thread', logo: '/images/placeholder.png', href: '/collections/all' },
+                { name: 'Atelier Supply', logo: '/images/placeholder.png', href: '/collections/all' }
+            ]
         }
     },
     {

@@ -4,7 +4,7 @@
  * demo) and signs them in. Form uses WebCoreUI components.
  */
 import Layout from '@components/layout.astro'
-import { Input, Button, Checkbox, Alert } from 'webcoreui/react'
+import { Input, Button, Checkbox, Alert } from 'webcoreui/astro'
 import { register, requireGuest } from '../lib/auth'
 
 const guard = requireGuest(Astro)
@@ -39,11 +39,11 @@ if (Astro.request.method === 'POST') {
 
             <form method="post" class="flex flex-col gap-4">
                 <div class="grid grid-cols-2 gap-4">
-                    <Input name="firstName" label="First name" required autoComplete="given-name" />
-                    <Input name="lastName" label="Last name" required autoComplete="family-name" />
+                    <Input name="firstName" label="First name" required {...{ autocomplete: 'given-name' }} />
+                    <Input name="lastName" label="Last name" required {...{ autocomplete: 'family-name' }} />
                 </div>
-                <Input type="email" name="email" label="Email" placeholder="you@example.com" required autoComplete="email" />
-                <Input type="password" name="password" label="Password" subText="At least 8 characters" required autoComplete="new-password" />
+                <Input type="email" name="email" label="Email" placeholder="you@example.com" required {...{ autocomplete: 'email' }} />
+                <Input type="password" name="password" label="Password" subText="At least 8 characters" required {...{ autocomplete: 'new-password' }} />
                 <Checkbox name="newsletter" label="Email me about new arrivals and offers" />
                 <Button type="submit" className="w-full">Create account</Button>
             </form>

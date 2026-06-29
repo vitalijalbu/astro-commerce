@@ -1,8 +1,8 @@
 ---
 /**
- * Customer testimonials grid with star ratings (WebCoreUI <Rating>, <Card>).
+ * Customer testimonials grid with star ratings (WebCoreUI <Rating>, <Card compact={true}>).
  */
-import { Card, Rating } from 'webcoreui/react'
+import { Card, Rating } from 'webcoreui/astro'
 import Section from '../snippets/section.astro'
 import SectionHeading from '../snippets/section-heading.astro'
 import type { TestimonialsSection } from '../../lib/sections'
@@ -19,7 +19,7 @@ const s = section.settings
     {s.heading && <SectionHeading heading={s.heading} align="center" />}
     <div class="grid md:grid-cols-3 gap-4 md:gap-6">
         {s.items.map(item => (
-            <Card className="!border-line">
+            <Card compact={true} className="!border-line">
                 {item.rating && <Rating score={item.rating} size={16} />}
                 <blockquote class="text-lg leading-relaxed my-4">“{item.quote}”</blockquote>
                 <footer class="text-sm">

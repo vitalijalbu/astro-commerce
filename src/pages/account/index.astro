@@ -4,7 +4,7 @@
  */
 import Layout from '@components/layout.astro'
 import AccountNav from '@components/account-nav.astro'
-import { Card, Button } from 'webcoreui/react'
+import { Card, Button } from 'webcoreui/astro'
 import Icon from '@snippets/icon.astro'
 import { getCurrentUser, requireAuth } from '../../lib/auth'
 
@@ -30,7 +30,7 @@ const shortcuts = [
 
         <div class="grid sm:grid-cols-3 gap-4">
             {shortcuts.map(s => (
-                <Card className="!border-line">
+                <Card compact={true} className="!border-line">
                     <div class="flex items-start gap-3">
                         <span class="grid place-items-center w-10 h-10 rounded-full bg-accent-soft text-accent shrink-0">
                             <Icon type={s.icon} size={18} />

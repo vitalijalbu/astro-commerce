@@ -4,7 +4,7 @@
  * Opened by the header's [data-menu-toggle] button via the modal() helper.
  * Shows nav + account links (login/register or account/sign-out).
  */
-import { Sheet } from 'webcoreui/react'
+import { Sheet } from 'webcoreui/astro'
 import { mainMenu, shop } from '../../lib/navigation'
 import type { AuthUser } from '../../lib/auth'
 
@@ -52,5 +52,21 @@ const { user } = Astro.props
 
 <script>
     import { modal } from 'webcoreui'
-    modal({ trigger: '[data-menu-toggle]', modal: '#mobile-menu' })
+    const trigger = document.querySelector<HTMLElement>('[data-menu-toggle]')
+
+    if (trigger && trigger.dataset.webcoreBound !== 'true') {
+        trigger.dataset.webcoreBound = 'true'
+
+        modal({
+            trigger: '[data-menu-toggle]',
+            modal: '#mobile-menu',
+            onOpen() {
+                trigger.setAttribute('aria-expanded', 'true')
+            },
+            onClose() {
+                trigger.setAttribute('aria-expanded', 'false')
+                trigger.focus()
+            }
+        })
+    }
 </script>

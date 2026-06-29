@@ -4,14 +4,18 @@
  * availability, price range) and a basic sorting model.
  */
 import Layout from '@components/layout.astro'
+import CatalogPagination from '@snippets/catalog-pagination.astro'
+import EmptyState from '@snippets/empty-state.astro'
 import ProductGrid from '@snippets/product-grid.astro'
 import SearchFilters from '@snippets/search-filters.astro'
-import { Input, Button } from 'webcoreui/react'
+import { Input, Button } from 'webcoreui/astro'
 import { getProducts } from '../lib/catalog'
+import { paginateItems, parsePageParam } from '../lib/paginate'
 
 const params = Astro.url.searchParams
 const query = (params.get('q') || '').trim()
 const sort = params.get('sort') || 'relevance'
+const page = parsePageParam(params.get('page'))
 
 const selectedVendors = [...new Set(params.getAll('vendor').filter(Boolean))]
 const onlyAvailable = params.get('available') === '1'
@@ -25,7 +29,7 @@ const parsePrice = (value: string | null): number | null => {
 const minPrice = parsePrice(params.get('min'))
 const maxPrice = parsePrice(params.get('max'))
 
-const all = await getProducts(96)
+const all = await getProducts(500)
 const vendors = [...new Set(all.map(p => p.vendor).filter((v): v is string => Boolean(v)))].sort()
 
 const base = query
@@ -46,6 +50,8 @@ const results = base
         if (sort === 'name-asc') return a.title.localeCompare(b.title)
         return 0
     })
+
+const paginated = paginateItems(results, page, 24)
 ---
 
 <Layout title={query ? `Search: ${query} — ATELIER` : 'Search — ATELIER'} noindex>
@@ -72,7 +78,7 @@ const results = base
             <div>
                 <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
                     <p class="text-ink-soft m-0" aria-live="polite">
-                        {results.length} result{results.length === 1 ? '' : 's'}
+                        {paginated.totalItems} result{paginated.totalItems === 1 ? '' : 's'}
                         {query ? <> for <strong>“{query}”</strong></> : ' in catalog'}
                     </p>
 
@@ -97,13 +103,25 @@ const results = base
                     </form>
                 </div>
 
-                {results.length > 0 && <ProductGrid products={results} eagerCount={4} columns={3} />}
+                {paginated.totalItems > 0 && <ProductGrid products={paginated.items} eagerCount={4} columns={3} />}
 
-                {results.length === 0 && (
-                    <div class="py-16 text-center border border-line rounded-[--radius-card] bg-paper-soft">
-                        <p class="text-ink-soft mb-4">No products matched your filters.</p>
-                        <Button href="/collections/all" theme="secondary">Browse all products</Button>
-                    </div>
+                <CatalogPagination
+                    basePath="/search"
+                    params={params}
+                    currentPage={paginated.currentPage}
+                    totalPages={paginated.totalPages}
+                    ariaLabel="Search results pages"
+                />
+
+                {paginated.totalItems === 0 && (
+                    <EmptyState
+                        title="No products found"
+                        text="No products matched your current search or filters. Try a broader term or reset the filters."
+                        actionHref="/collections/all"
+                        actionLabel="Browse all products"
+                        secondaryHref="/search"
+                        secondaryLabel="Reset search"
+                    />
                 )}
             </div>
         </div>

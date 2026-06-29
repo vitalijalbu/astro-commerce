@@ -2,7 +2,7 @@
 /**
  * Full-bleed hero slideshow built on WebCoreUI <Carousel> (autoplay + dots).
  */
-import { Carousel, CarouselItem, Button } from 'webcoreui/react'
+import { Carousel, CarouselItem, Button } from 'webcoreui/astro'
 import type { SlideshowSection } from '../../lib/sections'
 
 interface Props {
@@ -12,45 +12,68 @@ interface Props {
 const { section } = Astro.props
 const { slides, autoplay } = section.settings
 
-const alignMap = {
-    left: 'items-start text-left',
-    center: 'items-center text-center',
-    right: 'items-end text-right'
+const panelAlignMap = {
+    left: 'justify-start items-end md:items-center',
+    center: 'justify-center items-end md:items-center',
+    right: 'justify-end items-end md:items-center'
+}
+
+const contentAlignMap = {
+    left: 'mr-auto text-left items-start',
+    center: 'mx-auto text-center items-center',
+    right: 'ml-auto text-right items-end'
 }
 ---
 
-<section class="relative">
-    <Carousel
-        items={slides.length}
-        itemsPerSlide={1}
-        autoplay={autoplay}
-        pagination={{ type: 'dots' }}
-        className="w-full"
-    >
-        {slides.map((slide, i) => (
-            <CarouselItem>
-                <div class="relative w-full min-h-[480px] md:min-h-[640px] flex">
-                    <img
-                        src={slide.image}
-                        alt={slide.heading}
-                        loading={i === 0 ? 'eager' : 'lazy'}
-                        class="absolute inset-0 w-full h-full object-cover"
-                    />
-                    <div class="absolute inset-0 bg-black/30"></div>
-                    <div class="page relative z-10 flex flex-col justify-center w-full">
-                        <div class:list={['flex flex-col gap-4 max-w-xl text-white', alignMap[slide.align ?? 'left']]}>
-                            {slide.eyebrow && <span class="eyebrow !text-white/80">{slide.eyebrow}</span>}
-                            <h2 class="text-4xl md:text-6xl font-semibold tracking-tight m-0">{slide.heading}</h2>
-                            {slide.text && <p class="text-lg text-white/90 m-0">{slide.text}</p>}
-                            {slide.cta && (
-                                <div class="mt-2">
-                                    <Button href={slide.cta.href}>{slide.cta.label}</Button>
+<section class="bg-paper">
+    <div class="page pt-4 md:pt-6">
+        <Carousel
+            items={slides.length}
+            itemsPerSlide={1}
+            autoplay={autoplay}
+            pagination={{ type: 'dots' }}
+            className="w-full"
+        >
+            {slides.map((slide, i) => (
+                <CarouselItem>
+                    <article class="relative isolate min-h-130 overflow-hidden rounded-3xl border border-line bg-paper-dark md:min-h-170">
+                        <img
+                            src={slide.image}
+                            alt={slide.heading}
+                            loading={i === 0 ? 'eager' : 'lazy'}
+                            class="absolute inset-0 h-full w-full object-cover"
+                        />
+                        <div class="absolute inset-0 bg-linear-to-r from-black/60 via-black/25 to-black/10"></div>
+                        <div class="absolute inset-0 bg-linear-to-t from-black/35 via-transparent to-transparent"></div>
+
+                        <div class:list={['relative z-10 flex h-full p-5 md:p-10 lg:p-14', panelAlignMap[slide.align ?? 'left']]}> 
+                            <div class:list={[
+                                'flex w-full max-w-136 flex-col gap-4 rounded-2xl border border-white/15 bg-white/92 p-6 text-ink shadow-[0_24px_80px_rgba(0,0,0,0.22)] backdrop-blur-sm md:p-8 lg:p-10',
+                                contentAlignMap[slide.align ?? 'left']
+                            ]}>
+                                {slide.eyebrow && <span class="eyebrow">{slide.eyebrow}</span>}
+
+                                <div class="flex flex-col gap-3">
+                                    <h2 class="m-0 text-4xl font-semibold tracking-tight md:text-5xl lg:text-6xl">{slide.heading}</h2>
+                                    {slide.text && <p class="m-0 max-w-lg text-base leading-relaxed text-ink-soft md:text-lg">{slide.text}</p>}
                                 </div>
-                            )}
+
+                                {slide.cta && (
+                                    <div class="pt-2">
+                                        <Button href={slide.cta.href}>{slide.cta.label}</Button>
+                                    </div>
+                                )}
+
+                                <div class="mt-2 flex flex-wrap gap-x-5 gap-y-2 border-t border-line pt-4 text-xs uppercase tracking-[0.14em] text-muted">
+                                    <span>Free shipping over 100 EUR</span>
+                                    <span>30-day returns</span>
+                                    <span>Secure checkout</span>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                </div>
-            </CarouselItem>
-        ))}
-    </Carousel>
+                    </article>
+                </CarouselItem>
+            ))}
+        </Carousel>
+    </div>
 </section>

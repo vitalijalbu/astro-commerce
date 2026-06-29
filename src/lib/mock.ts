@@ -1,116 +1,152 @@
 /**
  * Static fallback catalog.
  *
- * Used whenever the PrestaShop webservice is not configured (no env vars)
- * or unreachable. This keeps the storefront fully renderable at build time
- * and during local development without a live backend.
+ * Stored in a plain JSON file so merchandising can adjust the mock catalog
+ * without editing TypeScript code. This stays the build-time fallback when
+ * PrestaShop is not configured or unreachable.
  */
-import type { Collection, Product } from './types'
+import storeData from '../data/mock-store.json'
 
-const CURRENCY = 'EUR'
+import type { Collection, Product, ProductImage } from './types'
 
-const img = (seed: string, alt: string) => ({
+type RawProduct = {
+    id: string
+    handle: string
+    title: string
+    description: string
+    descriptionHtml: string
+    vendor?: string
+    available?: boolean
+    price: number
+    compareAtPrice?: number | null
+    rating?: number
+    reviewCount?: number
+    tags?: string[]
+    imageSeeds: string[]
+}
+
+type RawProductSeries = {
+    handlePrefix: string
+    title: string
+    description: string
+    vendor?: string
+    basePrice: number
+    priceStep?: number
+    count: number
+    tags?: string[]
+    rating?: number
+    reviewCount?: number
+    compareAtDelta?: number
+    saleEvery?: number
+    imageSeedPrefix: string
+}
+
+type RawCollection = {
+    id: string
+    handle: string
+    title: string
+    description: string
+    imageSeed: string
+    productCount?: number
+}
+
+type MockStoreData = {
+    currencyCode: string
+    products: RawProduct[]
+    productSeries?: RawProductSeries[]
+    collections: RawCollection[]
+}
+
+const store = storeData as MockStoreData
+
+const makeImage = (seed: string, alt: string, width = 900, height = 1200): ProductImage => ({
     id: seed,
-    url: `https://picsum.photos/seed/${seed}/900/1200`,
+    url: `https://picsum.photos/seed/${seed}/${width}/${height}`,
     alt,
-    width: 900,
-    height: 1200
+    width,
+    height
 })
 
-function makeProduct(
-    handle: string,
-    title: string,
-    price: number,
-    opts: Partial<Product> & { compareAt?: number; tags?: string[] } = {}
-): Product {
-    const compareAt = opts.compareAt ?? null
+const money = (amount: number) => ({ amount, currencyCode: store.currencyCode })
+
+const createProductFromRaw = (product: RawProduct): Product => {
+    const images = product.imageSeeds.map((seed, index) =>
+        makeImage(seed, index === 0 ? product.title : `${product.title} detail ${index}`)
+    )
+    const compareAtPrice = product.compareAtPrice ? money(product.compareAtPrice) : null
+
     return {
-        id: handle,
-        handle,
-        title,
-        description: `${title} — crafted with premium materials and a timeless design that fits every occasion.`,
-        descriptionHtml: `<p>${title} — crafted with premium materials and a timeless design that fits every occasion.</p><ul><li>Premium, durable build</li><li>Designed in-house</li><li>Free returns within 30 days</li></ul>`,
-        vendor: 'Atelier',
-        available: true,
-        price: { amount: price, currencyCode: CURRENCY },
-        compareAtPrice: compareAt ? { amount: compareAt, currencyCode: CURRENCY } : null,
-        rating: 4.5,
-        reviewCount: 24,
-        featuredImage: img(handle, title),
-        images: [img(handle, title), img(`${handle}-2`, `${title} alternate`)],
-        tags: opts.tags ?? [],
-        onSale: !!compareAt && compareAt > price,
+        id: product.id,
+        handle: product.handle,
+        title: product.title,
+        description: product.description,
+        descriptionHtml: product.descriptionHtml,
+        vendor: product.vendor,
+        available: product.available ?? true,
+        price: money(product.price),
+        compareAtPrice,
+        rating: product.rating,
+        reviewCount: product.reviewCount,
+        featuredImage: images[0],
+        images,
+        tags: product.tags ?? [],
+        onSale: !!compareAtPrice && compareAtPrice.amount > product.price,
         variants: [
             {
-                id: `${handle}-default`,
+                id: `${product.handle}-default`,
                 title: 'Default',
-                available: true,
-                price: { amount: price, currencyCode: CURRENCY },
-                compareAtPrice: compareAt ? { amount: compareAt, currencyCode: CURRENCY } : null,
+                available: product.available ?? true,
+                price: money(product.price),
+                compareAtPrice,
                 options: [{ name: 'Title', value: 'Default' }]
             }
         ]
     }
 }
 
-export const mockProducts: Product[] = [
-    makeProduct('linen-blazer', 'Linen Blazer', 189, { compareAt: 240, tags: ['new'] }),
-    makeProduct('merino-knit', 'Merino Wool Knit', 129, { tags: ['new'] }),
-    makeProduct('canvas-tote', 'Canvas Tote Bag', 59),
-    makeProduct('leather-loafers', 'Leather Loafers', 159, { compareAt: 199 }),
-    makeProduct('silk-scarf', 'Printed Silk Scarf', 79, { tags: ['new'] }),
-    makeProduct('denim-jacket', 'Selvedge Denim Jacket', 219),
-    makeProduct('cashmere-beanie', 'Cashmere Beanie', 69, { compareAt: 89 }),
-    makeProduct('oxford-shirt', 'Oxford Cotton Shirt', 89, { tags: ['new'] })
-]
+const seriesProducts: Product[] = (store.productSeries ?? []).flatMap(series =>
+    Array.from({ length: series.count }, (_, index) => {
+        const itemNumber = index + 1
+        const suffix = String(itemNumber).padStart(2, '0')
+        const price = series.basePrice + index * (series.priceStep ?? 0)
+        const onSale = !!series.saleEvery && itemNumber % series.saleEvery === 0
 
-export const mockCollections: Collection[] = [
-    {
-        id: 'new-arrivals',
-        handle: 'new-arrivals',
-        title: 'New Arrivals',
-        description: 'The latest additions to the collection.',
-        image: {
-            id: 'col-new',
-            url: 'https://picsum.photos/seed/col-new/1200/1500',
-            alt: 'New arrivals'
-        },
-        productCount: 12
-    },
-    {
-        id: 'menswear',
-        handle: 'menswear',
-        title: 'Menswear',
-        description: 'Tailored essentials for the modern wardrobe.',
-        image: {
-            id: 'col-men',
-            url: 'https://picsum.photos/seed/col-men/1200/1500',
-            alt: 'Menswear'
-        },
-        productCount: 34
-    },
-    {
-        id: 'accessories',
-        handle: 'accessories',
-        title: 'Accessories',
-        description: 'Finishing touches that make the outfit.',
-        image: {
-            id: 'col-acc',
-            url: 'https://picsum.photos/seed/col-acc/1200/1500',
-            alt: 'Accessories'
-        },
-        productCount: 18
-    },
-    {
-        id: 'sale',
-        handle: 'sale',
-        title: 'Sale',
-        description: 'Selected pieces at a reduced price.',
-        image: {
-            id: 'col-sale',
-            url: 'https://picsum.photos/seed/col-sale/1200/1500',
-            alt: 'Sale'
-        },
-        productCount: 9
+        return createProductFromRaw({
+            id: `${series.handlePrefix}-${suffix}`,
+            handle: `${series.handlePrefix}-${suffix}`,
+            title: `${series.title} ${suffix}`,
+            description: series.description,
+            descriptionHtml: `<p>${series.description}</p><ul><li>Storefront mock product</li><li>Static fallback catalog</li><li>Ready for paginated browsing</li></ul>`,
+            vendor: series.vendor,
+            available: true,
+            price,
+            compareAtPrice: onSale && series.compareAtDelta ? price + series.compareAtDelta : null,
+            rating: series.rating,
+            reviewCount: (series.reviewCount ?? 10) + index,
+            tags: series.tags ?? [],
+            imageSeeds: [`${series.imageSeedPrefix}-${suffix}`, `${series.imageSeedPrefix}-${suffix}-detail`]
+        })
+    })
+)
+
+export const mockProducts: Product[] = [...store.products.map(createProductFromRaw), ...seriesProducts]
+
+export const mockCollections: Collection[] = store.collections.map(collection => {
+    const productCount = collection.productCount ?? mockProducts.filter(product => {
+        const tags = product.tags.map(tag => tag.toLowerCase())
+
+        if (collection.handle === 'sale') return product.onSale
+        if (collection.handle === 'new-arrivals') return tags.includes('new') || tags.includes('new-arrivals')
+
+        return tags.includes(collection.handle.toLowerCase())
+    }).length
+
+    return {
+        id: collection.id,
+        handle: collection.handle,
+        title: collection.title,
+        description: collection.description,
+        image: makeImage(collection.imageSeed, collection.title, 1200, 1500),
+        productCount
     }
-]
+})

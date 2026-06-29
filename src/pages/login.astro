@@ -4,7 +4,7 @@
  * (or the demo account) and redirects. Form uses WebCoreUI <Input>/<Button>.
  */
 import Layout from '@components/layout.astro'
-import { Input, Button, Checkbox, Alert } from 'webcoreui/react'
+import { Input, Button, Checkbox, Alert } from 'webcoreui/astro'
 import { login, requireGuest } from '../lib/auth'
 
 const guard = requireGuest(Astro)
@@ -35,8 +35,8 @@ if (Astro.request.method === 'POST') {
             {error && <div class="mb-4"><Alert theme="alert">{error}</Alert></div>}
 
             <form method="post" class="flex flex-col gap-4">
-                <Input type="email" name="email" label="Email" placeholder="you@example.com" required autoComplete="email" />
-                <Input type="password" name="password" label="Password" placeholder="••••••••" required autoComplete="current-password" />
+                <Input type="email" name="email" label="Email" placeholder="you@example.com" required {...{ autocomplete: 'email' }} />
+                <Input type="password" name="password" label="Password" placeholder="••••••••" required {...{ autocomplete: 'current-password' }} />
                 <div class="flex items-center justify-between">
                     <Checkbox name="remember" label="Remember me" />
                     <a href="/account/recover" class="text-sm link-underline">Forgot password?</a>
