@@ -11,6 +11,8 @@
  * object. `section-renderer.astro` maps `type` -> component.
  */
 
+import { getLatestBlogSummaries } from './blog'
+
 export interface BaseSection {
     /** Stable id, used as the DOM anchor / React-less key. */
     id: string
@@ -205,6 +207,8 @@ export type Section =
 /* Homepage content (would be supplied by Statamic in production)              */
 /* -------------------------------------------------------------------------- */
 
+const latestBlogPosts = getLatestBlogSummaries(3)
+
 export const homepageSections: Section[] = [
     {
         id: 'hero',
@@ -329,11 +333,16 @@ export const homepageSections: Section[] = [
         settings: {
             heading: 'From the journal',
             subheading: 'Stories, guides and behind-the-scenes.',
-            posts: [
-                { image: 'https://picsum.photos/seed/post1/900/600', title: 'How to build a capsule wardrobe', excerpt: 'Five principles for buying less and wearing more.', href: '/blog/capsule-wardrobe', date: 'May 2026' },
-                { image: 'https://picsum.photos/seed/post2/900/600', title: 'Caring for natural fibres', excerpt: 'Make your linen and wool last for years.', href: '/blog/fabric-care', date: 'Apr 2026' },
-                { image: 'https://picsum.photos/seed/post3/900/600', title: 'Inside our atelier', excerpt: 'Meet the makers behind every piece.', href: '/blog/our-atelier', date: 'Mar 2026' }
-            ]
+            posts: latestBlogPosts.map(post => ({
+                image: post.image,
+                title: post.title,
+                excerpt: post.excerpt,
+                href: post.href,
+                date: post.date,
+                author: post.author,
+                readMinutes: post.readMinutes,
+                tags: post.tags
+            }))
         }
     },
     {

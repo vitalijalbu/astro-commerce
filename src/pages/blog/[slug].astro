@@ -1,0 +1,118 @@
+---
+/**
+ * Journal article detail page.
+ */
+import Layout from '@components/layout.astro'
+import BlogCard from '@snippets/blog-card.astro'
+import { Breadcrumb, Badge, Button } from 'webcoreui/react'
+import { getBlogPostBySlug, getRelatedBlogSummaries, formatBlogDate } from '../../lib/blog'
+
+const { slug } = Astro.params
+const post = getBlogPostBySlug(slug || '')
+
+if (!post) {
+    return new Response(null, { status: 404, statusText: 'Article not found' })
+}
+
+const related = getRelatedBlogSummaries(post.slug, 3)
+const date = formatBlogDate(post.publishedAt)
+
+const articleSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: post.title,
+    description: post.excerpt,
+    image: [post.image],
+    datePublished: post.publishedAt,
+    dateModified: post.publishedAt,
+    author: {
+        '@type': 'Person',
+        name: post.author.name
+    },
+    publisher: {
+        '@type': 'Organization',
+        name: 'ATELIER'
+    },
+    mainEntityOfPage: {
+        '@type': 'WebPage',
+        '@id': new URL(`/blog/${post.slug}`, Astro.url).toString()
+    }
+}
+---
+
+<Layout
+    title={`${post.title} — Journal — ATELIER`}
+    description={post.excerpt}
+    image={post.image}
+    type="article"
+>
+    <div class="page py-8 md:py-12">
+        <Breadcrumb items={[
+            { href: '/', label: 'Home' },
+            { href: '/blog', label: 'Journal' },
+            { label: post.title }
+        ]} />
+
+        <article class="max-w-3xl mx-auto mt-6" aria-labelledby="article-title">
+            <header class="flex flex-col gap-4 mb-6">
+                <div class="flex flex-wrap items-center gap-2" aria-label="Article tags">
+                    {post.tags.map(tag => <Badge theme="outline" small>{tag}</Badge>)}
+                </div>
+
+                <h1 id="article-title" class="text-4xl md:text-5xl font-semibold tracking-tight m-0">{post.title}</h1>
+
+                <div class="text-sm text-muted flex flex-wrap items-center gap-2">
+                    <span>{date}</span>
+                    <span>•</span>
+                    <span>{post.author.name}</span>
+                    <span>•</span>
+                    <span>{post.readMinutes} min read</span>
+                </div>
+
+                <p class="text-lg text-ink-soft m-0 leading-relaxed">{post.excerpt}</p>
+            </header>
+
+            <figure class="overflow-hidden rounded-[--radius-card] border border-line bg-paper-soft mb-8">
+                <img src={post.image} alt={post.title} class="w-full aspect-[16/9] object-cover" loading="eager" />
+            </figure>
+
+            <div class="flex flex-col gap-8">
+                {post.content.map(block => (
+                    <section class="flex flex-col gap-4">
+                        {block.heading && <h2 class="text-2xl font-semibold tracking-tight m-0">{block.heading}</h2>}
+
+                        {block.paragraphs.map(text => (
+                            <p class="text-ink-soft leading-relaxed m-0">{text}</p>
+                        ))}
+
+                        {block.bullets && block.bullets.length > 0 && (
+                            <ul role="list" class="list-disc pl-5 text-ink-soft m-0 flex flex-col gap-2">
+                                {block.bullets.map(item => <li>{item}</li>)}
+                            </ul>
+                        )}
+                    </section>
+                ))}
+            </div>
+
+            <div class="mt-10 pt-6 border-t border-line flex flex-wrap items-center gap-3">
+                <Button href="/blog" theme="secondary">Back to journal</Button>
+                <Button href="/collections/all">Shop latest arrivals</Button>
+            </div>
+        </article>
+
+        {related.length > 0 && (
+            <section class="mt-14 md:mt-18" aria-labelledby="related-articles">
+                <h2 id="related-articles" class="text-2xl font-semibold tracking-tight mb-6">Related articles</h2>
+                <ul role="list" class="grid md:grid-cols-3 gap-6">
+                    {related.map(item => (
+                        <li>
+                            <BlogCard post={item} />
+                        </li>
+                    ))}
+                </ul>
+            </section>
+        )}
+    </div>
+
+    <script type="application/ld+json" set:html={JSON.stringify(articleSchema)}></script>
+</Layout>

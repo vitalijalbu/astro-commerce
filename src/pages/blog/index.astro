@@ -1,0 +1,90 @@
+---
+/**
+ * Journal index page (Shopify-like): featured article + article grid + filters.
+ */
+import Layout from '@components/layout.astro'
+import BlogCard from '@snippets/blog-card.astro'
+import { Breadcrumb, Badge, Button, Input } from 'webcoreui/react'
+import { getBlogSummaries, getBlogTags } from '../../lib/blog'
+
+const params = Astro.url.searchParams
+const query = (params.get('q') || '').trim().toLowerCase()
+const selectedTag = (params.get('tag') || '').trim()
+
+const allPosts = getBlogSummaries()
+const tags = getBlogTags()
+
+const posts = allPosts.filter(post => {
+    const byTag = selectedTag ? post.tags.includes(selectedTag) : true
+    const byQuery = query
+        ? `${post.title} ${post.excerpt} ${post.tags.join(' ')}`.toLowerCase().includes(query)
+        : true
+    return byTag && byQuery
+})
+
+const [featured, ...rest] = posts
+const clearHref = '/blog'
+---
+
+<Layout
+    title="Journal — ATELIER"
+    description="Editorial stories, style guides and care advice from the ATELIER journal."
+    type="website"
+>
+    <div class="page py-8 md:py-12">
+        <Breadcrumb items={[{ href: '/', label: 'Home' }, { label: 'Journal' }]} />
+
+        <header class="mt-6 mb-8 md:mb-10 flex flex-col gap-4">
+            <h1 class="text-4xl md:text-5xl font-semibold tracking-tight m-0">Journal</h1>
+            <p class="text-ink-soft max-w-2xl m-0">Shopify-style editorial stories for product care, styling and behind-the-scenes updates.</p>
+
+            <form action="/blog" method="get" role="search" aria-label="Search journal articles" class="flex gap-2 max-w-xl">
+                <div class="flex-1">
+                    <Input type="search" name="q" value={query} placeholder="Search journal articles" aria-label="Search journal articles" />
+                </div>
+                {selectedTag && <input type="hidden" name="tag" value={selectedTag} />}
+                <Button type="submit">Search</Button>
+            </form>
+        </header>
+
+        <nav aria-label="Journal tags" class="flex flex-wrap items-center gap-2 mb-8">
+            <a href={clearHref}>
+                <Badge theme={!selectedTag ? 'info' : 'outline'} small>All</Badge>
+            </a>
+            {tags.map(tag => (
+                <a href={`/blog?tag=${encodeURIComponent(tag)}`}>
+                    <Badge theme={selectedTag === tag ? 'info' : 'outline'} small>{tag}</Badge>
+                </a>
+            ))}
+        </nav>
+
+        {posts.length > 0 ? (
+            <>
+                {featured && (
+                    <section aria-labelledby="featured-journal" class="mb-8 md:mb-10">
+                        <h2 id="featured-journal" class="sr-only">Featured article</h2>
+                        <BlogCard post={featured} variant="feature" />
+                    </section>
+                )}
+
+                {rest.length > 0 && (
+                    <section aria-labelledby="latest-journal">
+                        <h2 id="latest-journal" class="text-2xl font-semibold tracking-tight mb-6">Latest articles</h2>
+                        <ul role="list" class="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
+                            {rest.map(post => (
+                                <li>
+                                    <BlogCard post={post} />
+                                </li>
+                            ))}
+                        </ul>
+                    </section>
+                )}
+            </>
+        ) : (
+            <section class="py-14 text-center border border-line rounded-[--radius-card] bg-paper-soft">
+                <p class="text-ink-soft mb-4">No articles matched this filter.</p>
+                <Button href="/blog" theme="secondary">View all journal articles</Button>
+            </section>
+        )}
+    </div>
+</Layout>
