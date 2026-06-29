@@ -1,0 +1,55 @@
+---
+/**
+ * Sign-in page. Handles its own POST (SSR), authenticates against PrestaShop
+ * (or the demo account) and redirects. Form uses WebCoreUI <Input>/<Button>.
+ */
+import Layout from '@components/layout.astro'
+import { Input, Button, Checkbox, Alert } from 'webcoreui/react'
+import { login, requireGuest } from '../lib/auth'
+
+const guard = requireGuest(Astro)
+if (guard) return guard
+
+const redirectTo = Astro.url.searchParams.get('redirect') || '/account'
+let error: string | null = null
+
+if (Astro.request.method === 'POST') {
+    const form = await Astro.request.formData()
+    const email = String(form.get('email') || '')
+    const password = String(form.get('password') || '')
+    const remember = form.get('remember') === 'on'
+    const result = await login(Astro, email, password, remember)
+    if (result.ok) return Astro.redirect(redirectTo)
+    error = result.error === 'invalid_credentials'
+        ? 'Email or password is incorrect.'
+        : 'Could not sign you in. Please try again.'
+}
+---
+
+<Layout title="Sign in — ATELIER">
+    <div class="page py-16 md:py-24 flex justify-center">
+        <div class="w-full max-w-md">
+            <h1 class="text-3xl font-semibold tracking-tight text-center mb-2">Welcome back</h1>
+            <p class="text-center text-ink-soft mb-8">Sign in to your account to continue.</p>
+
+            {error && <div class="mb-4"><Alert theme="alert">{error}</Alert></div>}
+
+            <form method="post" class="flex flex-col gap-4">
+                <Input type="email" name="email" label="Email" placeholder="you@example.com" required autoComplete="email" />
+                <Input type="password" name="password" label="Password" placeholder="••••••••" required autoComplete="current-password" />
+                <div class="flex items-center justify-between">
+                    <Checkbox name="remember" label="Remember me" />
+                    <a href="/account/recover" class="text-sm link-underline">Forgot password?</a>
+                </div>
+                <Button type="submit" className="w-full">Sign in</Button>
+            </form>
+
+            <p class="text-center text-sm text-ink-soft mt-6">
+                New here? <a href="/register" class="link-underline font-medium">Create an account</a>
+            </p>
+            <p class="text-center text-xs text-muted mt-4">
+                Demo: any email + password <code>demo1234</code>
+            </p>
+        </div>
+    </div>
+</Layout>

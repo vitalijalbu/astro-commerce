@@ -1,0 +1,46 @@
+---
+/**
+ * Order history (protected). Orders would come from PrestaShop's `orders`
+ * resource filtered by the signed-in customer id; a demo list is shown here.
+ */
+import Layout from '@components/layout.astro'
+import AccountNav from '@components/account-nav.astro'
+import { Badge, Button } from 'webcoreui/react'
+import { requireAuth } from '../../lib/auth'
+import { formatMoney } from '@utils/format'
+
+const guard = requireAuth(Astro)
+if (guard) return guard
+
+// TODO: replace with PrestaShop `GET /api/orders?filter[id_customer]=...`
+const orders = [
+    { id: '#10245', date: '12 Jun 2026', status: 'Delivered', total: 318, items: 2 },
+    { id: '#10198', date: '28 May 2026', status: 'Shipped', total: 129, items: 1 },
+    { id: '#10090', date: '03 May 2026', status: 'Delivered', total: 247, items: 3 }
+]
+const statusTheme: Record<string, 'success' | 'info' | 'warning'> = {
+    Delivered: 'success', Shipped: 'info', Processing: 'warning'
+}
+---
+
+<Layout title="Orders — ATELIER">
+    <div class="page py-10 md:py-14">
+        <h1 class="text-3xl font-semibold tracking-tight mb-6">Orders</h1>
+        <AccountNav active="/account/orders" />
+
+        <div class="border border-line rounded-[--radius-card] overflow-hidden">
+            <div class="hidden sm:grid grid-cols-[1fr_1fr_1fr_1fr_auto] gap-4 px-5 py-3 bg-paper-soft text-xs uppercase tracking-wide text-muted font-semibold">
+                <span>Order</span><span>Date</span><span>Status</span><span>Total</span><span></span>
+            </div>
+            {orders.map(o => (
+                <div class="grid sm:grid-cols-[1fr_1fr_1fr_1fr_auto] gap-2 sm:gap-4 px-5 py-4 border-t border-line items-center">
+                    <span class="font-medium">{o.id}</span>
+                    <span class="text-sm text-ink-soft">{o.date}</span>
+                    <span><Badge theme={statusTheme[o.status]} small>{o.status}</Badge></span>
+                    <span class="text-sm">{formatMoney({ amount: o.total, currencyCode: 'EUR' })} · {o.items} items</span>
+                    <Button theme="secondary" className="!py-1.5 justify-self-start sm:justify-self-end">View</Button>
+                </div>
+            ))}
+        </div>
+    </div>
+</Layout>

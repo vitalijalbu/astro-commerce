@@ -1,0 +1,29 @@
+---
+/**
+ * Centered/left section heading with optional eyebrow, subheading and a
+ * trailing "view all" link.
+ */
+interface Props {
+    eyebrow?: string
+    heading: string
+    subheading?: string
+    align?: 'left' | 'center'
+    cta?: { label: string; href: string }
+}
+
+const { eyebrow, heading, subheading, align = 'center', cta } = Astro.props
+const alignment = align === 'center' ? 'text-center items-center' : 'text-left items-start'
+---
+
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8 md:mb-10">
+    <div class:list={['flex flex-col gap-2', alignment]}>
+        {eyebrow && <span class="eyebrow">{eyebrow}</span>}
+        <h2 class="text-2xl md:text-3xl font-semibold tracking-tight m-0">{heading}</h2>
+        {subheading && <p class="text-ink-soft max-w-prose m-0">{subheading}</p>}
+    </div>
+    {cta && (
+        <a href={cta.href} class="link-underline text-sm font-medium shrink-0 whitespace-nowrap">
+            {cta.label} →
+        </a>
+    )}
+</div>

@@ -1,0 +1,53 @@
+---
+/**
+ * Full-bleed hero / image banner with overlaid copy and CTAs.
+ */
+import { Button } from 'webcoreui/react'
+import type { ImageBannerSection } from '../../lib/sections'
+
+interface Props {
+    section: ImageBannerSection
+}
+
+const { section } = Astro.props
+const s = section.settings
+
+const height = {
+    medium: 'min-h-[420px]',
+    large: 'min-h-[560px] md:min-h-[680px]',
+    full: 'min-h-[calc(100vh-7rem)]'
+}[s.height ?? 'large']
+
+const align = {
+    left: 'items-start text-left',
+    center: 'items-center text-center',
+    right: 'items-end text-right'
+}[s.align ?? 'left']
+---
+
+<section class:list={['relative w-full flex', height]}>
+    <img
+        src={s.image}
+        alt={s.heading}
+        loading="eager"
+        class="absolute inset-0 w-full h-full object-cover"
+    />
+    <div class="absolute inset-0 bg-black/30"></div>
+    <div class="page relative z-10 flex flex-col justify-center w-full">
+        <div class:list={['flex flex-col gap-4 max-w-xl text-white', align]}>
+            {s.subheading && (
+                <span class="eyebrow !text-white/80">{s.subheading}</span>
+            )}
+            <h1 class="text-4xl md:text-6xl font-semibold tracking-tight m-0">{s.heading}</h1>
+            {s.text && <p class="text-lg text-white/90 m-0">{s.text}</p>}
+            <div class="flex flex-wrap gap-3 mt-2">
+                {s.primaryCta && <Button href={s.primaryCta.href}>{s.primaryCta.label}</Button>}
+                {s.secondaryCta && (
+                    <Button href={s.secondaryCta.href} theme="outline" className="!text-white !border-white">
+                        {s.secondaryCta.label}
+                    </Button>
+                )}
+            </div>
+        </div>
+    </div>
+</section>

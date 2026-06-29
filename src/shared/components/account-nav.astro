@@ -1,0 +1,36 @@
+---
+/**
+ * Tabbed account navigation (active state from the current path).
+ */
+import Icon from '../snippets/icon.astro'
+
+interface Props {
+    active: string
+}
+
+const { active } = Astro.props
+const items = [
+    { href: '/account', label: 'Overview', icon: 'user' },
+    { href: '/account/orders', label: 'Orders', icon: 'cart' },
+    { href: '/account/profile', label: 'Profile', icon: 'shield' }
+]
+---
+
+<nav aria-label="Account" class="-mx-1 flex items-center gap-1 overflow-x-auto no-scrollbar border-b border-line mb-8">
+    {items.map(item => {
+        const on = item.href === '/account' ? active === '/account' : active.startsWith(item.href)
+        return (
+            <a
+                href={item.href}
+                aria-current={on ? 'page' : undefined}
+                class:list={[
+                    'flex shrink-0 items-center gap-2 border-b-2 px-4 py-3 text-sm font-medium transition',
+                    on ? 'border-ink text-ink' : 'border-transparent text-muted hover:text-ink'
+                ]}
+            >
+                <Icon type={item.icon} size={16} />
+                {item.label}
+            </a>
+        )
+    })}
+</nav>

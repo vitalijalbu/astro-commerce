@@ -1,0 +1,51 @@
+---
+/**
+ * Top announcement bar. Rotates through messages with a tiny vanilla script
+ * and is dismissible (state remembered in sessionStorage).
+ */
+import { shop } from '../../lib/navigation'
+
+const messages = shop.announcements
+---
+
+<div
+    class="bg-brand text-brand-contrast text-center text-xs tracking-wide relative"
+    data-announcement
+>
+    <div class="page flex items-center justify-center gap-2 h-9">
+        <p data-announcement-text class="m-0">{messages[0]}</p>
+    </div>
+    <button
+        type="button"
+        data-announcement-close
+        aria-label="Dismiss announcement"
+        class="absolute right-3 top-1/2 -translate-y-1/2 opacity-70 hover:opacity-100"
+    >×</button>
+</div>
+
+<script define:vars={{ messages }}>
+    const bar = document.querySelector('[data-announcement]')
+    if (bar) {
+        if (sessionStorage.getItem('announcement-dismissed')) {
+            bar.remove()
+        } else {
+            const textEl = bar.querySelector('[data-announcement-text]')
+            let index = 0
+            if (messages.length > 1) {
+                setInterval(() => {
+                    index = (index + 1) % messages.length
+                    textEl.style.opacity = '0'
+                    setTimeout(() => {
+                        textEl.textContent = messages[index]
+                        textEl.style.opacity = '1'
+                    }, 250)
+                }, 4000)
+                textEl.style.transition = 'opacity .25s ease'
+            }
+            bar.querySelector('[data-announcement-close]')?.addEventListener('click', () => {
+                sessionStorage.setItem('announcement-dismissed', '1')
+                bar.remove()
+            })
+        }
+    }
+</script>

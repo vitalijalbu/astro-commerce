@@ -1,0 +1,45 @@
+---
+/**
+ * Featured product collection — grid or WebCoreUI <Carousel>. Products are
+ * fetched server-side from the catalog (PrestaShop, with mock fallback).
+ */
+import { Carousel, CarouselItem } from 'webcoreui/react'
+import Section from '../snippets/section.astro'
+import SectionHeading from '../snippets/section-heading.astro'
+import ProductCard from '../snippets/product-card.astro'
+import { getCollectionProducts } from '../../lib/catalog'
+import type { FeaturedCollectionSection } from '../../lib/sections'
+
+interface Props {
+    section: FeaturedCollectionSection
+}
+
+const { section } = Astro.props
+const s = section.settings
+const products = await getCollectionProducts(s.collectionHandle ?? 'all', s.limit ?? 4)
+const isCarousel = s.layout === 'carousel'
+---
+
+<Section spacing="md" background={section.background} id={section.id}>
+    <SectionHeading heading={s.heading} subheading={s.subheading} align="left" cta={s.cta} />
+
+    {isCarousel ? (
+        <Carousel
+            items={products.length}
+            itemsPerSlide={{ default: 1, sm: 2, lg: 4 }}
+            pagination={{ type: 'arrows' }}
+        >
+            {products.map(product => (
+                <CarouselItem>
+                    <ProductCard product={product} />
+                </CarouselItem>
+            ))}
+        </Carousel>
+    ) : (
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+            {products.map((product, i) => (
+                <ProductCard product={product} eager={i < 4} />
+            ))}
+        </div>
+    )}
+</Section>

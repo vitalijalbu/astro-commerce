@@ -1,0 +1,51 @@
+---
+/**
+ * Page-builder renderer: maps each section's `type` to its component.
+ *
+ * This is the single bridge between the CMS/page-builder data and the UI.
+ * To drive the page from Statamic, fetch sections and pass them in — no
+ * component changes required.
+ */
+import Slideshow from '../sections/slideshow.astro'
+import ImageBanner from '../sections/image-banner.astro'
+import FeaturedCollection from '../sections/featured-collection.astro'
+import CollectionList from '../sections/collection-list.astro'
+import Collage from '../sections/collage.astro'
+import RichText from '../sections/rich-text.astro'
+import ImageWithText from '../sections/image-with-text.astro'
+import Multicolumn from '../sections/multicolumn.astro'
+import Newsletter from '../sections/newsletter.astro'
+import Testimonials from '../sections/testimonials.astro'
+import BlogPosts from '../sections/blog-posts.astro'
+import Faq from '../sections/faq.astro'
+import Contact from '../sections/contact.astro'
+import type { Section } from '../../lib/sections'
+
+interface Props {
+    sections: Section[]
+}
+
+const { sections } = Astro.props
+
+const registry: Record<Section['type'], any> = {
+    'slideshow': Slideshow,
+    'image-banner': ImageBanner,
+    'featured-collection': FeaturedCollection,
+    'collection-list': CollectionList,
+    'collage': Collage,
+    'rich-text': RichText,
+    'image-with-text': ImageWithText,
+    'multicolumn': Multicolumn,
+    'newsletter': Newsletter,
+    'testimonials': Testimonials,
+    'blog-posts': BlogPosts,
+    'faq': Faq,
+    'contact': Contact
+}
+---
+
+{sections.map(section => {
+    const Component = registry[section.type]
+    if (!Component) return null
+    return <Component section={section} />
+})}

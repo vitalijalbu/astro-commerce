@@ -1,0 +1,57 @@
+---
+/**
+ * Account dropdown shown in the header when a customer is signed in.
+ * Pure CSS hover/focus dropdown (uses the .has-menu pattern) — no JS.
+ */
+import Icon from '../snippets/icon.astro'
+import type { AuthUser } from '../../lib/auth'
+
+interface Props {
+    user: AuthUser
+}
+
+const { user } = Astro.props
+const label = user.name || user.firstName || user.email
+const initials = (user.name || user.email)
+    .split(/\s+/).slice(0, 2).map(p => p[0]?.toUpperCase() ?? '').join('') || 'U'
+
+const links = [
+    { href: '/account', label: 'Overview', icon: 'user' },
+    { href: '/account/orders', label: 'Orders', icon: 'cart' },
+    { href: '/account/profile', label: 'Profile', icon: 'shield' }
+]
+---
+
+<div class="has-menu relative">
+    <button
+        type="button"
+        aria-haspopup="menu"
+        class="flex items-center gap-2 rounded-full pl-1 pr-2 py-1 hover:bg-paper-soft transition"
+    >
+        <span class="grid place-items-center w-8 h-8 rounded-full bg-accent-soft text-accent text-xs font-semibold">
+            {initials}
+        </span>
+        <span class="hidden md:inline max-w-24 truncate text-sm font-medium">{label}</span>
+        <Icon type="chevron-down" size={14} />
+    </button>
+
+    <div class="menu-panel absolute right-0 top-full pt-2 z-50">
+        <div class="w-60 bg-paper border border-line rounded-[--radius-card] shadow-xl overflow-hidden" role="menu">
+            <div class="p-4 border-b border-line">
+                <p class="text-sm font-semibold m-0 truncate">{label}</p>
+                <p class="text-xs text-muted m-0 truncate">{user.email}</p>
+            </div>
+            {links.map(l => (
+                <a href={l.href} role="menuitem" class="flex items-center gap-2.5 px-4 py-2.5 text-sm hover:bg-paper-soft">
+                    <Icon type={l.icon} size={16} />
+                    {l.label}
+                </a>
+            ))}
+            <hr class="border-line m-0" />
+            <a href="/logout" role="menuitem" class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-sale hover:bg-paper-soft">
+                <Icon type="close" size={16} />
+                Sign out
+            </a>
+        </div>
+    </div>
+</div>

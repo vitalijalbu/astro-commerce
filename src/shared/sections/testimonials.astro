@@ -1,0 +1,32 @@
+---
+/**
+ * Customer testimonials grid with star ratings (WebCoreUI <Rating>, <Card>).
+ */
+import { Card, Rating } from 'webcoreui/react'
+import Section from '../snippets/section.astro'
+import SectionHeading from '../snippets/section-heading.astro'
+import type { TestimonialsSection } from '../../lib/sections'
+
+interface Props {
+    section: TestimonialsSection
+}
+
+const { section } = Astro.props
+const s = section.settings
+---
+
+<Section spacing="md" background={section.background} id={section.id}>
+    {s.heading && <SectionHeading heading={s.heading} align="center" />}
+    <div class="grid md:grid-cols-3 gap-4 md:gap-6">
+        {s.items.map(item => (
+            <Card className="!border-line">
+                {item.rating && <Rating score={item.rating} size={16} />}
+                <blockquote class="text-lg leading-relaxed my-4">“{item.quote}”</blockquote>
+                <footer class="text-sm">
+                    <span class="font-semibold">{item.author}</span>
+                    {item.role && <span class="text-muted"> · {item.role}</span>}
+                </footer>
+            </Card>
+        ))}
+    </div>
+</Section>

@@ -1,0 +1,51 @@
+---
+/**
+ * Profile settings (protected). SSR POST updates the auth_user cookie; a real
+ * integration would PATCH the PrestaShop customer resource.
+ */
+import Layout from '@components/layout.astro'
+import AccountNav from '@components/account-nav.astro'
+import { Input, Button, Alert } from 'webcoreui/react'
+import { getCurrentUser, requireAuth } from '../../lib/auth'
+
+const guard = requireAuth(Astro)
+if (guard) return guard
+let user = getCurrentUser(Astro)!
+let saved = false
+
+if (Astro.request.method === 'POST') {
+    const form = await Astro.request.formData()
+    user = {
+        ...user,
+        firstName: String(form.get('firstName') || user.firstName || ''),
+        lastName: String(form.get('lastName') || user.lastName || ''),
+        email: String(form.get('email') || user.email),
+        name: `${form.get('firstName') || ''} ${form.get('lastName') || ''}`.trim()
+    }
+    // TODO: PATCH PrestaShop /api/customers/{id} here.
+    Astro.cookies.set('auth_user', JSON.stringify(user), { path: '/', sameSite: 'lax' })
+    saved = true
+}
+---
+
+<Layout title="Profile — ATELIER">
+    <div class="page py-10 md:py-14">
+        <h1 class="text-3xl font-semibold tracking-tight mb-6">Profile</h1>
+        <AccountNav active="/account/profile" />
+
+        <div class="max-w-lg">
+            {saved && <div class="mb-4"><Alert theme="success">Your profile has been updated.</Alert></div>}
+            <form method="post" class="flex flex-col gap-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <Input name="firstName" label="First name" value={user.firstName} />
+                    <Input name="lastName" label="Last name" value={user.lastName} />
+                </div>
+                <Input type="email" name="email" label="Email" value={user.email} />
+                <div class="flex gap-2 mt-2">
+                    <Button type="submit">Save changes</Button>
+                    <Button href="/logout" theme="secondary">Sign out</Button>
+                </div>
+            </form>
+        </div>
+    </div>
+</Layout>

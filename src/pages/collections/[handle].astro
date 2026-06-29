@@ -1,0 +1,77 @@
+---
+/**
+ * Collection / Product Listing Page (PLP).
+ *
+ * Rendered on demand (SSR). Products are fetched server-side; sorting is a
+ * small vanilla script driven by a WebCoreUI <Select> (no page reloads).
+ */
+import Layout from '@components/layout.astro'
+import ProductGrid from '@snippets/product-grid.astro'
+import { Select, Breadcrumb } from 'webcoreui/react'
+import { getCollectionByHandle, getCollectionProducts } from '../../lib/catalog'
+
+const { handle } = Astro.params
+const collection = handle === 'all'
+    ? { title: 'All products', description: 'Browse the full collection.', handle: 'all' }
+    : await getCollectionByHandle(handle!)
+const products = await getCollectionProducts(handle!, 24)
+
+const sortOptions = [{
+    items: [
+        { name: 'Featured', value: 'featured', selected: true },
+        { name: 'Price: low to high', value: 'price-asc' },
+        { name: 'Price: high to low', value: 'price-desc' },
+        { name: 'Name: A–Z', value: 'name-asc' }
+    ]
+}]
+---
+
+<Layout title={`${collection?.title ?? 'Shop'} — ATELIER`} description={collection?.description}>
+    <div class="page pt-8">
+        <Breadcrumb items={[
+            { href: '/', label: 'Home' },
+            { href: '/collections', label: 'Collections' },
+            { label: collection?.title ?? 'Shop' }
+        ]} />
+
+        <header class="mt-6 mb-8 flex flex-col gap-2">
+            <h1 class="text-3xl md:text-4xl font-semibold tracking-tight m-0">{collection?.title}</h1>
+            {collection?.description && <p class="text-ink-soft max-w-prose m-0">{collection.description}</p>}
+        </header>
+
+        <div class="flex items-center justify-between gap-4 mb-6 border-y border-line py-3">
+            <span class="text-sm text-muted">{products.length} products</span>
+            <div class="w-56" data-sort>
+                <Select name="sort" value="featured" itemGroups={sortOptions} />
+            </div>
+        </div>
+
+        <div data-product-grid>
+            <ProductGrid products={products} eagerCount={4} />
+        </div>
+    </div>
+</Layout>
+
+<script>
+    import { listen } from 'webcoreui'
+
+    const grid = document.querySelector<HTMLElement>('[data-product-grid] > ul')
+
+    const priceOf = (card: Element) =>
+        Number(card.querySelector<HTMLElement>('[data-price]')?.dataset.price || 0)
+    const nameOf = (card: Element) =>
+        card.querySelector('[data-product-title]')?.textContent?.trim().toLowerCase() || ''
+
+    listen('select', ({ name, value }) => {
+        if (name !== 'sort' || !grid) return
+        const cards = Array.from(grid.children)
+        const sorters: Record<string, (a: Element, b: Element) => number> = {
+            'featured': () => 0,
+            'price-asc': (a, b) => priceOf(a) - priceOf(b),
+            'price-desc': (a, b) => priceOf(b) - priceOf(a),
+            'name-asc': (a, b) => nameOf(a).localeCompare(nameOf(b))
+        }
+        const sorter = sorters[value]
+        if (sorter) cards.sort(sorter).forEach(card => grid.appendChild(card))
+    })
+</script>

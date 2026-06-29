@@ -1,0 +1,48 @@
+---
+/**
+ * Newsletter signup. Form is built from WebCoreUI <Input> + <Button>.
+ * Submission is handled client-side (vanilla) — wire to your ESP/PrestaShop
+ * newsletter endpoint where indicated.
+ */
+import { Input, Button } from 'webcoreui/react'
+import Section from '../snippets/section.astro'
+import type { NewsletterSection } from '../../lib/sections'
+
+interface Props {
+    section: NewsletterSection
+}
+
+const { section } = Astro.props
+const s = section.settings
+---
+
+<Section spacing="lg" background={section.background ?? 'dark'} id={section.id}>
+    <div class="max-w-xl mx-auto text-center flex flex-col gap-4 items-center">
+        <h2 class="text-2xl md:text-4xl font-semibold tracking-tight m-0">{s.heading}</h2>
+        {s.text && <p class="text-lg opacity-80 m-0">{s.text}</p>}
+
+        <form data-newsletter class="w-full flex flex-col sm:flex-row gap-2 mt-2">
+            <div class="flex-1">
+                <Input
+                    type="email"
+                    name="email"
+                    required
+                    placeholder={s.placeholder ?? 'Enter your email'}
+                    aria-label="Email address"
+                />
+            </div>
+            <Button type="submit">{s.buttonLabel ?? 'Subscribe'}</Button>
+        </form>
+        <p data-newsletter-success hidden class="text-sm opacity-80 m-0">Thanks — you're on the list!</p>
+    </div>
+</Section>
+
+<script>
+    document.querySelector('[data-newsletter]')?.addEventListener('submit', e => {
+        e.preventDefault()
+        const form = e.currentTarget as HTMLFormElement
+        // TODO: POST the email to your newsletter endpoint (ESP / PrestaShop).
+        form.hidden = true
+        form.parentElement?.querySelector<HTMLElement>('[data-newsletter-success]')?.removeAttribute('hidden')
+    })
+</script>

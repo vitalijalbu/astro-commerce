@@ -1,0 +1,33 @@
+---
+/**
+ * Multicolumn feature/value-prop row with icons.
+ */
+import Section from '../snippets/section.astro'
+import SectionHeading from '../snippets/section-heading.astro'
+import Icon from '../snippets/icon.astro'
+import type { MulticolumnSection } from '../../lib/sections'
+
+interface Props {
+    section: MulticolumnSection
+}
+
+const { section } = Astro.props
+const s = section.settings
+---
+
+<Section spacing="sm" background={section.background} id={section.id}>
+    {s.heading && <SectionHeading heading={s.heading} align="center" />}
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
+        {s.columns.map(col => (
+            <div class="flex flex-col items-center text-center gap-2">
+                {col.icon && (
+                    <span class="grid place-items-center w-11 h-11 rounded-full bg-paper text-ink shadow-sm border border-line mb-1">
+                        <Icon type={col.icon} size={20} />
+                    </span>
+                )}
+                <h3 class="font-semibold m-0">{col.title}</h3>
+                <p class="text-sm text-ink-soft m-0">{col.text}</p>
+            </div>
+        ))}
+    </div>
+</Section>

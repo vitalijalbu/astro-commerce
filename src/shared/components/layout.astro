@@ -1,0 +1,134 @@
+---
+/**
+ * Base HTML shell: global styles + native Inter font, announcement bar,
+ * header (auth-aware), the three Sheets (mobile menu, search, cart) and
+ * footer. Page content goes in the slot. Light theme only.
+ */
+import '../../styles/global.css'
+import { Font } from 'astro:assets'
+
+import AnnouncementBar from './announcement-bar.astro'
+import Header from './header.astro'
+import MobileMenu from './mobile-menu.astro'
+import SearchSheet from './search-sheet.astro'
+import CartDrawer from './cart-drawer.astro'
+import Footer from './footer.astro'
+import { shop } from '../../lib/navigation'
+import { getCurrentUser, isAuthenticated } from '../../lib/auth'
+
+interface Props {
+    title?: string
+    description?: string
+    image?: string
+    canonical?: string
+    noindex?: boolean
+    type?: 'website' | 'article' | 'product'
+}
+
+const {
+    title = `${shop.name} — ${shop.tagline}`,
+    description = shop.tagline,
+    image,
+    canonical,
+    noindex = false,
+    type = 'website'
+} = Astro.props
+
+const authed = isAuthenticated(Astro)
+const user = authed ? getCurrentUser(Astro) : null
+const canonicalUrl = canonical ? new URL(canonical, Astro.url).toString() : Astro.url.href
+const imageUrl = image ? new URL(image, Astro.url).toString() : undefined
+const robots = noindex ? 'noindex,nofollow' : 'index,follow,max-image-preview:large'
+
+const websiteSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: shop.name,
+    url: Astro.url.origin,
+    description,
+    potentialAction: {
+        '@type': 'SearchAction',
+        target: `${Astro.url.origin}/search?q={search_term_string}`,
+        'query-input': 'required name=search_term_string'
+    }
+}
+
+const orgSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    name: shop.name,
+    url: Astro.url.origin,
+    email: shop.email
+}
+---
+
+<!doctype html>
+<html lang="en" data-theme="light" class="light scroll-smooth font-sans antialiased">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="description" content={description} />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="robots" content={robots} />
+        <meta name="theme-color" content="#181516" />
+
+        <link rel="canonical" href={canonicalUrl} />
+
+        <meta property="og:site_name" content={shop.name} />
+        <meta property="og:locale" content="en_US" />
+        <meta property="og:type" content={type} />
+        <meta property="og:title" content={title} />
+        <meta property="og:description" content={description} />
+        <meta property="og:url" content={canonicalUrl} />
+        {imageUrl && <meta property="og:image" content={imageUrl} />}
+
+        <meta name="twitter:card" content={imageUrl ? 'summary_large_image' : 'summary'} />
+        <meta name="twitter:title" content={title} />
+        <meta name="twitter:description" content={description} />
+        {imageUrl && <meta name="twitter:image" content={imageUrl} />}
+
+        <link rel="icon" type="image/svg+xml" href="/logo.svg" />
+        <Font cssVariable="--font-inter" preload />
+        <title>{title}</title>
+
+        <script type="application/ld+json" set:html={JSON.stringify(websiteSchema)}></script>
+        <script type="application/ld+json" set:html={JSON.stringify(orgSchema)}></script>
+    </head>
+    <body class="min-h-screen flex flex-col bg-paper text-ink">
+        <a href="#main-content" class="skip-link">Skip to main content</a>
+        <AnnouncementBar />
+        <Header user={user} />
+
+        <main id="main-content" class="flex-1" role="main" tabindex="-1">
+            <slot />
+        </main>
+
+        <Footer />
+
+        <!-- Overlays (WebCoreUI Sheets) -->
+        <MobileMenu user={user} />
+        <SearchSheet />
+        <CartDrawer />
+
+        <script>
+            import { initCart } from '../utils/cart'
+            initCart()
+            document.addEventListener('astro:after-swap', initCart)
+        </script>
+
+        <style lang="scss" is:global>
+            // Tailwind owns the reset (preflight) and utilities. Disable
+            // WebCoreUI's resets + utility classes so they don't fight Tailwind
+            // (per webcoreui.dev/docs/css-configuration). We keep only the
+            // component foundations webcore needs.
+            @use 'webcoreui/styles' as *;
+            @include setup((
+                theme: 'light',
+                includeResets: false,
+                includeUtilities: false,
+                includeTooltip: true,
+                includeScrollbarStyles: false,
+                includeBreakpoints: true
+            ));
+        </style>
+    </body>
+</html>

@@ -1,0 +1,107 @@
+---
+/**
+ * Accessible quantity picker with native number input + step buttons.
+ * Emits a bubbling `quantity-change` event whenever the value changes.
+ */
+interface Props {
+    id?: string
+    name?: string
+    label?: string
+    value?: number
+    min?: number
+    max?: number
+    className?: string
+}
+
+const {
+    id = 'quantity',
+    name = 'quantity',
+    label = 'Quantity',
+    value = 1,
+    min = 1,
+    max = 20,
+    className
+} = Astro.props
+---
+
+<div class:list={['flex flex-col gap-1', className]} data-quantity-picker>
+    <label for={id} class="text-sm font-medium">{label}</label>
+    <div class="inline-flex items-stretch overflow-hidden rounded-[--radius-card] border border-line bg-paper">
+        <button
+            type="button"
+            data-qty-dec
+            class="h-11 w-10 border-r border-line text-lg leading-none hover:bg-paper-soft"
+            aria-controls={id}
+            aria-label="Decrease quantity"
+        >−</button>
+        <input
+            id={id}
+            name={name}
+            type="number"
+            inputmode="numeric"
+            min={min}
+            max={max}
+            value={value}
+            data-quantity-input
+            class="h-11 w-16 border-0 text-center text-base [appearance:textfield] focus:outline-none"
+            aria-live="polite"
+        />
+        <button
+            type="button"
+            data-qty-inc
+            class="h-11 w-10 border-l border-line text-lg leading-none hover:bg-paper-soft"
+            aria-controls={id}
+            aria-label="Increase quantity"
+        >+</button>
+    </div>
+</div>
+
+<script>
+    const clamp = (value: number, min: number, max: number) => {
+        if (Number.isNaN(value)) return min
+        return Math.min(max, Math.max(min, value))
+    }
+
+    const bindPicker = (picker: HTMLElement) => {
+        if (picker.dataset.bound === 'true') return
+        picker.dataset.bound = 'true'
+
+        const input = picker.querySelector<HTMLInputElement>('[data-quantity-input]')
+        const dec = picker.querySelector<HTMLButtonElement>('[data-qty-dec]')
+        const inc = picker.querySelector<HTMLButtonElement>('[data-qty-inc]')
+        if (!input || !dec || !inc) return
+
+        const min = Number(input.min || 1)
+        const max = Number(input.max || 999)
+
+        const emit = () => {
+            const value = clamp(Number(input.value), min, max)
+            input.value = String(value)
+            picker.dispatchEvent(new CustomEvent('quantity-change', {
+                bubbles: true,
+                detail: { value }
+            }))
+        }
+
+        dec.addEventListener('click', () => {
+            input.value = String(clamp(Number(input.value) - 1, min, max))
+            emit()
+        })
+
+        inc.addEventListener('click', () => {
+            input.value = String(clamp(Number(input.value) + 1, min, max))
+            emit()
+        })
+
+        input.addEventListener('input', emit)
+        input.addEventListener('change', emit)
+        emit()
+    }
+
+    const initQuantityPickers = () => {
+        document.querySelectorAll<HTMLElement>('[data-quantity-picker]').forEach(bindPicker)
+    }
+
+    initQuantityPickers()
+    document.addEventListener('astro:after-swap', initQuantityPickers)
+</script>

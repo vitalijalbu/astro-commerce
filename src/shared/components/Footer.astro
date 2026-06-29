@@ -1,0 +1,104 @@
+---
+/**
+ * Dark, ecommerce-ready footer with newsletter, support links and trust signals.
+ */
+import { Input, Button } from 'webcoreui/react'
+import { footerMenu, shop } from '../../lib/navigation'
+import Icon from '../snippets/icon.astro'
+
+const year = new Date().getFullYear()
+
+const utilityLinks = [
+    { label: 'Privacy', href: '/pages/privacy' },
+    { label: 'Terms', href: '/pages/terms' },
+    { label: 'Cookies', href: '/pages/cookies' },
+    { label: 'Accessibility', href: '/pages/accessibility' }
+]
+
+const socials = [
+    { type: 'instagram', href: 'https://instagram.com', label: 'Instagram' },
+    { type: 'facebook', href: 'https://facebook.com', label: 'Facebook' },
+    { type: 'twitter', href: 'https://twitter.com', label: 'Twitter' }
+]
+
+const payments = ['Visa', 'Mastercard', 'Amex', 'PayPal', 'Apple Pay']
+---
+
+<footer class="mt-[--spacing-section] border-t border-white/15 bg-paper-dark text-white" role="contentinfo">
+    <div class="page py-12 md:py-16">
+        <div class="grid gap-10 lg:grid-cols-[1.35fr_1fr_1fr_1fr]">
+            <section aria-label="Newsletter" class="flex flex-col gap-4">
+                <a href="/" class="text-xl md:text-2xl font-semibold tracking-[0.25em] self-start">{shop.name}</a>
+                <p class="m-0 text-sm text-white/70 max-w-sm">{shop.tagline}</p>
+                <p class="m-0 text-xs uppercase tracking-[0.2em] text-white/55">Members get early access and private offers.</p>
+
+                <form data-footer-newsletter class="flex flex-col sm:flex-row gap-2 max-w-md" aria-label="Footer newsletter signup">
+                    <div class="flex-1">
+                        <Input
+                            type="email"
+                            name="email"
+                            required
+                            placeholder="Your email"
+                            aria-label="Email address"
+                            autoComplete="email"
+                        />
+                    </div>
+                    <Button type="submit" className="sm:!px-5">Join</Button>
+                </form>
+                <p data-footer-newsletter-success hidden class="m-0 text-sm text-white/75">Thank you. You're on the list.</p>
+
+                <ul role="list" class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs text-white/70 m-0 p-0 list-none pt-1">
+                    <li class="inline-flex items-center gap-1.5"><Icon type="truck" size={14} /><span>Free shipping over €100</span></li>
+                    <li class="inline-flex items-center gap-1.5"><Icon type="refresh" size={14} /><span>30-day returns</span></li>
+                    <li class="inline-flex items-center gap-1.5"><Icon type="shield" size={14} /><span>Secure checkout</span></li>
+                </ul>
+            </section>
+
+            {footerMenu.map(column => (
+                <nav aria-label={column.title} class="flex flex-col gap-3">
+                    <h2 class="m-0 text-sm font-semibold tracking-wide text-white">{column.title}</h2>
+                    <ul role="list" class="m-0 p-0 list-none flex flex-col gap-2">
+                        {column.items.map(item => (
+                            <li>
+                                <a href={item.href} class="text-sm text-white/70 hover:text-white transition">{item.name}</a>
+                            </li>
+                        ))}
+                    </ul>
+                </nav>
+            ))}
+        </div>
+
+        <div class="mt-10 pt-6 border-t border-white/15 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+            <div class="flex flex-wrap items-center gap-x-3 gap-y-2 text-xs text-white/65" aria-label="Payment methods">
+                <span class="text-white/85">Accepted payments:</span>
+                {payments.map(method => <span class="border border-white/20 rounded-full px-2 py-1">{method}</span>)}
+            </div>
+
+            <div class="flex items-center gap-4" aria-label="Social links">
+                {socials.map(s => (
+                    <a href={s.href} target="_blank" rel="noopener" aria-label={s.label} class="text-white/70 hover:text-white transition">
+                        <Icon type={s.type} size={18} />
+                    </a>
+                ))}
+            </div>
+        </div>
+
+        <div class="mt-6 pt-5 border-t border-white/10 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+            <p class="text-xs text-white/55 m-0">© {year} {shop.name}. All rights reserved.</p>
+            <nav aria-label="Legal links" class="flex flex-wrap items-center gap-3 text-xs">
+                {utilityLinks.map(link => (
+                    <a href={link.href} class="text-white/55 hover:text-white/80 transition">{link.label}</a>
+                ))}
+            </nav>
+        </div>
+    </div>
+</footer>
+
+<script>
+    document.querySelector('[data-footer-newsletter]')?.addEventListener('submit', e => {
+        e.preventDefault()
+        const form = e.currentTarget as HTMLFormElement
+        form.hidden = true
+        form.parentElement?.querySelector<HTMLElement>('[data-footer-newsletter-success]')?.removeAttribute('hidden')
+    })
+</script>

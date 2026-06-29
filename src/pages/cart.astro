@@ -1,0 +1,96 @@
+---
+/**
+ * Full cart page. Lines/totals are rendered client-side from localStorage
+ * (the same store the drawer uses). Self-contained script to avoid clashing
+ * with the drawer's selectors.
+ */
+import Layout from '@components/layout.astro'
+import { Button } from 'webcoreui/react'
+---
+
+<Layout title="Your cart — ATELIER">
+    <div class="page py-10 md:py-14">
+        <h1 class="text-3xl md:text-4xl font-semibold tracking-tight mb-8">Your cart</h1>
+
+        <div data-page-cart-empty class="py-16 text-center" hidden>
+            <p class="text-ink-soft mb-4">Your cart is empty.</p>
+            <Button href="/collections/all" theme="secondary">Continue shopping</Button>
+        </div>
+
+        <div data-page-cart-body class="grid lg:grid-cols-[1fr_360px] gap-10" hidden>
+            <ul data-page-cart-lines class="list-none p-0 m-0"></ul>
+
+            <aside class="h-fit border border-line rounded-[--radius-card] p-6 bg-paper-soft">
+                <h2 class="text-lg font-semibold m-0 mb-4">Order summary</h2>
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-ink-soft">Subtotal</span>
+                    <span data-page-cart-subtotal class="font-semibold">€0</span>
+                </div>
+                <p class="text-xs text-muted mb-5">Shipping &amp; taxes calculated at checkout.</p>
+                <Button data-cart-checkout className="w-full">Checkout</Button>
+                <Button href="/collections/all" theme="secondary" className="w-full mt-2">Continue shopping</Button>
+            </aside>
+        </div>
+    </div>
+</Layout>
+
+<script>
+    const KEY = 'storefront-cart'
+    const read = () => { try { return JSON.parse(localStorage.getItem(KEY) || '[]') } catch { return [] } }
+    const write = (l: any[]) => { localStorage.setItem(KEY, JSON.stringify(l)); render() }
+    const fmt = (a: number, c: string) =>
+        new Intl.NumberFormat('en', { style: 'currency', currency: c, minimumFractionDigits: Number.isInteger(a) ? 0 : 2 }).format(a)
+
+    function render() {
+        const lines = read()
+        const empty = document.querySelector<HTMLElement>('[data-page-cart-empty]')
+        const body = document.querySelector<HTMLElement>('[data-page-cart-body]')
+        const list = document.querySelector<HTMLElement>('[data-page-cart-lines]')
+        const subtotalEl = document.querySelector<HTMLElement>('[data-page-cart-subtotal]')
+        if (!empty || !body || !list || !subtotalEl) return
+
+        empty.toggleAttribute('hidden', lines.length > 0)
+        body.toggleAttribute('hidden', lines.length === 0)
+
+        const currency = lines[0]?.currency || 'EUR'
+        const subtotal = lines.reduce((s: number, l: any) => s + l.price * l.quantity, 0)
+
+        list.innerHTML = lines.map((l: any) => `
+            <li class="flex gap-4 py-5 border-b border-line">
+                <a href="/products/${l.handle}" class="shrink-0">
+                    <img src="${l.image}" alt="${l.title}" width="96" height="120"
+                        class="w-24 h-30 object-cover rounded-[--radius-card] bg-paper-soft" />
+                </a>
+                <div class="flex-1 min-w-0">
+                    <a href="/products/${l.handle}" class="font-medium">${l.title}</a>
+                    ${l.variantTitle && l.variantTitle !== 'Default' ? `<p class="text-sm text-muted mt-0.5">${l.variantTitle}</p>` : ''}
+                    <div class="flex items-center gap-3 mt-3">
+                        <input type="number" min="1" value="${l.quantity}" data-line-qty="${l.id}" aria-label="Quantity"
+                            class="w-16 h-9 px-2 border border-line rounded-[--radius-card] text-sm" />
+                        <button type="button" data-line-remove="${l.id}" class="text-sm text-muted link-underline">Remove</button>
+                    </div>
+                </div>
+                <div class="text-right font-medium">${fmt(l.price * l.quantity, l.currency)}</div>
+            </li>
+        `).join('')
+
+        subtotalEl.textContent = fmt(subtotal, currency)
+    }
+
+    document.addEventListener('click', e => {
+        const remove = (e.target as HTMLElement).closest<HTMLElement>('[data-line-remove]')
+        if (remove) write(read().filter((l: any) => l.id !== remove.dataset.lineRemove))
+        if ((e.target as HTMLElement).closest('[data-cart-checkout]')) { e.preventDefault(); window.location.href = '/cart' }
+    })
+    document.addEventListener('input', e => {
+        const qty = (e.target as HTMLElement).closest<HTMLInputElement>('[data-line-qty]')
+        if (qty) {
+            const lines = read()
+            const line = lines.find((l: any) => l.id === qty.dataset.lineQty)
+            if (line) { line.quantity = Math.max(1, Number(qty.value)); write(lines) }
+        }
+    })
+
+    render()
+    document.addEventListener('astro:after-swap', render)
+</script>

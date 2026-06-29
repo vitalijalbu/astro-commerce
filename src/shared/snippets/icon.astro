@@ -1,0 +1,18 @@
+---
+/**
+ * Thin wrapper over WebCoreUI's <Icon> that always merges in the storefront
+ * icon set, so `cart`, `user`, `menu`, etc. work alongside the built-ins.
+ */
+import { Icon } from 'webcoreui/react'
+import { storeIcons } from './icons'
+
+interface Props {
+    type: string
+    size?: number
+    color?: string
+}
+
+const { type, size = 24, color } = Astro.props
+---
+
+<Icon type={type} size={size} color={color} iconSet={storeIcons} />

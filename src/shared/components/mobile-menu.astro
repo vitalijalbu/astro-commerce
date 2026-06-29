@@ -1,0 +1,56 @@
+---
+/**
+ * Mobile navigation drawer (WebCoreUI <Sheet>, slides from the left).
+ * Opened by the header's [data-menu-toggle] button via the modal() helper.
+ * Shows nav + account links (login/register or account/sign-out).
+ */
+import { Sheet } from 'webcoreui/react'
+import { mainMenu, shop } from '../../lib/navigation'
+import type { AuthUser } from '../../lib/auth'
+
+interface Props {
+    user: AuthUser | null
+}
+
+const { user } = Astro.props
+---
+
+<Sheet id="mobile-menu" position="left" title={shop.name} className="lg:hidden">
+    <nav class="flex flex-col gap-1 mt-4" aria-label="Mobile">
+        {mainMenu.map(item => (
+            <div>
+                <a href={item.href} class="block py-3 text-base font-medium border-b border-line">
+                    {item.label}
+                </a>
+                {item.columns && (
+                    <div class="flex flex-col pl-3 py-1">
+                        {item.columns.flatMap(c => c.items).map(child => (
+                            <a href={child.href} class="py-2 text-sm text-ink-soft">{child.label}</a>
+                        ))}
+                    </div>
+                )}
+            </div>
+        ))}
+    </nav>
+
+    <div class="mt-6 pt-4 border-t border-line flex flex-col gap-1">
+        {user ? (
+            <>
+                <a href="/account" class="py-2 text-sm font-medium">My account</a>
+                <a href="/account/orders" class="py-2 text-sm text-ink-soft">Orders</a>
+                <a href="/logout" class="py-2 text-sm text-sale">Sign out</a>
+            </>
+        ) : (
+            <>
+                <a href="/login" class="py-2 text-sm font-medium">Sign in</a>
+                <a href="/register" class="py-2 text-sm text-ink-soft">Create account</a>
+            </>
+        )}
+        <a href={`mailto:${shop.email}`} class="py-2 text-sm text-muted">{shop.email}</a>
+    </div>
+</Sheet>
+
+<script>
+    import { modal } from 'webcoreui'
+    modal({ trigger: '[data-menu-toggle]', modal: '#mobile-menu' })
+</script>

@@ -1,0 +1,175 @@
+---
+/**
+ * Product detail page (PDP), rendered on demand (SSR).
+ *
+ * Uses WebCoreUI throughout: <Breadcrumb>, <Rating>, <Badge>, <Carousel>,
+ * <Button>, <Accordion>. Quantity uses a native number input for accessibility.
+ */
+import Layout from '@components/layout.astro'
+import ProductGrid from '@snippets/product-grid.astro'
+import Price from '@snippets/price.astro'
+import Icon from '@snippets/icon.astro'
+import QuantityPicker from '@snippets/quantity-picker.astro'
+import { Breadcrumb, Rating, Badge, Carousel, CarouselItem, Button, Accordion } from 'webcoreui/react'
+import { getProductByHandle, getProducts } from '../../lib/catalog'
+import { discountPercent } from '@utils/format'
+
+const { handle } = Astro.params
+const product = await getProductByHandle(handle!)
+
+if (!product) {
+    return new Response(null, { status: 404, statusText: 'Product not found' })
+}
+
+const variant = product.variants[0]
+const discount = discountPercent(product.price, product.compareAtPrice)
+const recommended = (await getProducts(8)).filter(p => p.handle !== product.handle).slice(0, 4)
+const galleryImages = product.images.length > 0 ? product.images : [product.featuredImage]
+
+const accordionItems = [
+    { title: 'Description', content: product.descriptionHtml, expanded: true },
+    { title: 'Shipping & returns', content: 'Free standard shipping on orders over €100. Easy 30-day returns — items must be unworn with tags attached.' },
+    { title: 'Materials & care', content: 'Made from premium natural materials. Follow the care label; cool wash and lay flat to dry where possible.' }
+]
+---
+
+<Layout
+    title={`${product.title} — ATELIER`}
+    description={product.description}
+    image={product.featuredImage.url}
+    type="product"
+>
+    <div class="page py-6 md:py-10">
+        <Breadcrumb items={[
+            { href: '/', label: 'Home' },
+            { href: '/collections/all', label: 'Shop' },
+            { label: product.title }
+        ]} />
+
+        <div class="grid md:grid-cols-2 gap-8 lg:gap-14 mt-6">
+            <!-- Gallery -->
+            <div>
+                <div class="overflow-hidden rounded-[--radius-card] border border-line bg-paper-soft" aria-label="Product gallery">
+                    <Carousel
+                        items={galleryImages.length}
+                        itemsPerSlide={1}
+                        pagination={{ type: 'dots' }}
+                        className="w-full"
+                    >
+                        {galleryImages.map((image, i) => (
+                            <CarouselItem>
+                                <img
+                                    src={image.url}
+                                    alt={image.alt || `${product.title} image ${i + 1}`}
+                                    width={image.width}
+                                    height={image.height}
+                                    loading={i === 0 ? 'eager' : 'lazy'}
+                                    class="w-full object-cover aspect-[4/5]"
+                                />
+                            </CarouselItem>
+                        ))}
+                    </Carousel>
+                </div>
+
+                <ul role="list" class="mt-3 grid grid-cols-5 gap-2">
+                    {galleryImages.slice(0, 5).map((image, i) => (
+                        <li class="overflow-hidden rounded-[--radius-card] border border-line bg-paper-soft">
+                            <img
+                                src={image.url}
+                                alt={image.alt || `${product.title} thumbnail ${i + 1}`}
+                                loading="lazy"
+                                class="aspect-[4/5] w-full object-cover"
+                            />
+                        </li>
+                    ))}
+                </ul>
+            </div>
+
+            <!-- Info -->
+            <div class="flex flex-col">
+                {product.vendor && <span class="eyebrow mb-2">{product.vendor}</span>}
+                <h1 class="text-3xl md:text-4xl font-semibold tracking-tight m-0">{product.title}</h1>
+
+                <div class="flex items-center gap-3 mt-3">
+                    {product.rating && (
+                        <Rating score={product.rating} size={16} reviewCount={product.reviewCount} showText />
+                    )}
+                </div>
+
+                <div class="flex items-center gap-3 mt-4">
+                    <Price price={product.price} compareAtPrice={product.compareAtPrice} className="text-2xl" />
+                    {discount && <Badge theme="alert" small>-{discount}%</Badge>}
+                    {!product.available && <Badge theme="outline" small>Sold out</Badge>}
+                </div>
+
+                <p class="text-ink-soft mt-4 leading-relaxed">{product.description}</p>
+
+                <!-- Quantity + add to cart -->
+                <div class="flex items-center gap-3 mt-8">
+                    <div class="w-32">
+                        <QuantityPicker id="pdp-quantity" name="quantity" value={1} min={1} max={12} />
+                    </div>
+                    <Button
+                        className="flex-1"
+                        disabled={!product.available}
+                        data-add-to-cart
+                        data-id={variant.id}
+                        data-handle={product.handle}
+                        data-title={product.title}
+                        data-variant={variant.title}
+                        data-image={product.featuredImage.url}
+                        data-price={product.price.amount}
+                        data-currency={product.price.currencyCode}
+                        data-quantity="1"
+                        aria-label={`Add ${product.title} to cart`}
+                    >
+                        {product.available ? 'Add to cart' : 'Sold out'}
+                    </Button>
+                </div>
+
+                <!-- Trust badges -->
+                <ul role="list" class="grid grid-cols-3 gap-3 mt-6 text-center text-xs text-ink-soft">
+                    <li class="flex flex-col items-center gap-1.5"><Icon type="truck" size={20} /><span>Free shipping €100+</span></li>
+                    <li class="flex flex-col items-center gap-1.5"><Icon type="refresh" size={20} /><span>30-day returns</span></li>
+                    <li class="flex flex-col items-center gap-1.5"><Icon type="shield" size={20} /><span>Secure checkout</span></li>
+                </ul>
+
+                <div class="mt-8 border-t border-line pt-2">
+                    <Accordion items={accordionItems} icon="plus" />
+                </div>
+            </div>
+        </div>
+
+        <!-- Recommendations -->
+        {recommended.length > 0 && (
+            <section class="mt-16 md:mt-24">
+                <h2 class="text-2xl font-semibold tracking-tight mb-8">You may also like</h2>
+                <ProductGrid products={recommended} />
+            </section>
+        )}
+    </div>
+</Layout>
+
+<script>
+    const syncPdpQuantity = () => {
+        const input = document.querySelector<HTMLInputElement>('#pdp-quantity')
+        const btn = document.querySelector<HTMLElement>('[data-add-to-cart]')
+        if (!input || !btn) return
+        if (input.dataset.bound === 'true') return
+        input.dataset.bound = 'true'
+
+        const update = () => {
+            const qty = Math.max(1, Number(input.value) || 1)
+            input.value = String(qty)
+            btn.dataset.quantity = String(qty)
+        }
+
+        update()
+        input.addEventListener('input', update)
+        input.addEventListener('change', update)
+        document.addEventListener('quantity-change', update)
+    }
+
+    syncPdpQuantity()
+    document.addEventListener('astro:after-swap', syncPdpQuantity)
+</script>

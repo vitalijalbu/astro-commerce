@@ -1,0 +1,74 @@
+---
+/**
+ * Product card — WebCoreUI <Card> as the container, with a Dawn-style image,
+ * sale <Badge>, <Rating> stars, <Price>, and a quick-add <Button> that pushes
+ * to the client cart via [data-add-to-cart].
+ */
+import { Card, Badge, Rating, Button } from 'webcoreui/react'
+import Price from './price.astro'
+import { discountPercent } from '../utils/format'
+import type { Product } from '../../lib/types'
+
+interface Props {
+    product: Product
+    /** Eager-load the image (above-the-fold cards). */
+    eager?: boolean
+}
+
+const { product, eager = false } = Astro.props
+const discount = discountPercent(product.price, product.compareAtPrice)
+const isNew = product.tags.includes('new')
+const variant = product.variants[0]
+---
+
+<article aria-label={product.title} class="h-full">
+    <Card flat compact className="group !p-0 !border-line overflow-hidden h-full">
+        <a href={`/products/${product.handle}`} class="block relative" aria-label={`View ${product.title}`}>
+            <div class="aspect-[4/5] overflow-hidden bg-paper-soft">
+                <img
+                    src={product.featuredImage.url}
+                    alt={product.featuredImage.alt}
+                    width={product.featuredImage.width}
+                    height={product.featuredImage.height}
+                    loading={eager ? 'eager' : 'lazy'}
+                    class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                />
+            </div>
+            <div class="absolute top-3 left-3 flex flex-col gap-1.5">
+                {discount && <Badge theme="alert" small>-{discount}%</Badge>}
+                {isNew && !discount && <Badge small>New</Badge>}
+                {!product.available && <Badge theme="outline" small>Sold out</Badge>}
+            </div>
+        </a>
+
+        <div class="p-4 flex flex-col gap-1.5">
+            {product.vendor && <span class="text-xs text-muted">{product.vendor}</span>}
+            <h3 class="m-0 text-base">
+                <a href={`/products/${product.handle}`} data-product-title class="font-medium leading-snug link-underline self-start">
+                    {product.title}
+                </a>
+            </h3>
+            {product.rating && (
+                <Rating score={product.rating} size={14} reviewCount={product.reviewCount} />
+            )}
+            <div class="flex items-center justify-between mt-1 gap-2">
+                <Price price={product.price} compareAtPrice={product.compareAtPrice} />
+                <Button
+                    theme="secondary"
+                    aria-label={`Add ${product.title} to cart`}
+                    disabled={!product.available}
+                    data-add-to-cart
+                    data-id={variant.id}
+                    data-handle={product.handle}
+                    data-title={product.title}
+                    data-variant={variant.title}
+                    data-image={product.featuredImage.url}
+                    data-price={product.price.amount}
+                    data-currency={product.price.currencyCode}
+                >
+                    Add
+                </Button>
+            </div>
+        </div>
+    </Card>
+</article>

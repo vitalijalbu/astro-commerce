@@ -1,0 +1,56 @@
+---
+/**
+ * Create-account page. SSR POST handler registers the customer (PrestaShop or
+ * demo) and signs them in. Form uses WebCoreUI components.
+ */
+import Layout from '@components/layout.astro'
+import { Input, Button, Checkbox, Alert } from 'webcoreui/react'
+import { register, requireGuest } from '../lib/auth'
+
+const guard = requireGuest(Astro)
+if (guard) return guard
+
+let error: string | null = null
+
+if (Astro.request.method === 'POST') {
+    const form = await Astro.request.formData()
+    const firstName = String(form.get('firstName') || '')
+    const lastName = String(form.get('lastName') || '')
+    const email = String(form.get('email') || '')
+    const password = String(form.get('password') || '')
+
+    if (password.length < 8) {
+        error = 'Password must be at least 8 characters.'
+    } else {
+        const result = await register(Astro, { firstName, lastName, email, password })
+        if (result.ok) return Astro.redirect('/account')
+        error = 'Could not create your account. Please try again.'
+    }
+}
+---
+
+<Layout title="Create account — ATELIER">
+    <div class="page py-16 md:py-24 flex justify-center">
+        <div class="w-full max-w-md">
+            <h1 class="text-3xl font-semibold tracking-tight text-center mb-2">Create your account</h1>
+            <p class="text-center text-ink-soft mb-8">Faster checkout, order history and saved details.</p>
+
+            {error && <div class="mb-4"><Alert theme="alert">{error}</Alert></div>}
+
+            <form method="post" class="flex flex-col gap-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <Input name="firstName" label="First name" required autoComplete="given-name" />
+                    <Input name="lastName" label="Last name" required autoComplete="family-name" />
+                </div>
+                <Input type="email" name="email" label="Email" placeholder="you@example.com" required autoComplete="email" />
+                <Input type="password" name="password" label="Password" subText="At least 8 characters" required autoComplete="new-password" />
+                <Checkbox name="newsletter" label="Email me about new arrivals and offers" />
+                <Button type="submit" className="w-full">Create account</Button>
+            </form>
+
+            <p class="text-center text-sm text-ink-soft mt-6">
+                Already have an account? <a href="/login" class="link-underline font-medium">Sign in</a>
+            </p>
+        </div>
+    </div>
+</Layout>

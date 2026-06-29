@@ -1,0 +1,48 @@
+---
+/**
+ * Account overview (protected). Shows a welcome, quick stats and shortcuts.
+ */
+import Layout from '@components/layout.astro'
+import AccountNav from '@components/account-nav.astro'
+import { Card, Button } from 'webcoreui/react'
+import Icon from '@snippets/icon.astro'
+import { getCurrentUser, requireAuth } from '../../lib/auth'
+
+const guard = requireAuth(Astro)
+if (guard) return guard
+const user = getCurrentUser(Astro)!
+
+const shortcuts = [
+    { href: '/account/orders', icon: 'cart', title: 'Orders', text: 'Track and review past orders.' },
+    { href: '/account/profile', icon: 'shield', title: 'Profile', text: 'Update your details and address.' },
+    { href: '/collections/all', icon: 'truck', title: 'Keep shopping', text: 'Browse the latest arrivals.' }
+]
+---
+
+<Layout title="My account — ATELIER">
+    <div class="page py-10 md:py-14">
+        <h1 class="text-3xl font-semibold tracking-tight mb-1">
+            Hi {user.firstName || user.name || 'there'} 👋
+        </h1>
+        <p class="text-ink-soft mb-8">Welcome back to your account.</p>
+
+        <AccountNav active="/account" />
+
+        <div class="grid sm:grid-cols-3 gap-4">
+            {shortcuts.map(s => (
+                <Card className="!border-line">
+                    <div class="flex items-start gap-3">
+                        <span class="grid place-items-center w-10 h-10 rounded-full bg-accent-soft text-accent shrink-0">
+                            <Icon type={s.icon} size={18} />
+                        </span>
+                        <div>
+                            <h2 class="font-semibold m-0">{s.title}</h2>
+                            <p class="text-sm text-ink-soft mt-1 mb-3">{s.text}</p>
+                            <Button href={s.href} theme="secondary" className="!py-1.5">Open</Button>
+                        </div>
+                    </div>
+                </Card>
+            ))}
+        </div>
+    </div>
+</Layout>

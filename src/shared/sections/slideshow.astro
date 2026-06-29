@@ -1,0 +1,56 @@
+---
+/**
+ * Full-bleed hero slideshow built on WebCoreUI <Carousel> (autoplay + dots).
+ */
+import { Carousel, CarouselItem, Button } from 'webcoreui/react'
+import type { SlideshowSection } from '../../lib/sections'
+
+interface Props {
+    section: SlideshowSection
+}
+
+const { section } = Astro.props
+const { slides, autoplay } = section.settings
+
+const alignMap = {
+    left: 'items-start text-left',
+    center: 'items-center text-center',
+    right: 'items-end text-right'
+}
+---
+
+<section class="relative">
+    <Carousel
+        items={slides.length}
+        itemsPerSlide={1}
+        autoplay={autoplay}
+        pagination={{ type: 'dots' }}
+        className="w-full"
+    >
+        {slides.map((slide, i) => (
+            <CarouselItem>
+                <div class="relative w-full min-h-[480px] md:min-h-[640px] flex">
+                    <img
+                        src={slide.image}
+                        alt={slide.heading}
+                        loading={i === 0 ? 'eager' : 'lazy'}
+                        class="absolute inset-0 w-full h-full object-cover"
+                    />
+                    <div class="absolute inset-0 bg-black/30"></div>
+                    <div class="page relative z-10 flex flex-col justify-center w-full">
+                        <div class:list={['flex flex-col gap-4 max-w-xl text-white', alignMap[slide.align ?? 'left']]}>
+                            {slide.eyebrow && <span class="eyebrow !text-white/80">{slide.eyebrow}</span>}
+                            <h2 class="text-4xl md:text-6xl font-semibold tracking-tight m-0">{slide.heading}</h2>
+                            {slide.text && <p class="text-lg text-white/90 m-0">{slide.text}</p>}
+                            {slide.cta && (
+                                <div class="mt-2">
+                                    <Button href={slide.cta.href}>{slide.cta.label}</Button>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            </CarouselItem>
+        ))}
+    </Carousel>
+</section>

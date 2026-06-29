@@ -1,0 +1,111 @@
+---
+/**
+ * Search results page (SSR). Supports query + sidebar filters (vendor,
+ * availability, price range) and a basic sorting model.
+ */
+import Layout from '@components/layout.astro'
+import ProductGrid from '@snippets/product-grid.astro'
+import SearchFilters from '@snippets/search-filters.astro'
+import { Input, Button } from 'webcoreui/react'
+import { getProducts } from '../lib/catalog'
+
+const params = Astro.url.searchParams
+const query = (params.get('q') || '').trim()
+const sort = params.get('sort') || 'relevance'
+
+const selectedVendors = [...new Set(params.getAll('vendor').filter(Boolean))]
+const onlyAvailable = params.get('available') === '1'
+
+const parsePrice = (value: string | null): number | null => {
+    if (!value) return null
+    const parsed = Number(value)
+    return Number.isFinite(parsed) && parsed >= 0 ? parsed : null
+}
+
+const minPrice = parsePrice(params.get('min'))
+const maxPrice = parsePrice(params.get('max'))
+
+const all = await getProducts(96)
+const vendors = [...new Set(all.map(p => p.vendor).filter((v): v is string => Boolean(v)))].sort()
+
+const base = query
+    ? all.filter(p => {
+        const haystack = `${p.title} ${p.vendor ?? ''} ${p.tags.join(' ')}`.toLowerCase()
+        return query.toLowerCase().split(/\s+/).every(term => haystack.includes(term))
+    })
+    : all
+
+const results = base
+    .filter(p => selectedVendors.length ? selectedVendors.includes(p.vendor ?? '') : true)
+    .filter(p => onlyAvailable ? p.available : true)
+    .filter(p => minPrice !== null ? p.price.amount >= minPrice : true)
+    .filter(p => maxPrice !== null ? p.price.amount <= maxPrice : true)
+    .sort((a, b) => {
+        if (sort === 'price-asc') return a.price.amount - b.price.amount
+        if (sort === 'price-desc') return b.price.amount - a.price.amount
+        if (sort === 'name-asc') return a.title.localeCompare(b.title)
+        return 0
+    })
+---
+
+<Layout title={query ? `Search: ${query} — ATELIER` : 'Search — ATELIER'} noindex>
+    <div class="page py-10 md:py-14">
+        <h1 class="text-3xl md:text-4xl font-semibold tracking-tight mb-6">Search catalog</h1>
+
+        <form action="/search" method="get" class="flex gap-2 max-w-xl mb-8" role="search" aria-label="Catalog search">
+            <div class="flex-1">
+                <Input type="search" name="q" value={query} placeholder="Search products…" aria-label="Search products" />
+            </div>
+            <Button type="submit">Search</Button>
+        </form>
+
+        <div class="grid lg:grid-cols-[280px_1fr] gap-8 items-start">
+            <SearchFilters
+                query={query}
+                vendors={vendors}
+                selectedVendors={selectedVendors}
+                onlyAvailable={onlyAvailable}
+                minPrice={minPrice}
+                maxPrice={maxPrice}
+            />
+
+            <div>
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
+                    <p class="text-ink-soft m-0" aria-live="polite">
+                        {results.length} result{results.length === 1 ? '' : 's'}
+                        {query ? <> for <strong>“{query}”</strong></> : ' in catalog'}
+                    </p>
+
+                    <form action="/search" method="get" class="flex items-center gap-2" aria-label="Sort search results">
+                        {query && <input type="hidden" name="q" value={query} />}
+                        {selectedVendors.map(v => <input type="hidden" name="vendor" value={v} />)}
+                        {onlyAvailable && <input type="hidden" name="available" value="1" />}
+                        {minPrice !== null && <input type="hidden" name="min" value={String(minPrice)} />}
+                        {maxPrice !== null && <input type="hidden" name="max" value={String(maxPrice)} />}
+                        <label for="search-sort" class="text-sm text-muted">Sort</label>
+                        <select
+                            id="search-sort"
+                            name="sort"
+                            class="h-10 rounded-[--radius-card] border border-line bg-paper px-3 text-sm"
+                            onchange="this.form.submit()"
+                        >
+                            <option value="relevance" selected={sort === 'relevance'}>Relevance</option>
+                            <option value="price-asc" selected={sort === 'price-asc'}>Price low to high</option>
+                            <option value="price-desc" selected={sort === 'price-desc'}>Price high to low</option>
+                            <option value="name-asc" selected={sort === 'name-asc'}>Name A-Z</option>
+                        </select>
+                    </form>
+                </div>
+
+                {results.length > 0 && <ProductGrid products={results} eagerCount={4} columns={3} />}
+
+                {results.length === 0 && (
+                    <div class="py-16 text-center border border-line rounded-[--radius-card] bg-paper-soft">
+                        <p class="text-ink-soft mb-4">No products matched your filters.</p>
+                        <Button href="/collections/all" theme="secondary">Browse all products</Button>
+                    </div>
+                )}
+            </div>
+        </div>
+    </div>
+</Layout>
