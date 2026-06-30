@@ -113,7 +113,7 @@ const paginated = paginateItems(results, page, 24)
                         {onlyAvailable && <input type="hidden" name="available" value="1" />}
                         {minPrice !== null && <input type="hidden" name="min" value={String(minPrice)} />}
                         {maxPrice !== null && <input type="hidden" name="max" value={String(maxPrice)} />}
-                        <label for="search-sort" class="aspect-[3/2]text-muted">Sort</label>
+                        <label for="search-sort" class="text-sm text-muted">Sort</label>
                         <select
                             id="search-sort"
                             name="sort"

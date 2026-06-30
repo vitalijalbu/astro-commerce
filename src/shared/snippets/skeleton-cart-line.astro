@@ -1,0 +1,26 @@
+---
+/**
+ * Placeholder for a cart line while the cart hydrates from localStorage.
+ * Mirrors the real line layout (cart.ts / cart page) so swapping in the live
+ * content doesn't shift the layout. `compact` matches the drawer's image size.
+ */
+import { Skeleton } from 'webcoreui/astro'
+
+interface Props {
+    compact?: boolean
+}
+
+const { compact = false } = Astro.props
+---
+
+<li class:list={['flex gap-4 border-b border-line', compact ? 'py-4' : 'py-5']}>
+    <div class:list={['shrink-0 overflow-hidden rounded-[--radius-card]', compact ? 'w-[72px] h-[90px]' : 'w-24 h-30']}>
+        <Skeleton type="rounded" className="w-full h-full" />
+    </div>
+    <div class="flex-1 min-w-0 flex flex-col gap-2">
+        <div class="h-4 w-3/4"><Skeleton type="rounded" /></div>
+        <div class="h-3 w-1/3"><Skeleton type="rounded" /></div>
+        <div class="h-8 w-24 mt-1"><Skeleton type="rounded" /></div>
+    </div>
+    <div class="h-4 w-12 shrink-0"><Skeleton type="rounded" /></div>
+</li>

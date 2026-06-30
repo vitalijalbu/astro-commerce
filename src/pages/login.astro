@@ -38,12 +38,12 @@ if (Astro.request.method === 'POST') {
                 <Input type="password" name="password" label="Password" placeholder="••••••••" required {...{ autocomplete: 'current-password' }} />
                 <div class="flex items-center justify-between">
                     <Checkbox name="remember" label="Remember me" />
-                    <a href="/account/recover" class="aspect-[3/2]link-underline">Forgot password?</a>
+                    <a href="/account/recover" class="text-sm link-underline">Forgot password?</a>
                 </div>
                 <Button type="submit" className="w-full">Sign in</Button>
             </form>
 
-            <p class="text-center aspect-[3/2]text-ink-soft mt-6">
+            <p class="text-center text-sm text-ink-soft mt-6">
                 New here? <a href="/register" class="link-underline font-medium">Create an account</a>
             </p>
             <p class="text-center text-xs text-muted mt-4">

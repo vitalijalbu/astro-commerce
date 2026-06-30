@@ -1,6 +1,8 @@
 ---
 import Layout from '@components/layout.astro'
 import EmptyState from '@snippets/empty-state.astro'
+import SkeletonProductCard from '@snippets/skeleton-product-card.astro'
+import { Rating } from 'webcoreui/astro'
 ---
 
 <Layout title="Wishlist — ATELIER" noindex>
@@ -10,7 +12,15 @@ import EmptyState from '@snippets/empty-state.astro'
             <p class="m-0 max-w-2xl text-ink-soft">Saved pieces live locally in your browser so you can come back to them later.</p>
         </div>
 
-        <div data-wishlist-empty>
+        <!-- Loading skeleton (shown until the wishlist hydrates) -->
+        <div data-wishlist-loading class="grid grid-cols-2 gap-4 md:gap-6 lg:grid-cols-4">
+            <SkeletonProductCard />
+            <SkeletonProductCard />
+            <SkeletonProductCard />
+            <SkeletonProductCard />
+        </div>
+
+        <div data-wishlist-empty hidden>
             <EmptyState
                 title="Your wishlist is empty"
                 text="Save products with the heart icon and they will appear here for quick comparison later."
@@ -25,5 +35,10 @@ import EmptyState from '@snippets/empty-state.astro'
         <section data-wishlist-body hidden>
             <div data-wishlist-grid class="grid grid-cols-2 gap-4 md:gap-6 lg:grid-cols-4"></div>
         </section>
+
+        <!-- Style primer: the injected product cards use <Rating>, whose CSS
+             isn't otherwise loaded on this page. Rendering one hidden instance
+             bundles those styles so the fetched cards are styled correctly. -->
+        <div hidden aria-hidden="true"><Rating score={0} /></div>
     </div>
 </Layout>

@@ -1,0 +1,26 @@
+---
+/**
+ * HTML partial: product cards for a set of ids, rendered with the real
+ * <ProductCard> snippet (not hand-built in JS). The wishlist page fetches
+ * `/partials/wishlist-cards?ids=a,b,c` and injects the response, so the cards
+ * stay identical to the rest of the storefront. Cards come back in the order
+ * the ids are passed (i.e. the saved wishlist order).
+ */
+import { getProducts } from '@lib/catalog'
+import ProductCard from '@snippets/product-card.astro'
+
+export const prerender = false
+
+const ids = (Astro.url.searchParams.get('ids') || '')
+    .split(',')
+    .map(value => value.trim())
+    .filter(Boolean)
+
+const all = await getProducts(500)
+const byId = new Map(all.map(product => [product.id, product]))
+const products = ids
+    .map(id => byId.get(id))
+    .filter((product): product is NonNullable<typeof product> => Boolean(product))
+---
+
+{products.map(product => <ProductCard product={product} />)}

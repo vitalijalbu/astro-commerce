@@ -85,6 +85,12 @@ function setQuantity(id: string, quantity: number) {
 /** Render the badge, the drawer lines and the subtotal. */
 function render() {
 	const lines = read();
+
+	// Hydration done: drop the loading skeleton(s).
+	document.querySelectorAll<HTMLElement>('[data-cart-loading]').forEach((el) => {
+		el.toggleAttribute('hidden', true);
+	});
+
 	const currency = lines[0]?.currency || 'EUR';
 	const currentSubtotal = subtotal(lines);
 	const remaining = Math.max(0, FREE_SHIPPING_THRESHOLD - currentSubtotal);
@@ -120,7 +126,7 @@ function render() {
                         <a href="/products/${l.handle}" class="font-medium leading-tight">${l.title}</a>
                         ${
 													l.variantTitle && l.variantTitle !== 'Default'
-														? `<p class="aspect-[3/2]text-muted mt-0.5">${l.variantTitle}</p>`
+														? `<p class="text-sm text-muted mt-0.5">${l.variantTitle}</p>`
 														: ''
 												}
                         <div class="flex items-center gap-3 mt-2">
@@ -128,7 +134,7 @@ function render() {
                                 aria-label="Quantity"
                                 class="w-14 h-8 px-2 border border-line rounded-[--radius-card] text-sm" />
                             <button type="button" data-cart-remove="${l.id}"
-                                class="aspect-[3/2]text-muted link-underline">Remove</button>
+                                class="text-sm text-muted link-underline">Remove</button>
                         </div>
                     </div>
                     <div class="text-right font-medium">${formatMoney(l.price * l.quantity, l.currency)}</div>

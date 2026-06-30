@@ -5,6 +5,7 @@
  * footer. Page content goes in the slot. Light theme only.
  */
 import '@styles/global.css'
+import '@styles/webcore.scss'
 import { Font } from 'astro:assets'
 import { getCurrentUser, isAuthenticated } from '@lib/auth'
 import { shop } from '@lib/navigation'
@@ -86,7 +87,7 @@ const orgSchema = {
         <meta name="twitter:description" content={description} />
         {imageUrl && <meta name="twitter:image" content={imageUrl} />}
 
-        <link rel="icon" type="image/svg+xml" href="/logo.svg" />
+        <link rel="icon" href="/favicon.ico" sizes="any" />
         <Font cssVariable="--font-inter" preload />
         <title>{title}</title>
 
@@ -113,26 +114,28 @@ const orgSchema = {
         <script>
             import { initCart } from '@utils/cart'
             import { initWishlist } from '@utils/wishlist'
-            initCart()
-            initWishlist()
-            document.addEventListener('astro:after-swap', initCart)
-            document.addEventListener('astro:after-swap', initWishlist)
-        </script>
 
-        <style lang="scss" is:global>
-            // Tailwind owns the reset (preflight) and utilities. Disable
-            // WebCoreUI's resets + utility classes so they don't fight Tailwind
-            // (per webcoreui.dev/docs/css-configuration). We keep only the
-            // component foundations webcore needs.
-            @use 'webcoreui/styles' as *;
-            @include setup((
-                theme: 'light',
-                includeResets: false,
-                includeUtilities: false,
-                includeTooltip: true,
-                includeScrollbarStyles: false,
-                includeBreakpoints: true
-            ));
-        </style>
+            // WebCoreUI renders carousel prev/next as icon-only buttons with no
+            // accessible name. Label them so screen readers don't announce a bare
+            // "button" (axe: "Buttons must have discernible text").
+            const labelCarouselArrows = () => {
+                const labels: Record<string, string> = { prev: 'Previous slide', next: 'Next slide' }
+                document
+                    .querySelectorAll<HTMLButtonElement>('[data-id="w-pagination"] [data-page="prev"], [data-id="w-pagination"] [data-page="next"]')
+                    .forEach(button => {
+                        const label = labels[button.dataset.page ?? '']
+                        if (label && !button.getAttribute('aria-label')) button.setAttribute('aria-label', label)
+                    })
+            }
+
+            const initEnhancements = () => {
+                initCart()
+                initWishlist()
+                labelCarouselArrows()
+            }
+
+            initEnhancements()
+            document.addEventListener('astro:after-swap', initEnhancements)
+        </script>
     </body>
 </html>

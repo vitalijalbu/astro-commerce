@@ -50,7 +50,7 @@ const formatTag = (tag: string): string => tag
 
     {subCollectionLinks.length > 0 && (
         <div class="flex flex-col gap-2">
-            <h3 class="m-0 aspect-[3/2]font-medium">Subcollections</h3>
+            <h3 class="m-0 text-sm font-medium">Subcollections</h3>
             <List
                 secondary
                 itemGroups={[
@@ -67,7 +67,7 @@ const formatTag = (tag: string): string => tag
 
     {allTags.length > 0 && (
         <fieldset class="m-0 flex flex-col gap-2 border-0 p-0">
-            <legend class="mb-1 aspect-[3/2]font-medium">Tags</legend>
+            <legend class="mb-1 text-sm font-medium">Tags</legend>
             <div class="flex flex-col gap-2">
                 {allTags.map(tag => (
                     <Checkbox
@@ -82,7 +82,7 @@ const formatTag = (tag: string): string => tag
     )}
 
     <fieldset class="m-0 flex flex-col gap-2 border-0 p-0">
-        <legend class="mb-1 aspect-[3/2]font-medium">Availability</legend>
+        <legend class="mb-1 text-sm font-medium">Availability</legend>
         <Checkbox
             name="available"
             value="1"
@@ -92,7 +92,7 @@ const formatTag = (tag: string): string => tag
     </fieldset>
 
     <fieldset class="m-0 border-0 p-0">
-        <legend class="mb-2 aspect-[3/2]font-medium">Price range</legend>
+        <legend class="mb-2 text-sm font-medium">Price range</legend>
         <RangeSlider
             name="price"
             min={priceFloor}

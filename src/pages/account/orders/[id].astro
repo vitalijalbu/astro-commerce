@@ -35,7 +35,7 @@ const money = (amount: number) => formatMoney({ amount, currencyCode: order?.cur
 
         {order ? (
             <div class="max-w-3xl">
-                <a href="/account/orders" class="inline-flex items-center gap-1.5 aspect-[3/2]text-muted hover:text-ink mb-6">
+                <a href="/account/orders" class="inline-flex items-center gap-1.5 text-sm text-muted hover:text-ink mb-6">
                     <Icon type="chevron-left" size={16} />
                     Back to orders
                 </a>
@@ -43,7 +43,7 @@ const money = (amount: number) => formatMoney({ amount, currencyCode: order?.cur
                 <div class="flex flex-wrap items-center justify-between gap-3 mb-8">
                     <div>
                         <p class="text-2xl font-semibold">{order.number}</p>
-                        <p class="aspect-[3/2]text-ink-soft">Placed on {order.date} · {orderItemCount(order)} items</p>
+                        <p class="text-sm text-ink-soft">Placed on {order.date} · {orderItemCount(order)} items</p>
                     </div>
                     <Badge theme={statusTheme[order.status]}>{order.status}</Badge>
                 </div>
@@ -61,33 +61,33 @@ const money = (amount: number) => formatMoney({ amount, currencyCode: order?.cur
                             />
                             <div class="min-w-0 flex-1">
                                 <p class="font-medium truncate">{line.title}</p>
-                                {line.variant && <p class="aspect-[3/2]text-ink-soft">{line.variant}</p>}
-                                <p class="aspect-[3/2]text-muted">Qty {line.quantity}</p>
+                                {line.variant && <p class="text-sm text-ink-soft">{line.variant}</p>}
+                                <p class="text-sm text-muted">Qty {line.quantity}</p>
                             </div>
-                            <span class="aspect-[3/2]font-medium whitespace-nowrap">{money(line.price * line.quantity)}</span>
+                            <span class="text-sm font-medium whitespace-nowrap">{money(line.price * line.quantity)}</span>
                         </div>
                     ))}
                 </div>
 
                 <div class="grid sm:grid-cols-2 gap-8">
                     <div>
-                        <h2 class="aspect-[3/2]font-semibold uppercase tracking-wide text-muted mb-3">Shipping address</h2>
-                        <address class="not-italic aspect-[3/2]text-ink-soft leading-relaxed">
+                        <h2 class="text-sm font-semibold uppercase tracking-wide text-muted mb-3">Shipping address</h2>
+                        <address class="not-italic text-sm text-ink-soft leading-relaxed">
                             <span class="text-ink font-medium block">{order.address.name}</span>
                             {order.address.line1}<br />
                             {order.address.city}, {order.address.postcode}<br />
                             {order.address.country}
                         </address>
                         {order.tracking && (
-                            <p class="mt-4 aspect-[3/2]text-ink-soft">
+                            <p class="mt-4 text-sm text-ink-soft">
                                 Tracking: <span class="font-medium text-ink">{order.tracking}</span>
                             </p>
                         )}
                     </div>
 
                     <div class="sm:border-l sm:border-line sm:pl-8">
-                        <h2 class="aspect-[3/2]font-semibold uppercase tracking-wide text-muted mb-3">Summary</h2>
-                        <dl class="aspect-[3/2]flex flex-col gap-2">
+                        <h2 class="text-sm font-semibold uppercase tracking-wide text-muted mb-3">Summary</h2>
+                        <dl class="text-sm flex flex-col gap-2">
                             <div class="flex justify-between"><dt class="text-ink-soft">Subtotal</dt><dd>{money(orderSubtotal(order))}</dd></div>
                             <div class="flex justify-between"><dt class="text-ink-soft">Shipping</dt><dd>{order.shipping === 0 ? 'Free' : money(order.shipping)}</dd></div>
                             <div class="flex justify-between border-t border-line pt-2 mt-1 font-semibold text-base"><dt>Total</dt><dd>{money(orderTotal(order))}</dd></div>

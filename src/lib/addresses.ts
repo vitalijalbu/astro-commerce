@@ -11,6 +11,32 @@ import type { AstroCookies } from 'astro';
 const COOKIE = 'account_addresses';
 const MAX_AGE = 60 * 60 * 24 * 30;
 
+/** Country options for the address form (extend as markets are added). */
+export const COUNTRIES = [
+	'Ireland',
+	'United Kingdom',
+	'France',
+	'Germany',
+	'Italy',
+	'Spain',
+	'Portugal',
+	'Netherlands',
+	'Belgium',
+	'Luxembourg',
+	'Austria',
+	'Switzerland',
+	'Denmark',
+	'Sweden',
+	'Norway',
+	'Finland',
+	'Poland',
+	'Czechia',
+	'Greece',
+	'United States',
+	'Canada',
+	'Australia',
+];
+
 export interface Address {
 	id: string;
 	firstName: string;

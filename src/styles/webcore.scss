@@ -1,0 +1,16 @@
+// WebCoreUI component foundations.
+//
+// Tailwind owns the reset (preflight) and utilities. We disable WebCoreUI's
+// resets + utility classes so they don't fight Tailwind (per
+// webcoreui.dev/docs/css-configuration) and keep only the component
+// foundations webcore needs. Imported from the layout alongside global.css.
+@use 'webcoreui/styles' as *;
+
+@include setup((
+	theme: 'light',
+	includeResets: false,
+	includeUtilities: false,
+	includeTooltip: true,
+	includeScrollbarStyles: false,
+	includeBreakpoints: true
+));

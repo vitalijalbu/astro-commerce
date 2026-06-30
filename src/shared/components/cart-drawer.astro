@@ -4,12 +4,20 @@
  * Line items, quantities and totals are rendered client-side by
  * `utils/cart.ts` into [data-cart-lines] / [data-cart-subtotal].
  */
+import SkeletonCartLine from '@snippets/skeleton-cart-line.astro'
 import { Button, Sheet } from 'webcoreui/astro'
 ---
 
 <Sheet id="cart-drawer" title="Your cart">
+    <!-- Loading skeleton (shown until cart.ts renders) -->
+    <ul data-cart-loading class="list-none p-0 m-0 mt-2">
+        <SkeletonCartLine compact />
+        <SkeletonCartLine compact />
+        <SkeletonCartLine compact />
+    </ul>
+
     <!-- Empty state -->
-    <div data-cart-empty class="py-16 text-center">
+    <div data-cart-empty hidden class="py-16 text-center">
         <p class="text-muted">Your cart is empty.</p>
         <Button href="/collections/all" theme="secondary" className="mt-4">
             Continue shopping

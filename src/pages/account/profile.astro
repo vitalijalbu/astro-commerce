@@ -13,7 +13,7 @@ import AddressModal from '@components/address-modal.astro'
 import Layout from '@components/layout.astro'
 import { deleteAddress, getAddresses, upsertAddress } from '@lib/addresses'
 import { getCurrentUser, requireAuth } from '@lib/auth'
-import { Alert, Badge, Button, Input } from 'webcoreui/astro'
+import { Alert, Badge, Button, Input, Modal } from 'webcoreui/astro'
 
 const guard = requireAuth(Astro)
 if (guard) return guard
@@ -139,12 +139,12 @@ const passwordError = passwordErrors[params.get('err') ?? '']
             </div>
 
             {addresses.length === 0 ? (
-                <p class="aspect-[3/2]text-ink-soft">You have no saved addresses yet.</p>
+                <p class="text-sm text-ink-soft">You have no saved addresses yet.</p>
             ) : (
                 <div class="flex flex-col gap-3">
                     {addresses.map(a => (
                         <div class="border border-line rounded-[--radius-card] p-4 flex items-start justify-between gap-4">
-                            <div class="aspect-[3/2]leading-relaxed">
+                            <div class="text-sm leading-relaxed">
                                 <p class="font-medium flex items-center gap-2 mb-0.5">
                                     {a.firstName} {a.lastName}
                                     {a.isDefault && <Badge theme="info" small>Default</Badge>}
@@ -157,11 +157,13 @@ const passwordError = passwordErrors[params.get('err') ?? '']
                             </div>
                             <div class="flex flex-col gap-2 shrink-0">
                                 <Button type="button" theme="secondary" className="!py-1.5" data-open-modal={`addr-edit-${a.id}`}>Edit</Button>
-                                <form method="post" data-confirm="Remove this address?">
-                                    <input type="hidden" name="intent" value="address-delete" />
-                                    <input type="hidden" name="id" value={a.id} />
-                                    <Button type="submit" theme="flat" className="!py-1.5 w-full text-sale">Delete</Button>
-                                </form>
+                                <Button
+                                    type="button"
+                                    theme="flat"
+                                    className="!py-1.5 w-full text-sale"
+                                    data-delete-id={a.id}
+                                    data-delete-label={`${a.firstName} ${a.lastName}`}
+                                >Delete</Button>
                             </div>
                         </div>
                     ))}
@@ -172,6 +174,18 @@ const passwordError = passwordErrors[params.get('err') ?? '']
             {addresses.map(a => (
                 <AddressModal id={`addr-edit-${a.id}`} title="Edit address" address={a} />
             ))}
+
+            <Modal id="addr-delete-confirm" title="Remove address" theme="alert" className="!max-w-md">
+                <p class="text-sm text-ink-soft mt-1">
+                    Remove <span data-delete-label class="font-medium text-ink">this address</span> from your account? This can't be undone.
+                </p>
+                <form method="post" class="flex gap-2 mt-5">
+                    <input type="hidden" name="intent" value="address-delete" />
+                    <input type="hidden" name="id" data-delete-id-input />
+                    <Button type="submit" theme="alert">Remove address</Button>
+                    <Button type="button" theme="secondary" data-close-modal="addr-delete-confirm">Cancel</Button>
+                </form>
+            </Modal>
         </section>
     </div>
 </Layout>
@@ -198,10 +212,15 @@ const passwordError = passwordErrors[params.get('err') ?? '']
             })
         })
 
-        // Confirm before destructive submits.
-        section.querySelectorAll<HTMLFormElement>('form[data-confirm]').forEach(form => {
-            form.addEventListener('submit', event => {
-                if (!window.confirm(form.dataset.confirm || 'Are you sure?')) event.preventDefault()
+        // Shared delete-confirm modal: fill the id + label, then open it.
+        const deleteModal = modal('#addr-delete-confirm')
+        const deleteIdInput = section.querySelector<HTMLInputElement>('[data-delete-id-input]')
+        const deleteLabel = section.querySelector<HTMLElement>('#addr-delete-confirm [data-delete-label]')
+        section.querySelectorAll<HTMLElement>('[data-delete-id]').forEach(trigger => {
+            trigger.addEventListener('click', () => {
+                if (deleteIdInput) deleteIdInput.value = trigger.dataset.deleteId || ''
+                if (deleteLabel) deleteLabel.textContent = trigger.dataset.deleteLabel || 'this address'
+                deleteModal?.open()
             })
         })
     }

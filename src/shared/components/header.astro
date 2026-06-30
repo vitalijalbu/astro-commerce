@@ -33,7 +33,7 @@ const { user } = Astro.props
                     <div class="has-menu relative flex items-center">
                         <a
                             href={item.href}
-                            class="aspect-[3/2]font-medium px-3 h-20 inline-flex items-center gap-1.5 hover:text-accent transition"
+                            class="text-sm font-medium px-3 h-20 inline-flex items-center gap-1.5 hover:text-accent transition"
                             aria-haspopup={item.columns ? 'menu' : undefined}
                         >
                             {item.label}
@@ -55,7 +55,7 @@ const { user } = Astro.props
                                                 <ul class="flex flex-col gap-2 list-none p-0 m-0" aria-label={col.title}>
                                                     {col.items.map(link => (
                                                         <li>
-                                                            <a href={link.href} class="aspect-[3/2]text-ink-soft hover:text-ink link-underline">
+                                                            <a href={link.href} class="text-sm text-ink-soft hover:text-ink link-underline">
                                                                 {link.label}
                                                             </a>
                                                         </li>
@@ -71,7 +71,7 @@ const { user } = Astro.props
                                             <div class="absolute bottom-0 left-0 p-4 text-white">
                                                 {item.promo.eyebrow && <span class="eyebrow !text-white/80">{item.promo.eyebrow}</span>}
                                                 <p class="font-semibold leading-tight m-0 mt-1">{item.promo.title}</p>
-                                                {item.promo.cta && <span class="aspect-[3/2]mt-1 inline-block link-underline">{item.promo.cta} →</span>}
+                                                {item.promo.cta && <span class="text-sm mt-1 inline-block link-underline">{item.promo.cta} →</span>}
                                             </div>
                                         </a>
                                     )}
@@ -115,7 +115,7 @@ const { user } = Astro.props
             {user ? (
                 <UserDropdown user={user} />
             ) : (
-                <a href="/login" class="hidden sm:inline-flex items-center gap-1.5 px-3 py-2 aspect-[3/2]font-medium hover:text-accent transition">
+                <a href="/login" class="hidden sm:inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium hover:text-accent transition">
                     <Icon type="user" size={18} />
                     <span class="hidden md:inline">Sign in</span>
                 </a>

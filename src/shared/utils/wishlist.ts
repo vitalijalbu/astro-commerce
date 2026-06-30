@@ -39,13 +39,6 @@ const write = (items: WishlistItem[]) => {
 	syncWishlist();
 };
 
-const formatMoney = (amount: number, currency: string) =>
-	new Intl.NumberFormat(document.documentElement.lang || 'en', {
-		style: 'currency',
-		currency,
-		minimumFractionDigits: Number.isInteger(amount) ? 0 : 2,
-	}).format(amount);
-
 const toggleItem = (item: WishlistItem) => {
 	const items = read();
 	const exists = items.some((entry) => entry.id === item.id);
@@ -74,67 +67,47 @@ function syncToggleStates() {
 	});
 }
 
-function renderWishlistPage() {
+async function renderWishlistPage() {
 	const root = document.querySelector<HTMLElement>('[data-wishlist-page]');
 	if (!root) return;
 
 	const empty = root.querySelector<HTMLElement>('[data-wishlist-empty]');
 	const body = root.querySelector<HTMLElement>('[data-wishlist-body]');
 	const grid = root.querySelector<HTMLElement>('[data-wishlist-grid]');
+	const loading = root.querySelector<HTMLElement>('[data-wishlist-loading]');
 	const items = read();
 
 	if (!empty || !body || !grid) return;
 
-	empty.toggleAttribute('hidden', items.length > 0);
-	body.toggleAttribute('hidden', items.length === 0);
+	const showEmpty = () => {
+		loading?.toggleAttribute('hidden', true);
+		body.toggleAttribute('hidden', true);
+		empty.toggleAttribute('hidden', false);
+		grid.innerHTML = '';
+	};
 
 	if (!items.length) {
-		grid.innerHTML = '';
+		showEmpty();
 		return;
 	}
 
-	grid.innerHTML = items
-		.map((item) => {
-			const compare =
-				item.compareAtPrice && item.compareAtPrice > item.price
-					? `<span class="aspect-[3/2]text-muted line-through">${formatMoney(item.compareAtPrice, item.currency)}</span>`
-					: '';
+	empty.toggleAttribute('hidden', true);
 
-			const rating = item.rating
-				? `<p class="m-0 text-xs text-muted">${item.rating.toFixed(1)}${item.reviewCount ? ` · ${item.reviewCount} reviews` : ''}</p>`
-				: '';
+	// Render the cards server-side with the real <ProductCard> snippet rather
+	// than hand-building markup here; keep the saved wishlist order.
+	try {
+		const ids = items.map((item) => item.id).join(',');
+		const response = await fetch(`/partials/wishlist-cards?ids=${encodeURIComponent(ids)}`);
+		if (!response.ok) throw new Error(`wishlist partial ${response.status}`);
+		grid.innerHTML = await response.text();
+	} catch {
+		showEmpty();
+		return;
+	}
 
-			return `
-            <article class="group flex h-full flex-col overflow-hidden rounded-[--radius-card] border border-line bg-paper">
-                <a href="/products/${item.handle}" class="relative block" aria-label="View ${item.title}">
-                    <div class="aspect-square overflow-hidden bg-paper-soft">
-                        <img src="${item.image}" alt="${item.title}" width="900" height="900" class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
-                    </div>
-                    <button
-                        type="button"
-                        data-wishlist-toggle
-                        data-wishlist-item="${encodeURIComponent(JSON.stringify(item))}"
-                        aria-pressed="true"
-                        aria-label="Remove from wishlist"
-                        class="absolute top-3 right-3 grid h-10 w-10 place-items-center rounded-full border border-white/60 bg-white/92 text-ink shadow-sm transition hover:bg-white"
-                        data-active="true"
-                    >
-                        <span aria-hidden="true">♡</span>
-                    </button>
-                </a>
-                <div class="flex flex-1 flex-col gap-2 p-0 pt-2">
-                    ${item.vendor ? `<span class="text-xs text-muted">${item.vendor}</span>` : ''}
-                    <h2 class="m-0 text-base font-medium leading-snug"><a href="/products/${item.handle}" class="link-underline">${item.title}</a></h2>
-                    ${rating}
-                    <div class="mt-auto flex items-center gap-2 pt-1">
-                        <span class="font-medium">${formatMoney(item.price, item.currency)}</span>
-                        ${compare}
-                    </div>
-                </div>
-            </article>
-        `;
-		})
-		.join('');
+	loading?.toggleAttribute('hidden', true);
+	body.toggleAttribute('hidden', false);
+	syncToggleStates();
 }
 
 function syncWishlist() {

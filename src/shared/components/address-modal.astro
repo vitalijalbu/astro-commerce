@@ -1,11 +1,12 @@
 ---
-import type { Address } from '@lib/addresses'
+import { type Address, COUNTRIES } from '@lib/addresses'
 /**
  * Address create/edit modal (WebCoreUI <Modal>). The form POSTs back to the
  * profile page with `intent=address-save`; a present hidden `id` switches the
  * handler from create to update. Opened by `[data-open-modal="<id>"]` triggers
  * wired up in the profile page script.
  */
+import Icon from '@snippets/icon.astro'
 import { Button, Checkbox, Input, Modal } from 'webcoreui/astro'
 
 interface Props {
@@ -15,6 +16,11 @@ interface Props {
 }
 
 const { id, title, address } = Astro.props
+
+// Keep an unknown saved country selectable rather than silently dropping it.
+const selectedCountry = address?.country ?? ''
+const countryOptions =
+    selectedCountry && !COUNTRIES.includes(selectedCountry) ? [selectedCountry, ...COUNTRIES] : COUNTRIES
 ---
 
 <Modal id={id} title={title} className="!max-w-lg">
@@ -34,7 +40,24 @@ const { id, title, address } = Astro.props
             <Input name="postcode" label="Postcode" value={address?.postcode} required />
         </div>
         <div class="grid grid-cols-2 gap-4">
-            <Input name="country" label="Country" value={address?.country} required />
+            <label class="flex flex-col gap-1.5">
+                <span class="text-sm font-medium">Country</span>
+                <div class="relative">
+                    <select
+                        name="country"
+                        required
+                        class="w-full appearance-none rounded-md border border-line bg-paper px-3 py-2.5 pr-9 text-sm focus:border-ink focus:outline-none"
+                    >
+                        <option value="" disabled selected={!selectedCountry}>Select a country</option>
+                        {countryOptions.map(country => (
+                            <option value={country} selected={country === selectedCountry}>{country}</option>
+                        ))}
+                    </select>
+                    <span class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-muted">
+                        <Icon type="chevron-down" size={16} />
+                    </span>
+                </div>
+            </label>
             <Input name="phone" label="Phone (optional)" value={address?.phone} />
         </div>
         <Checkbox name="isDefault" label="Set as default address" checked={address?.isDefault} />

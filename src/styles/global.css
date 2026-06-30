@@ -187,3 +187,43 @@ input[type='range']::-moz-range-thumb {
 	width: 24px;
 	height: 24px;
 }
+
+/* Mobile navigation drawer: child panels slide in over the root panel. */
+.mobile-panel {
+	transition: transform 0.28s ease;
+}
+.mobile-panel--child {
+	position: absolute;
+	inset: 0;
+	background: var(--color-paper);
+	transform: translateX(100%);
+	overflow-y: auto;
+	pointer-events: none;
+}
+.mobile-panel--child.is-active {
+	transform: translateX(0);
+	pointer-events: auto;
+}
+
+/* Product gallery carousel: lock the single-slide layout up front so it doesn't
+   flash unstyled (all slides stacked) before WebCoreUI's scoped module styles
+   load — notably under `astro dev`, where Vite injects component CSS via JS.
+   Targets WebCoreUI's stable data-id hooks; scoped to the gallery so multi-item
+   carousels elsewhere are unaffected. */
+.product-gallery [data-id='w-carousel'] {
+	display: flex;
+	overflow-x: auto;
+	scroll-snap-type: x mandatory;
+	scrollbar-width: none;
+}
+.product-gallery [data-id='w-carousel'] > ul {
+	display: flex;
+	width: 100%;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+.product-gallery [data-id='w-carousel'] > ul > li {
+	min-width: 100%;
+	scroll-snap-align: center;
+}

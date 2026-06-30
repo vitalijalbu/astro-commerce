@@ -52,11 +52,23 @@ export async function getCollections(limit = 12): Promise<Collection[]> {
 	return collections.slice(0, limit);
 }
 
+/* Collections derived from the catalog rather than stored as their own entity. */
+const VIRTUAL_COLLECTIONS: Record<string, Collection> = {
+	'best-sellers': {
+		id: 'best-sellers',
+		handle: 'best-sellers',
+		title: 'Best sellers',
+		description: 'Our most-loved pieces, ranked by customer reviews.',
+	},
+};
+
 export async function getCollectionByHandle(handle: string): Promise<Collection | null> {
 	return withFallback(
 		`getCollectionByHandle(${handle})`,
 		() => fetchCollectionByHandle(handle),
-		mockCollections.find((c) => c.handle === handle) ?? null,
+		mockCollections.find((c) => c.handle === handle) ??
+			VIRTUAL_COLLECTIONS[handle.toLowerCase()] ??
+			null,
 	);
 }
 
@@ -73,11 +85,16 @@ export async function getCollectionProducts(handle: string, limit = 12): Promise
 						const tags = product.tags.map((tag) => tag.toLowerCase());
 						return tags.includes('new') || tags.includes('new-arrivals');
 					})
-				: normalizedHandle === 'all'
-					? all
-					: all.filter((product) =>
-							product.tags.map((tag) => tag.toLowerCase()).includes(normalizedHandle),
-						);
+				: normalizedHandle === 'best-sellers'
+					? [...all].sort(
+							(a, b) =>
+								(b.reviewCount ?? 0) - (a.reviewCount ?? 0) || (b.rating ?? 0) - (a.rating ?? 0),
+						)
+					: normalizedHandle === 'all'
+						? all
+						: all.filter((product) =>
+								product.tags.map((tag) => tag.toLowerCase()).includes(normalizedHandle),
+							);
 
 	return filtered.slice(0, limit);
 }
