@@ -22,6 +22,6 @@ const onSale = compareAtPrice && compareAtPrice.amount > price.amount
 >
     <span class:list={['font-medium', onSale && 'text-sale']}>{formatMoney(price)}</span>
     {onSale && (
-        <s class="text-muted text-sm font-normal">{formatMoney(compareAtPrice!)}</s>
+        <s class="text-muted aspect-[3/2]font-normal">{formatMoney(compareAtPrice!)}</s>
     )}
 </span>

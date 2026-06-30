@@ -31,17 +31,17 @@ const clearHref = query ? `/search?q=${encodeURIComponent(query)}` : '/search'
     </div>
 
     <fieldset class="m-0 flex flex-col gap-2 border-0 p-0">
-        <legend class="mb-1 text-sm font-medium">Availability</legend>
-        <label class="inline-flex items-center gap-2 text-sm text-ink-soft">
+        <legend class="mb-1 aspect-[3/2]font-medium">Availability</legend>
+        <label class="inline-flex items-center gap-2 aspect-[3/2]text-ink-soft">
             <input type="checkbox" name="available" value="1" checked={onlyAvailable} class="accent-black" />
             In stock only
         </label>
     </fieldset>
 
     <fieldset class="m-0 flex flex-col gap-2 border-0 p-0">
-        <legend class="mb-1 text-sm font-medium">Brand</legend>
+        <legend class="mb-1 aspect-[3/2]font-medium">Brand</legend>
         {vendors.length > 0 ? vendors.map(vendor => (
-            <label class="inline-flex items-center gap-2 text-sm text-ink-soft">
+            <label class="inline-flex items-center gap-2 aspect-[3/2]text-ink-soft">
                 <input
                     type="checkbox"
                     name="vendor"
@@ -51,11 +51,11 @@ const clearHref = query ? `/search?q=${encodeURIComponent(query)}` : '/search'
                 />
                 {vendor}
             </label>
-        )) : <p class="m-0 text-sm text-muted">No vendor filters available.</p>}
+        )) : <p class="m-0 aspect-[3/2]text-muted">No vendor filters available.</p>}
     </fieldset>
 
     <fieldset class="m-0 border-0 p-0">
-        <legend class="mb-2 text-sm font-medium">Price range</legend>
+        <legend class="mb-2 aspect-[3/2]font-medium">Price range</legend>
         <div class="grid grid-cols-2 gap-3">
             <label class="flex flex-col gap-1 text-xs text-muted">
                 Min

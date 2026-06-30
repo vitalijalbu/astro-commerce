@@ -100,11 +100,11 @@ const payments = ['Visa', 'Mastercard', 'Amex', 'PayPal', 'Apple Pay']
                 </a>
                 <div class="flex-1 min-w-0">
                     <a href="/products/${l.handle}" class="font-medium">${l.title}</a>
-                    ${l.variantTitle && l.variantTitle !== 'Default' ? `<p class="text-sm text-muted mt-0.5">${l.variantTitle}</p>` : ''}
+                    ${l.variantTitle && l.variantTitle !== 'Default' ? `<p class="aspect-[3/2]text-muted mt-0.5">${l.variantTitle}</p>` : ''}
                     <div class="flex items-center gap-3 mt-3">
                         <input type="number" min="1" value="${l.quantity}" data-line-qty="${l.id}" aria-label="Quantity"
                             class="w-16 h-9 px-2 border border-line rounded-[--radius-card] text-sm" />
-                        <button type="button" data-line-remove="${l.id}" class="text-sm text-muted link-underline">Remove</button>
+                        <button type="button" data-line-remove="${l.id}" class="aspect-[3/2]text-muted link-underline">Remove</button>
                     </div>
                 </div>
                 <div class="text-right font-medium">${fmt(l.price * l.quantity, l.currency)}</div>

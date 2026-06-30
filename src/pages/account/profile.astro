@@ -1,31 +1,97 @@
 ---
 import AccountNav from '@components/account-nav.astro'
+import AddressModal from '@components/address-modal.astro'
 /**
- * Profile settings (protected). SSR POST updates the auth_user cookie; a real
- * integration would PATCH the PrestaShop customer resource.
+ * Profile settings (protected). Handles three POST intents via SSR, each using
+ * Post/Redirect/Get so reloads don't resubmit:
+ *   - `profile`        update name/email (auth_user cookie)
+ *   - `password`       validate + change password (stubbed; PrestaShop in prod)
+ *   - `address-save`   create or update an address (modal form)
+ *   - `address-delete` remove an address
+ * A real integration swaps the cookie writes for PrestaShop customer/address API.
  */
 import Layout from '@components/layout.astro'
+import { deleteAddress, getAddresses, upsertAddress } from '@lib/addresses'
 import { getCurrentUser, requireAuth } from '@lib/auth'
-import { Alert, Button, Input } from 'webcoreui/astro'
+import { Alert, Badge, Button, Input } from 'webcoreui/astro'
 
 const guard = requireAuth(Astro)
 if (guard) return guard
-let user = getCurrentUser(Astro)!
-let saved = false
+let user = getCurrentUser(Astro)
+if (!user) return Astro.redirect('/login')
 
 if (Astro.request.method === 'POST') {
     const form = await Astro.request.formData()
-    user = {
-        ...user,
-        firstName: String(form.get('firstName') || user.firstName || ''),
-        lastName: String(form.get('lastName') || user.lastName || ''),
-        email: String(form.get('email') || user.email),
-        name: `${form.get('firstName') || ''} ${form.get('lastName') || ''}`.trim()
+    const intent = String(form.get('intent') || 'profile')
+    const str = (key: string) => String(form.get(key) || '').trim()
+
+    if (intent === 'profile') {
+        const firstName = str('firstName') || user.firstName || ''
+        const lastName = str('lastName') || user.lastName || ''
+        user = {
+            ...user,
+            firstName,
+            lastName,
+            email: str('email') || user.email,
+            name: `${firstName} ${lastName}`.trim()
+        }
+        // TODO: PATCH PrestaShop /api/customers/{id} here.
+        Astro.cookies.set('auth_user', JSON.stringify(user), { path: '/', sameSite: 'lax' })
+        return Astro.redirect('/account/profile?ok=profile')
     }
-    // TODO: PATCH PrestaShop /api/customers/{id} here.
-    Astro.cookies.set('auth_user', JSON.stringify(user), { path: '/', sameSite: 'lax' })
-    saved = true
+
+    if (intent === 'password') {
+        const current = str('currentPassword')
+        const next = str('newPassword')
+        const confirm = str('confirmPassword')
+        if (!current) return Astro.redirect('/account/profile?err=password_current#password')
+        if (next.length < 8) return Astro.redirect('/account/profile?err=password_short#password')
+        if (next !== confirm) return Astro.redirect('/account/profile?err=password_mismatch#password')
+        // TODO: POST PrestaShop password change here.
+        return Astro.redirect('/account/profile?ok=password#password')
+    }
+
+    if (intent === 'address-save') {
+        const id = str('id')
+        upsertAddress(Astro.cookies, {
+            id: id || undefined,
+            firstName: str('firstName'),
+            lastName: str('lastName'),
+            company: str('company') || undefined,
+            line1: str('line1'),
+            line2: str('line2') || undefined,
+            city: str('city'),
+            postcode: str('postcode'),
+            country: str('country'),
+            phone: str('phone') || undefined,
+            isDefault: form.get('isDefault') === 'on'
+        })
+        return Astro.redirect(`/account/profile?ok=${id ? 'address-updated' : 'address-added'}#addresses`)
+    }
+
+    if (intent === 'address-delete') {
+        deleteAddress(Astro.cookies, str('id'))
+        return Astro.redirect('/account/profile?ok=address-removed#addresses')
+    }
 }
+
+const addresses = getAddresses(Astro.cookies)
+
+const params = Astro.url.searchParams
+const okMessages: Record<string, string> = {
+    profile: 'Your profile has been updated.',
+    password: 'Your password has been changed.',
+    'address-added': 'Address added.',
+    'address-updated': 'Address updated.',
+    'address-removed': 'Address removed.'
+}
+const passwordErrors: Record<string, string> = {
+    password_current: 'Enter your current password.',
+    password_short: 'New password must be at least 8 characters.',
+    password_mismatch: 'New passwords do not match.'
+}
+const okMessage = okMessages[params.get('ok') ?? '']
+const passwordError = passwordErrors[params.get('err') ?? '']
 ---
 
 <Layout title="Profile — ATELIER">
@@ -33,9 +99,13 @@ if (Astro.request.method === 'POST') {
         <h1 class="text-3xl font-semibold tracking-tight mb-6">Profile</h1>
         <AccountNav active="/account/profile" />
 
-        <div class="max-w-lg">
-            {saved && <div class="mb-4"><Alert theme="success">Your profile has been updated.</Alert></div>}
+        {okMessage && <div class="mb-6 max-w-lg"><Alert theme="success">{okMessage}</Alert></div>}
+
+        <!-- Personal details -->
+        <section class="max-w-lg">
+            <h2 class="text-xl font-semibold mb-4">Personal details</h2>
             <form method="post" class="flex flex-col gap-4">
+                <input type="hidden" name="intent" value="profile" />
                 <div class="grid grid-cols-2 gap-4">
                     <Input name="firstName" label="First name" value={user.firstName} />
                     <Input name="lastName" label="Last name" value={user.lastName} />
@@ -46,6 +116,96 @@ if (Astro.request.method === 'POST') {
                     <Button href="/logout" theme="secondary">Sign out</Button>
                 </div>
             </form>
-        </div>
+        </section>
+
+        <!-- Change password -->
+        <section id="password" class="max-w-lg mt-12 pt-12 border-t border-line">
+            <h2 class="text-xl font-semibold mb-4">Change password</h2>
+            {passwordError && <div class="mb-4"><Alert theme="alert">{passwordError}</Alert></div>}
+            <form method="post" class="flex flex-col gap-4">
+                <input type="hidden" name="intent" value="password" />
+                <Input type="password" name="currentPassword" label="Current password" required {...{ autocomplete: 'current-password' }} />
+                <Input type="password" name="newPassword" label="New password" subText="At least 8 characters." required {...{ autocomplete: 'new-password' }} />
+                <Input type="password" name="confirmPassword" label="Confirm new password" required {...{ autocomplete: 'new-password' }} />
+                <div class="mt-2"><Button type="submit">Update password</Button></div>
+            </form>
+        </section>
+
+        <!-- Addresses -->
+        <section id="addresses" data-address-section class="max-w-lg mt-12 pt-12 border-t border-line">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-xl font-semibold">Addresses</h2>
+                <Button type="button" theme="secondary" className="!py-1.5" data-open-modal="addr-new">Add address</Button>
+            </div>
+
+            {addresses.length === 0 ? (
+                <p class="aspect-[3/2]text-ink-soft">You have no saved addresses yet.</p>
+            ) : (
+                <div class="flex flex-col gap-3">
+                    {addresses.map(a => (
+                        <div class="border border-line rounded-[--radius-card] p-4 flex items-start justify-between gap-4">
+                            <div class="aspect-[3/2]leading-relaxed">
+                                <p class="font-medium flex items-center gap-2 mb-0.5">
+                                    {a.firstName} {a.lastName}
+                                    {a.isDefault && <Badge theme="info" small>Default</Badge>}
+                                </p>
+                                {a.company && <p class="text-ink-soft">{a.company}</p>}
+                                <p class="text-ink-soft">{a.line1}{a.line2 ? `, ${a.line2}` : ''}</p>
+                                <p class="text-ink-soft">{a.city}, {a.postcode}</p>
+                                <p class="text-ink-soft">{a.country}</p>
+                                {a.phone && <p class="text-ink-soft">{a.phone}</p>}
+                            </div>
+                            <div class="flex flex-col gap-2 shrink-0">
+                                <Button type="button" theme="secondary" className="!py-1.5" data-open-modal={`addr-edit-${a.id}`}>Edit</Button>
+                                <form method="post" data-confirm="Remove this address?">
+                                    <input type="hidden" name="intent" value="address-delete" />
+                                    <input type="hidden" name="id" value={a.id} />
+                                    <Button type="submit" theme="flat" className="!py-1.5 w-full text-sale">Delete</Button>
+                                </form>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
+
+            <AddressModal id="addr-new" title="Add address" />
+            {addresses.map(a => (
+                <AddressModal id={`addr-edit-${a.id}`} title="Edit address" address={a} />
+            ))}
+        </section>
     </div>
 </Layout>
+
+<script>
+    import { closeModal, modal } from 'webcoreui'
+
+    const initAccountModals = () => {
+        const section = document.querySelector<HTMLElement>('[data-address-section]')
+        if (!section || section.dataset.bound === 'true') return
+        section.dataset.bound = 'true'
+
+        // Bind each open trigger to its modal (auto-wires open + close handlers once).
+        section.querySelectorAll<HTMLElement>('[data-open-modal]').forEach(trigger => {
+            const id = trigger.dataset.openModal
+            if (id) modal({ trigger: `[data-open-modal="${id}"]`, modal: `#${id}` })
+        })
+
+        // Cancel buttons close their own modal without submitting.
+        section.querySelectorAll<HTMLElement>('[data-close-modal]').forEach(button => {
+            button.addEventListener('click', () => {
+                const id = button.dataset.closeModal
+                if (id) closeModal(`#${id}`)
+            })
+        })
+
+        // Confirm before destructive submits.
+        section.querySelectorAll<HTMLFormElement>('form[data-confirm]').forEach(form => {
+            form.addEventListener('submit', event => {
+                if (!window.confirm(form.dataset.confirm || 'Are you sure?')) event.preventDefault()
+            })
+        })
+    }
+
+    initAccountModals()
+    document.addEventListener('astro:after-swap', initAccountModals)
+</script>

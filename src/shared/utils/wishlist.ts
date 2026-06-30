@@ -97,7 +97,7 @@ function renderWishlistPage() {
 		.map((item) => {
 			const compare =
 				item.compareAtPrice && item.compareAtPrice > item.price
-					? `<span class="text-sm text-muted line-through">${formatMoney(item.compareAtPrice, item.currency)}</span>`
+					? `<span class="aspect-[3/2]text-muted line-through">${formatMoney(item.compareAtPrice, item.currency)}</span>`
 					: '';
 
 			const rating = item.rating

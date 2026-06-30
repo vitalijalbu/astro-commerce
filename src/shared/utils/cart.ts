@@ -120,7 +120,7 @@ function render() {
                         <a href="/products/${l.handle}" class="font-medium leading-tight">${l.title}</a>
                         ${
 													l.variantTitle && l.variantTitle !== 'Default'
-														? `<p class="text-sm text-muted mt-0.5">${l.variantTitle}</p>`
+														? `<p class="aspect-[3/2]text-muted mt-0.5">${l.variantTitle}</p>`
 														: ''
 												}
                         <div class="flex items-center gap-3 mt-2">
@@ -128,7 +128,7 @@ function render() {
                                 aria-label="Quantity"
                                 class="w-14 h-8 px-2 border border-line rounded-[--radius-card] text-sm" />
                             <button type="button" data-cart-remove="${l.id}"
-                                class="text-sm text-muted link-underline">Remove</button>
+                                class="aspect-[3/2]text-muted link-underline">Remove</button>
                         </div>
                     </div>
                     <div class="text-right font-medium">${formatMoney(l.price * l.quantity, l.currency)}</div>
@@ -203,23 +203,26 @@ export function initCart() {
 			const add = target.closest<HTMLElement>('[data-add-to-cart]');
 			if (add) {
 				event.preventDefault();
-				addLine({
-					id: add.dataset.id!,
-					handle: add.dataset.handle!,
-					title: add.dataset.title!,
-					variantTitle: add.dataset.variant,
-					image: add.dataset.image!,
-					price: Number(add.dataset.price),
-					currency: add.dataset.currency || 'EUR',
-					quantity: Number(add.dataset.quantity || 1),
-				});
-				openDrawer?.();
+				const { id, handle, title, image } = add.dataset;
+				if (id && handle && title && image) {
+					addLine({
+						id,
+						handle,
+						title,
+						variantTitle: add.dataset.variant,
+						image,
+						price: Number(add.dataset.price),
+						currency: add.dataset.currency || 'EUR',
+						quantity: Number(add.dataset.quantity || 1),
+					});
+					openDrawer?.();
+				}
 				return;
 			}
 
 			const remove = target.closest<HTMLElement>('[data-cart-remove]');
 			if (remove) {
-				removeLine(remove.dataset.cartRemove!);
+				if (remove.dataset.cartRemove) removeLine(remove.dataset.cartRemove);
 				return;
 			}
 
@@ -231,8 +234,8 @@ export function initCart() {
 
 		document.addEventListener('input', (event) => {
 			const qty = (event.target as HTMLElement).closest<HTMLInputElement>('[data-cart-qty]');
-			if (qty) {
-				setQuantity(qty.dataset.cartQty!, Number(qty.value));
+			if (qty?.dataset.cartQty) {
+				setQuantity(qty.dataset.cartQty, Number(qty.value));
 			}
 		});
 	}

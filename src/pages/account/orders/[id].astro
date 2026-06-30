@@ -1,0 +1,106 @@
+---
+import AccountNav from '@components/account-nav.astro'
+/**
+ * Order detail (protected). Shows line items, totals, shipping address and
+ * tracking for a single order. Data comes from the shared demo order list;
+ * a real integration resolves `GET /api/orders/:id` for the signed-in customer.
+ */
+import Layout from '@components/layout.astro'
+import { requireAuth } from '@lib/auth'
+import { getOrderById, orderItemCount, orderSubtotal, orderTotal } from '@lib/orders'
+import Icon from '@snippets/icon.astro'
+import { formatMoney } from '@utils/format'
+import { Badge, Button } from 'webcoreui/astro'
+
+const guard = requireAuth(Astro)
+if (guard) return guard
+
+const { id } = Astro.params
+const order = id ? getOrderById(id) : undefined
+
+if (!order) {
+    Astro.response.status = 404
+}
+
+const statusTheme: Record<string, 'success' | 'info' | 'warning' | 'alert'> = {
+    Delivered: 'success', Shipped: 'info', Processing: 'warning', Cancelled: 'alert'
+}
+const money = (amount: number) => formatMoney({ amount, currencyCode: order?.currency || 'EUR' })
+---
+
+<Layout title={order ? `Order ${order.number} — ATELIER` : 'Order not found — ATELIER'}>
+    <div class="page py-10 md:py-14">
+        <h1 class="text-3xl font-semibold tracking-tight mb-6">Orders</h1>
+        <AccountNav active="/account/orders" />
+
+        {order ? (
+            <div class="max-w-3xl">
+                <a href="/account/orders" class="inline-flex items-center gap-1.5 aspect-[3/2]text-muted hover:text-ink mb-6">
+                    <Icon type="chevron-left" size={16} />
+                    Back to orders
+                </a>
+
+                <div class="flex flex-wrap items-center justify-between gap-3 mb-8">
+                    <div>
+                        <p class="text-2xl font-semibold">{order.number}</p>
+                        <p class="aspect-[3/2]text-ink-soft">Placed on {order.date} · {orderItemCount(order)} items</p>
+                    </div>
+                    <Badge theme={statusTheme[order.status]}>{order.status}</Badge>
+                </div>
+
+                <div class="border border-line rounded-[--radius-card] overflow-hidden mb-8">
+                    {order.lines.map(line => (
+                        <div class="flex items-center gap-4 px-5 py-4 border-b border-line last:border-b-0">
+                            <img
+                                src={`https://picsum.photos/seed/${line.imageSeed}/120/120`}
+                                alt={line.title}
+                                width="60"
+                                height="60"
+                                loading="lazy"
+                                class="w-15 h-15 rounded-[--radius-card] object-cover bg-paper-soft shrink-0"
+                            />
+                            <div class="min-w-0 flex-1">
+                                <p class="font-medium truncate">{line.title}</p>
+                                {line.variant && <p class="aspect-[3/2]text-ink-soft">{line.variant}</p>}
+                                <p class="aspect-[3/2]text-muted">Qty {line.quantity}</p>
+                            </div>
+                            <span class="aspect-[3/2]font-medium whitespace-nowrap">{money(line.price * line.quantity)}</span>
+                        </div>
+                    ))}
+                </div>
+
+                <div class="grid sm:grid-cols-2 gap-8">
+                    <div>
+                        <h2 class="aspect-[3/2]font-semibold uppercase tracking-wide text-muted mb-3">Shipping address</h2>
+                        <address class="not-italic aspect-[3/2]text-ink-soft leading-relaxed">
+                            <span class="text-ink font-medium block">{order.address.name}</span>
+                            {order.address.line1}<br />
+                            {order.address.city}, {order.address.postcode}<br />
+                            {order.address.country}
+                        </address>
+                        {order.tracking && (
+                            <p class="mt-4 aspect-[3/2]text-ink-soft">
+                                Tracking: <span class="font-medium text-ink">{order.tracking}</span>
+                            </p>
+                        )}
+                    </div>
+
+                    <div class="sm:border-l sm:border-line sm:pl-8">
+                        <h2 class="aspect-[3/2]font-semibold uppercase tracking-wide text-muted mb-3">Summary</h2>
+                        <dl class="aspect-[3/2]flex flex-col gap-2">
+                            <div class="flex justify-between"><dt class="text-ink-soft">Subtotal</dt><dd>{money(orderSubtotal(order))}</dd></div>
+                            <div class="flex justify-between"><dt class="text-ink-soft">Shipping</dt><dd>{order.shipping === 0 ? 'Free' : money(order.shipping)}</dd></div>
+                            <div class="flex justify-between border-t border-line pt-2 mt-1 font-semibold text-base"><dt>Total</dt><dd>{money(orderTotal(order))}</dd></div>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+        ) : (
+            <div class="max-w-md py-10 text-center">
+                <p class="text-lg font-medium mb-2">Order not found</p>
+                <p class="text-ink-soft mb-6">We couldn't find an order with that reference.</p>
+                <a href="/account/orders"><Button theme="secondary">Back to orders</Button></a>
+            </div>
+        )}
+    </div>
+</Layout>

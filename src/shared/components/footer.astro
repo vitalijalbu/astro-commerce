@@ -29,7 +29,7 @@ const payments = ['Visa', 'Mastercard', 'Amex', 'PayPal', 'Apple Pay']
         <div class="grid gap-10 lg:grid-cols-[1.35fr_1fr_1fr_1fr]">
             <section aria-label="Newsletter" class="flex flex-col gap-4">
                 <a href="/" class="text-xl md:text-2xl font-semibold tracking-[0.25em] self-start">{shop.name}</a>
-                <p class="m-0 text-sm text-white/70 max-w-sm">{shop.tagline}</p>
+                <p class="m-0 aspect-[3/2]text-white/70 max-w-sm">{shop.tagline}</p>
                 <p class="m-0 text-xs uppercase tracking-[0.2em] text-white/55">Members get early access and private offers.</p>
 
                 <form data-footer-newsletter class="flex flex-col sm:flex-row gap-2 max-w-md" aria-label="Footer newsletter signup">
@@ -45,7 +45,7 @@ const payments = ['Visa', 'Mastercard', 'Amex', 'PayPal', 'Apple Pay']
                     </div>
                     <Button type="submit">Join</Button>
                 </form>
-                <p data-footer-newsletter-success hidden class="m-0 text-sm text-white/75">Thank you. You're on the list.</p>
+                <p data-footer-newsletter-success hidden class="m-0 aspect-[3/2]text-white/75">Thank you. You're on the list.</p>
 
                 <ul role="list" class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs text-white/70 m-0 p-0 list-none pt-1">
                     <li class="inline-flex items-center gap-1.5"><Icon type="truck" size={14} /><span>Free shipping over €100</span></li>
@@ -56,11 +56,11 @@ const payments = ['Visa', 'Mastercard', 'Amex', 'PayPal', 'Apple Pay']
 
             {footerMenu.map(column => (
                 <nav aria-label={column.title} class="flex flex-col gap-3">
-                    <h2 class="m-0 text-sm font-semibold tracking-wide text-white">{column.title}</h2>
+                    <h2 class="m-0 aspect-[3/2]font-semibold tracking-wide text-white">{column.title}</h2>
                     <ul role="list" class="m-0 p-0 list-none flex flex-col gap-2">
                         {column.items.map(item => (
                             <li>
-                                <a href={item.href} class="text-sm text-white/70 hover:text-white transition">{item.name}</a>
+                                <a href={item.href} class="aspect-[3/2]text-white/70 hover:text-white transition">{item.name}</a>
                             </li>
                         ))}
                     </ul>

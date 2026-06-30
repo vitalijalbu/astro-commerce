@@ -1,0 +1,47 @@
+---
+import type { Address } from '@lib/addresses'
+/**
+ * Address create/edit modal (WebCoreUI <Modal>). The form POSTs back to the
+ * profile page with `intent=address-save`; a present hidden `id` switches the
+ * handler from create to update. Opened by `[data-open-modal="<id>"]` triggers
+ * wired up in the profile page script.
+ */
+import { Button, Checkbox, Input, Modal } from 'webcoreui/astro'
+
+interface Props {
+    id: string
+    title: string
+    address?: Address
+}
+
+const { id, title, address } = Astro.props
+---
+
+<Modal id={id} title={title} className="!max-w-lg">
+    <form method="post" class="flex flex-col gap-4 mt-2">
+        <input type="hidden" name="intent" value="address-save" />
+        {address && <input type="hidden" name="id" value={address.id} />}
+
+        <div class="grid grid-cols-2 gap-4">
+            <Input name="firstName" label="First name" value={address?.firstName} required />
+            <Input name="lastName" label="Last name" value={address?.lastName} required />
+        </div>
+        <Input name="company" label="Company (optional)" value={address?.company} />
+        <Input name="line1" label="Address" value={address?.line1} required />
+        <Input name="line2" label="Apartment, suite, etc. (optional)" value={address?.line2} />
+        <div class="grid grid-cols-2 gap-4">
+            <Input name="city" label="City" value={address?.city} required />
+            <Input name="postcode" label="Postcode" value={address?.postcode} required />
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+            <Input name="country" label="Country" value={address?.country} required />
+            <Input name="phone" label="Phone (optional)" value={address?.phone} />
+        </div>
+        <Checkbox name="isDefault" label="Set as default address" checked={address?.isDefault} />
+
+        <div class="flex gap-2 mt-2">
+            <Button type="submit">{address ? 'Save address' : 'Add address'}</Button>
+            <Button type="button" theme="secondary" data-close-modal={id}>Cancel</Button>
+        </div>
+    </form>
+</Modal>

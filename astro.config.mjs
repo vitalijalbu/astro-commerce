@@ -1,6 +1,5 @@
 // @ts-check
 
-import node from '@astrojs/node';
 import vercel from '@astrojs/vercel';
 import tailwindcss from '@tailwindcss/vite';
 import { defineConfig, fontProviders, memoryCache } from 'astro/config';

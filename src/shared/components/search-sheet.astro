@@ -23,9 +23,9 @@ const popular = ['Linen', 'Knitwear', 'Loafers', 'Tote bag', 'Sale']
         <Button type="submit">Search</Button>
     </form>
     <div class="mt-4 flex flex-wrap items-center gap-2">
-        <span class="text-sm text-muted">Popular:</span>
+        <span class="aspect-[3/2]text-muted">Popular:</span>
         {popular.map(term => (
-            <a href={`/search?q=${encodeURIComponent(term)}`} class="text-sm link-underline">{term}</a>
+            <a href={`/search?q=${encodeURIComponent(term)}`} class="aspect-[3/2]link-underline">{term}</a>
         ))}
     </div>
 </Sheet>

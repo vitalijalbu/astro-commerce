@@ -21,6 +21,7 @@ import RichText from '@sections/rich-text.astro'
  */
 import Slideshow from '@sections/slideshow.astro'
 import Testimonials from '@sections/testimonials.astro'
+import type { AstroComponentFactory } from 'astro/runtime/server/index.js'
 
 interface Props {
     sections: Section[]
@@ -28,7 +29,7 @@ interface Props {
 
 const { sections } = Astro.props
 
-const registry: Record<Section['type'], any> = {
+const registry: Record<Section['type'], AstroComponentFactory> = {
     'slideshow': Slideshow,
     'image-banner': ImageBanner,
     'featured-collection': FeaturedCollection,

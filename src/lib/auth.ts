@@ -16,6 +16,20 @@ import type { AstroCookies } from 'astro';
 const AUTH_URL = import.meta.env.PRESTASHOP_AUTH_URL?.replace(/\/$/, '');
 const DAY = 60 * 60 * 24;
 
+/**
+ * Static login (temporaneo): quando `true`, ogni visitatore è trattato come un
+ * cliente demo già autenticato, così le pagine /account sono visibili senza una
+ * vera sessione PrestaShop. Rimettere a `false` per ripristinare l'auth via cookie.
+ */
+const STATIC_LOGIN = true;
+const STATIC_USER: AuthUser = {
+	id: 'static-1',
+	firstName: 'Demo',
+	lastName: 'Customer',
+	name: 'Demo Customer',
+	email: 'demo@atelier.example',
+};
+
 export interface AuthUser {
 	id: string | number;
 	firstName?: string;
@@ -119,6 +133,7 @@ export function logout(ctx: AuthCtx): void {
 }
 
 export function isAuthenticated(ctx: { cookies: AstroCookies }): boolean {
+	if (STATIC_LOGIN) return true;
 	return Boolean(
 		ctx.cookies.get('is_authenticated')?.value && ctx.cookies.get('auth_token')?.value,
 	);
@@ -126,12 +141,14 @@ export function isAuthenticated(ctx: { cookies: AstroCookies }): boolean {
 
 export function getCurrentUser(ctx: { cookies: AstroCookies }): AuthUser | null {
 	const raw = ctx.cookies.get('auth_user')?.value;
-	if (!raw) return null;
-	try {
-		return JSON.parse(raw) as AuthUser;
-	} catch {
-		return null;
+	if (raw) {
+		try {
+			return JSON.parse(raw) as AuthUser;
+		} catch {
+			/* cookie corrotto: ricade sull'utente statico o null sotto */
+		}
 	}
+	return STATIC_LOGIN ? STATIC_USER : null;
 }
 
 /** Redirect to /login (preserving target) when not authenticated. */

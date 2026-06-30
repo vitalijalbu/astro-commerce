@@ -22,7 +22,7 @@ const s = section.settings
     <div class="grid md:grid-cols-2 gap-10 md:gap-16 items-start">
         <div>
             <SectionHeading heading={s.heading} subheading={s.text} align="left" />
-            <div class="flex flex-col gap-2 text-sm text-ink-soft">
+            <div class="flex flex-col gap-2 aspect-[3/2]text-ink-soft">
                 <a href={`mailto:${shop.email}`} class="link-underline self-start">{shop.email}</a>
                 <span>Mon–Fri, 9:00–17:00 CET</span>
             </div>
@@ -37,7 +37,7 @@ const s = section.settings
             <Textarea name="message" label="Message" rows={5} required />
             <div class="flex items-center gap-3">
                 <Button type="submit">Send message</Button>
-                <span data-contact-success hidden class="text-sm text-accent">Thanks — we'll be in touch soon.</span>
+                <span data-contact-success hidden class="aspect-[3/2]text-accent">Thanks — we'll be in touch soon.</span>
             </div>
         </form>
     </div>

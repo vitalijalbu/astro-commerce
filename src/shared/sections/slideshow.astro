@@ -36,8 +36,8 @@ const contentAlignMap = {
             paginationClassName="page -mt-18 relative z-20 pb-6"
         >
             {slides.map((slide, i) => (
-                <CarouselItem>
-                    <article class="relative isolate aspect-4/5 overflow-hidden bg-paper-dark md:aspect-video xl:aspect-2/1">
+                <CarouselItem className="w-full">
+                    <article class="w-full relative isolate aspect-4/5 overflow-hidden bg-paper-dark md:aspect-video xl:aspect-2/1">
                         <Image
                             src={slide.image}
                             alt={slide.heading}
