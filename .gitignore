@@ -137,3 +137,4 @@ dist
 /.astro
 /.vscode
 .vercel
+llms-full.md
