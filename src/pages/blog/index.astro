@@ -3,9 +3,9 @@
  * Journal index page (Shopify-like): featured article + article grid + filters.
  */
 import Layout from '@components/layout.astro'
+import { getBlogSummaries, getBlogTags } from '@lib/blog'
 import BlogCard from '@snippets/blog-card.astro'
 import { Badge, Breadcrumb, Button, Input } from 'webcoreui/astro'
-import { getBlogSummaries, getBlogTags } from '@lib/blog'
 
 const params = Astro.url.searchParams
 const query = (params.get('q') || '').trim().toLowerCase()

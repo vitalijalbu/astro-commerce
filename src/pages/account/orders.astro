@@ -5,9 +5,9 @@ import AccountNav from '@components/account-nav.astro'
  * resource filtered by the signed-in customer id; a demo list is shown here.
  */
 import Layout from '@components/layout.astro'
+import { requireAuth } from '@lib/auth'
 import { formatMoney } from '@utils/format'
 import { Badge, Button } from 'webcoreui/astro'
-import { requireAuth } from '@lib/auth'
 
 const guard = requireAuth(Astro)
 if (guard) return guard

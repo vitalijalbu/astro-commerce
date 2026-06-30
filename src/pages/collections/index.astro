@@ -3,10 +3,10 @@
  * Collections index — grid of all categories.
  */
 import Layout from '@components/layout.astro'
-import CatalogPagination from '@snippets/catalog-pagination.astro'
-import { Breadcrumb } from 'webcoreui/astro'
 import { getCollections } from '@lib/catalog'
 import { paginateItems, parsePageParam } from '@lib/paginate'
+import CatalogPagination from '@snippets/catalog-pagination.astro'
+import { Breadcrumb } from 'webcoreui/astro'
 
 const page = parsePageParam(Astro.url.searchParams.get('page'))
 const collections = await getCollections(120)
@@ -21,7 +21,7 @@ const paginated = paginateItems(collections, page, 12)
         <div class="grid grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
             {paginated.items.map(collection => (
                 <a href={`/collections/${collection.handle}`} class="group block relative overflow-hidden rounded-[--radius-card] bg-paper-soft">
-                    <div class="aspect-[4/3] overflow-hidden">
+                    <div class="aspect-4/3 overflow-hidden">
                         <img src={collection.image?.url} alt={collection.title} loading="lazy"
                             class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
                     </div>

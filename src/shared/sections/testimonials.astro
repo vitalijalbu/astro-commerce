@@ -1,11 +1,11 @@
 ---
+import type { TestimonialsSection } from '@lib/sections'
+import Section from '@snippets/section.astro'
+import SectionHeading from '@snippets/section-heading.astro'
 /**
  * Customer testimonials grid with star ratings (WebCoreUI <Rating>, <Card compact={true}>).
  */
 import { Card, Rating } from 'webcoreui/astro'
-import type { TestimonialsSection } from '@lib/sections'
-import Section from '@snippets/section.astro'
-import SectionHeading from '@snippets/section-heading.astro'
 
 interface Props {
     section: TestimonialsSection

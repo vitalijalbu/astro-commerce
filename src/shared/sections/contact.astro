@@ -1,14 +1,14 @@
 ---
+import { shop } from '@lib/navigation'
+import type { ContactSection } from '@lib/sections'
+import Section from '@snippets/section.astro'
+import SectionHeading from '@snippets/section-heading.astro'
 /**
  * Contact form section. Built entirely from WebCoreUI form components
  * (<Input>, <Textarea>, <Button>). Submits client-side for the template —
  * wire to your support inbox / PrestaShop contact endpoint.
  */
 import { Button, Input, Textarea } from 'webcoreui/astro'
-import { shop } from '@lib/navigation'
-import type { ContactSection } from '@lib/sections'
-import Section from '@snippets/section.astro'
-import SectionHeading from '@snippets/section-heading.astro'
 
 interface Props {
     section: ContactSection

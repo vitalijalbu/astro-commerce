@@ -1,7 +1,4 @@
 ---
-/**
- * Reusable article card for journal index, section previews and related posts.
- */
 import { Badge, Button, Card } from 'webcoreui/astro'
 
 interface BlogCardData {
@@ -25,10 +22,10 @@ const { post, variant = 'default', showButton = true } = Astro.props
 const feature = variant === 'feature'
 ---
 
-<Card compact={true} flat compact className="!p-0 !border-line overflow-hidden h-full">
+<Card compact={true} flat compact className="p-0! border-line! overflow-hidden h-full">
     <article class:list={[feature && 'grid md:grid-cols-2']} aria-label={post.title}>
         <a href={post.href} class="block group" aria-label={`Open article: ${post.title}`}>
-            <div class:list={['overflow-hidden bg-paper-soft', feature ? 'aspect-[4/3] md:aspect-auto md:h-full' : 'aspect-[3/2]']}>
+            <div class:list={['overflow-hidden bg-paper-soft', feature ? 'aspect-4/3 md:aspect-auto md:h-full' : 'aspect-[3/2]']}>
                 <img
                     src={post.image}
                     alt={post.title}

@@ -1,11 +1,11 @@
 ---
+import type { FaqSection } from '@lib/sections'
+import Section from '@snippets/section.astro'
+import SectionHeading from '@snippets/section-heading.astro'
 /**
  * FAQ section using WebCoreUI <Accordion>.
  */
 import { Accordion } from 'webcoreui/astro'
-import type { FaqSection } from '@lib/sections'
-import Section from '@snippets/section.astro'
-import SectionHeading from '@snippets/section-heading.astro'
 
 interface Props {
     section: FaqSection

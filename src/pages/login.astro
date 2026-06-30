@@ -4,8 +4,8 @@
  * (or the demo account) and redirects. Form uses WebCoreUI <Input>/<Button>.
  */
 import Layout from '@components/layout.astro'
-import { Alert, Button, Checkbox, Input } from 'webcoreui/astro'
 import { login, requireGuest } from '@lib/auth'
+import { Alert, Button, Checkbox, Input } from 'webcoreui/astro'
 
 const guard = requireGuest(Astro)
 if (guard) return guard

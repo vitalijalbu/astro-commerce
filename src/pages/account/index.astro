@@ -4,9 +4,9 @@ import AccountNav from '@components/account-nav.astro'
  * Account overview (protected). Shows a welcome, quick stats and shortcuts.
  */
 import Layout from '@components/layout.astro'
+import { getCurrentUser, requireAuth } from '@lib/auth'
 import Icon from '@snippets/icon.astro'
 import { Button, Card } from 'webcoreui/astro'
-import { getCurrentUser, requireAuth } from '@lib/auth'
 
 const guard = requireAuth(Astro)
 if (guard) return guard

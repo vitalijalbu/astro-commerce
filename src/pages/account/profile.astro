@@ -5,8 +5,8 @@ import AccountNav from '@components/account-nav.astro'
  * integration would PATCH the PrestaShop customer resource.
  */
 import Layout from '@components/layout.astro'
-import { Alert, Button, Input } from 'webcoreui/astro'
 import { getCurrentUser, requireAuth } from '@lib/auth'
+import { Alert, Button, Input } from 'webcoreui/astro'
 
 const guard = requireAuth(Astro)
 if (guard) return guard

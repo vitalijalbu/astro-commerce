@@ -3,11 +3,11 @@
  * Journal article detail page.
  */
 import Layout from '@components/layout.astro'
+import { formatBlogDate, getBlogPostBySlug, getRelatedBlogSummaries } from '@lib/blog'
 import BlogCard from '@snippets/blog-card.astro'
 import EmptyState from '@snippets/empty-state.astro'
 import JsonLd from '@snippets/json-ld.astro'
 import { Badge, Breadcrumb, Button } from 'webcoreui/astro'
-import { formatBlogDate, getBlogPostBySlug, getRelatedBlogSummaries } from '@lib/blog'
 
 const { slug } = Astro.params
 const post = getBlogPostBySlug(slug || '')

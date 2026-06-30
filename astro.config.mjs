@@ -1,6 +1,7 @@
 // @ts-check
 
 import node from '@astrojs/node';
+import vercel from '@astrojs/vercel';
 import tailwindcss from '@tailwindcss/vite';
 import { defineConfig, fontProviders, memoryCache } from 'astro/config';
 import { webcore } from 'webcoreui/integration';
@@ -10,7 +11,7 @@ export default defineConfig({
 	// SSR on-demand: necessario per l'auth cliente PrestaShop via cookie
 	// (login / register / account). Node standalone legge HOST/PORT dall'ambiente.
 	output: 'server',
-	adapter: node({ mode: 'standalone' }),
+	adapter: vercel(),
 	server: { host: true, port: Number(process.env.PORT) || 4321 },
 
 	// Astro v7: route caching SSR nativa (process-local memory cache).
