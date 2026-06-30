@@ -23,7 +23,7 @@ const messages = shop.announcements
     >×</button>
 </div>
 
-<script define:vars={{ messages }}>
+<script is:inline define:vars={{ messages }}>
     const bar = document.querySelector('[data-announcement]')
     if (bar) {
         if (sessionStorage.getItem('announcement-dismissed')) {

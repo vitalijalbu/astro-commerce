@@ -63,6 +63,41 @@ const accordionItems = product ? [
     { title: 'Shipping & returns', content: 'Free standard shipping on orders over €100. Easy 30-day returns — items must be unworn with tags attached.' },
     { title: 'Materials & care', content: 'Made from premium natural materials. Follow the care label; cool wash and lay flat to dry where possible.' }
 ] : []
+
+// Build selectable option groups (e.g. Size, Colour) from the variants.
+// With single-variant products this is empty and the selector is hidden —
+// it lights up automatically once PrestaShop returns real variant options.
+const optionGroups = product
+    ? [...product.variants.reduce((groups, variant) => {
+        for (const option of variant.options ?? []) {
+            const values = groups.get(option.name) ?? new Set<string>()
+            values.add(option.value)
+            groups.set(option.name, values)
+        }
+        return groups
+    }, new Map<string, Set<string>>())].map(([name, values]) => ({ name, values: [...values] }))
+    : []
+
+// Estimated delivery window (2–4 working days), formatted server-side.
+const fmtDay = (date: Date): string =>
+    date.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' })
+const deliveryEstimate = `${fmtDay(new Date(Date.now() + 2 * 86_400_000))} – ${fmtDay(new Date(Date.now() + 4 * 86_400_000))}`
+
+const pdpWishlistItem = product
+    ? encodeURIComponent(JSON.stringify({
+        id: product.id,
+        handle: product.handle,
+        title: product.title,
+        vendor: product.vendor ?? null,
+        image: product.featuredImage.url,
+        price: product.price.amount,
+        currency: product.price.currencyCode,
+        compareAtPrice: product.compareAtPrice?.amount ?? null,
+        rating: product.rating ?? null,
+        reviewCount: product.reviewCount ?? null,
+        available: product.available
+    }))
+    : ''
 ---
 
 <Layout
@@ -181,11 +216,35 @@ const accordionItems = product ? [
 
                 <p class="text-ink-soft mt-4 leading-relaxed">{product.description}</p>
 
-                <!-- Quantity + add to cart -->
+                <!-- Variant options (size / colour …) — render only when present -->
+                {optionGroups.map(group => (
+                    <fieldset class="mt-6 m-0 border-0 p-0">
+                        <legend class="mb-2 flex w-full items-center justify-between gap-2 text-sm font-medium">
+                            <span>{group.name}</span>
+                            {group.name.toLowerCase() === 'size' && (
+                                <a href="/pages/size-guide" class="text-xs text-muted link-underline">Size guide</a>
+                            )}
+                        </legend>
+                        <div class="flex flex-wrap gap-2" role="radiogroup" aria-label={group.name}>
+                            {group.values.map((value, i) => (
+                                <button
+                                    type="button"
+                                    data-variant-option={group.name}
+                                    data-variant-value={value}
+                                    role="radio"
+                                    aria-checked={i === 0 ? 'true' : 'false'}
+                                    class="min-w-11 rounded-[--radius-card] border border-line px-4 py-2 text-sm transition hover:border-ink aria-checked:border-ink aria-checked:bg-ink aria-checked:text-white"
+                                >
+                                    {value}
+                                </button>
+                            ))}
+                        </div>
+                    </fieldset>
+                ))}
+
+                <!-- Quantity + add to cart + wishlist -->
                 <div class="flex items-center gap-3 mt-8">
-                   
-                        <QuantityPicker id="pdp-quantity" name="quantity" value={1} min={1} max={12} />
-                    
+                    <QuantityPicker id="pdp-quantity" name="quantity" value={1} min={1} max={12} />
                     <Button
                         className="flex-1"
                         disabled={!product.available}
@@ -202,6 +261,27 @@ const accordionItems = product ? [
                     >
                         {product.available ? 'Add to cart' : 'Sold out'}
                     </Button>
+                    <button
+                        type="button"
+                        data-wishlist-toggle
+                        data-wishlist-item={pdpWishlistItem}
+                        aria-pressed="false"
+                        aria-label={`Add ${product.title} to wishlist`}
+                        class="grid h-11 w-11 shrink-0 place-items-center rounded-[--radius-card] border border-line text-ink transition hover:border-ink data-[active=true]:border-ink data-[active=true]:bg-ink data-[active=true]:text-white"
+                    >
+                        <Icon type="heart" size={18} />
+                    </button>
+                </div>
+
+                <!-- Delivery estimate + share -->
+                <div class="mt-4 flex flex-wrap items-center justify-between gap-x-4 gap-y-2 text-sm">
+                    <p class="m-0 flex items-center gap-2 text-ink-soft">
+                        <Icon type="truck" size={16} />
+                        <span>Estimated delivery <strong class="font-medium text-ink">{deliveryEstimate}</strong></span>
+                    </p>
+                    <button type="button" data-pdp-share class="inline-flex items-center gap-1.5 text-muted link-underline">
+                        <Icon type="share" size={15} /> Share
+                    </button>
                 </div>
 
                 <!-- Trust badges -->
@@ -288,4 +368,48 @@ const accordionItems = product ? [
 
     initStickyBar()
     document.addEventListener('astro:after-swap', initStickyBar)
+
+    // Variant pills: single-select per group; reflect choice on the cart buttons.
+    const initVariantSelector = () => {
+        document.querySelectorAll<HTMLElement>('[role="radiogroup"]').forEach(group => {
+            if (group.dataset.bound === 'true') return
+            group.dataset.bound = 'true'
+            group.addEventListener('click', e => {
+                const pill = (e.target as HTMLElement).closest<HTMLElement>('[data-variant-value]')
+                if (!pill) return
+                group.querySelectorAll('[data-variant-value]').forEach(b => b.setAttribute('aria-checked', 'false'))
+                pill.setAttribute('aria-checked', 'true')
+
+                const selected = [...document.querySelectorAll<HTMLElement>('[aria-checked="true"][data-variant-value]')]
+                    .map(b => b.dataset.variantValue)
+                    .join(' / ')
+                document.querySelectorAll<HTMLElement>('[data-add-to-cart]').forEach(btn => {
+                    if (selected) btn.dataset.variant = selected
+                })
+            })
+        })
+    }
+    initVariantSelector()
+    document.addEventListener('astro:after-swap', initVariantSelector)
+
+    // Share: native share sheet when available, clipboard copy as a fallback.
+    const initShare = () => {
+        const button = document.querySelector<HTMLButtonElement>('[data-pdp-share]')
+        if (!button || button.dataset.bound === 'true') return
+        button.dataset.bound = 'true'
+        button.addEventListener('click', async () => {
+            const data = { title: document.title, url: location.href }
+            try {
+                if (navigator.share) await navigator.share(data)
+                else {
+                    await navigator.clipboard.writeText(location.href)
+                    const original = button.textContent
+                    button.textContent = 'Link copied'
+                    setTimeout(() => { button.textContent = original }, 1800)
+                }
+            } catch { /* user dismissed the share sheet */ }
+        })
+    }
+    initShare()
+    document.addEventListener('astro:after-swap', initShare)
 </script>

@@ -4,6 +4,14 @@
  * Handles /collections/all as a first-class route and supports GET filters.
  */
 import Layout from '@components/layout.astro'
+import {
+    getCollectionByHandle,
+    getCollectionProducts,
+    getCollections,
+    getProducts
+} from '@lib/catalog'
+import { paginateItems, parsePageParam } from '@lib/paginate'
+import type { Collection } from '@lib/types'
 import CatalogPagination from '@snippets/catalog-pagination.astro'
 import CollectionFiltersForm from '@snippets/collection-filters-form.astro'
 import EmptyState from '@snippets/empty-state.astro'
@@ -13,14 +21,6 @@ import {
     Breadcrumb,
     Select
 } from 'webcoreui/astro'
-import {
-    getCollectionByHandle,
-    getCollectionProducts,
-    getCollections,
-    getProducts
-} from '@lib/catalog'
-import { paginateItems, parsePageParam } from '@lib/paginate'
-import type { Collection } from '@lib/types'
 
 const humanize = (value: string): string => value
     .split('-')
@@ -151,6 +151,33 @@ const products = [...filteredProducts].sort((a, b) => {
 const paginated = paginateItems(products, page, 24)
 const clearHref = `/collections/${handle}`
 const notFoundCollection = !collectionEntity && handle !== 'all'
+
+// Active-filter chips: each links back to the page with that one filter removed.
+const buildHref = (mutate: (next: URLSearchParams) => void): string => {
+    const next = new URLSearchParams(params)
+    next.delete('page')
+    mutate(next)
+    const qs = next.toString()
+    return qs ? `/collections/${handle}?${qs}` : clearHref
+}
+
+const activeFilters: { label: string; href: string }[] = [
+    ...selectedTags.map(tag => ({
+        label: humanize(tag),
+        href: buildHref(next => {
+            const remaining = next.getAll('tag').filter(value => value.toLowerCase() !== tag)
+            next.delete('tag')
+            for (const value of remaining) next.append('tag', value)
+        })
+    })),
+    ...(onlyAvailable ? [{ label: 'In stock', href: buildHref(next => next.delete('available')) }] : []),
+    ...((minPrice !== null || maxPrice !== null)
+        ? [{
+            label: `€${sliderMin} – €${sliderMax}`,
+            href: buildHref(next => { next.delete('price'); next.delete('min'); next.delete('max') })
+        }]
+        : [])
+]
 ---
 
 <Layout
@@ -238,6 +265,22 @@ const notFoundCollection = !collectionEntity && handle !== 'all'
             </aside>
 
             <div>
+                {activeFilters.length > 0 && (
+                    <div class="mb-4 flex flex-wrap items-center gap-2" aria-label="Active filters">
+                        {activeFilters.map(filter => (
+                            <a
+                                href={filter.href}
+                                class="inline-flex items-center gap-1.5 rounded-full border border-line bg-paper-soft px-3 py-1 text-xs transition hover:border-ink"
+                                aria-label={`Remove filter ${filter.label}`}
+                            >
+                                {filter.label}
+                                <span aria-hidden="true">×</span>
+                            </a>
+                        ))}
+                        <a href={clearHref} class="text-xs text-muted link-underline ml-1">Clear all</a>
+                    </div>
+                )}
+
                 <p class="text-ink-soft m-0 mb-6" aria-live="polite">
                     {paginated.totalItems} product{paginated.totalItems === 1 ? '' : 's'}
                 </p>

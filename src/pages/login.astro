@@ -10,7 +10,6 @@ import { login, requireGuest } from '@lib/auth'
 const guard = requireGuest(Astro)
 if (guard) return guard
 
-const redirectTo = Astro.url.searchParams.get('redirect') || '/account'
 let error: string | null = null
 
 if (Astro.request.method === 'POST') {
@@ -19,7 +18,7 @@ if (Astro.request.method === 'POST') {
     const password = String(form.get('password') || '')
     const remember = form.get('remember') === 'on'
     const result = await login(Astro, email, password, remember)
-    if (result.ok) return Astro.redirect(redirectTo)
+    if (result.ok) return Astro.redirect(Astro.url.searchParams.get('redirect') || '/account')
     error = result.error === 'invalid_credentials'
         ? 'Email or password is incorrect.'
         : 'Could not sign you in. Please try again.'
