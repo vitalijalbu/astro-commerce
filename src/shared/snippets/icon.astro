@@ -1,18 +1,21 @@
 ---
-/**
- * Thin wrapper over WebCoreUI's <Icon> that always merges in the storefront
- * icon set, so `cart`, `user`, `menu`, etc. work alongside the built-ins.
- */
-import { Icon } from 'webcoreui/astro'
-import { storeIcons } from './icons'
+import { Icon as FulldevIcon } from '@/components/ui/icon'
+
+const iconMap: Record<string, string> = {
+  cart: 'shopping-cart',
+  close: 'x',
+  refresh: 'refresh-cw',
+  share: 'share-2',
+}
 
 interface Props {
-    type: string
-    size?: number
-    color?: string
+  type: string
+  size?: number
+  color?: string
 }
 
 const { type, size = 24, color } = Astro.props
+const name = iconMap[type] ?? type
 ---
 
-<Icon type={type} size={size} color={color} iconSet={storeIcons} />
+<FulldevIcon name={name} style={`width:${size}px;height:${size}px`} class={color ? `text-${color}` : ''} />

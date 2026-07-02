@@ -1,17 +1,19 @@
 ---
-/**
- * Full-bleed hero slideshow built on WebCoreUI <Carousel> (autoplay + dots).
- */
 import { Image } from 'astro:assets'
 import type { SlideshowSection } from '@lib/sections'
-import { Button, Carousel, CarouselItem } from 'webcoreui/astro'
+import { Button } from '@/components/ui/button'
+import { Carousel } from '@/components/ui/carousel'
+import { CarouselContent } from '@/components/ui/carousel/carousel-content.astro'
+import { CarouselItem } from '@/components/ui/carousel/carousel-item.astro'
+import { CarouselPrevious } from '@/components/ui/carousel/carousel-previous.astro'
+import { CarouselNext } from '@/components/ui/carousel/carousel-next.astro'
 
 interface Props {
     section: SlideshowSection
 }
 
 const { section } = Astro.props
-const { slides, autoplay } = section.settings
+const { slides } = section.settings
 
 const panelAlignMap = {
     left: 'justify-start items-end md:items-center',
@@ -27,16 +29,10 @@ const contentAlignMap = {
 ---
 
 <section class="bg-paper">
-        <Carousel
-            items={slides.length}
-            itemsPerSlide={1}
-            autoplay={autoplay}
-            pagination={{ previousPageLabel: 'Prev', nextPageLabel: 'Next', showChevrons: true }}
-            className="w-full"
-            paginationClassName="page -mt-18 relative z-20 pb-6"
-        >
+    <Carousel opts={{ align: 'start', loop: true }} class="w-full">
+        <CarouselContent>
             {slides.map((slide, i) => (
-                <CarouselItem className="w-full">
+                <CarouselItem class="w-full">
                     <article class="w-full relative isolate aspect-4/5 overflow-hidden bg-paper-dark md:aspect-video xl:aspect-2/1">
                         <Image
                             src={slide.image}
@@ -51,7 +47,7 @@ const contentAlignMap = {
                         <div class="absolute inset-0 bg-linear-to-r from-black/60 via-black/25 to-black/10"></div>
                         <div class="absolute inset-0 bg-linear-to-t from-black/35 via-transparent to-transparent"></div>
 
-                        <div class:list={['page relative z-10 flex h-full p-6 md:p-10 lg:p-14', panelAlignMap[slide.align ?? 'left']]}> 
+                        <div class:list={['page relative z-10 flex h-full p-6 md:p-10 lg:p-14', panelAlignMap[slide.align ?? 'left']]}>
                             <div class:list={[
                                 'flex w-full max-w-136 flex-col gap-4 rounded-2xl border border-white/15 bg-white/92 p-6 text-ink shadow-[0_24px_80px_rgba(0,0,0,0.22)] backdrop-blur-sm md:p-8 lg:p-10',
                                 contentAlignMap[slide.align ?? 'left']
@@ -65,11 +61,11 @@ const contentAlignMap = {
 
                                 {slide.cta && (
                                     <div class="pt-2">
-                                        <Button href={slide.cta.href}>{slide.cta.label}</Button>
+                                        <Button as="a" href={slide.cta.href}>{slide.cta.label}</Button>
                                     </div>
                                 )}
 
-                                <div class="mt-2 flex flex-wrap gap-x-5 gap-y-2 border-t border-line pt-4 text-xs uppercase tracking-[0.14em] text-muted">
+                                <div class="mt-2 flex flex-wrap gap-x-5 gap-y-2 border-t border-line pt-4 text-xs uppercase tracking-[0.14em] text-muted-foreground">
                                     <span>Free shipping over 100 EUR</span>
                                     <span>30-day returns</span>
                                     <span>Secure checkout</span>
@@ -79,5 +75,8 @@ const contentAlignMap = {
                     </article>
                 </CarouselItem>
             ))}
-        </Carousel>
+        </CarouselContent>
+        <CarouselPrevious class="ml-12" />
+        <CarouselNext class="mr-12" />
+    </Carousel>
 </section>

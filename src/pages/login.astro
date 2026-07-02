@@ -1,11 +1,9 @@
 ---
-/**
- * Sign-in page. Handles its own POST (SSR), authenticates against PrestaShop
- * (or the demo account) and redirects. Form uses WebCoreUI <Input>/<Button>.
- */
 import Layout from '@components/layout.astro'
 import { login, requireGuest } from '@lib/auth'
-import { Alert, Button, Checkbox, Input } from 'webcoreui/astro'
+import { Alert } from '@/components/ui/alert'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 
 const guard = requireGuest(Astro)
 if (guard) return guard
@@ -31,22 +29,31 @@ if (Astro.request.method === 'POST') {
             <h1 class="text-3xl font-semibold tracking-tight text-center mb-2">Welcome back</h1>
             <p class="text-center text-ink-soft mb-8">Sign in to your account to continue.</p>
 
-            {error && <div class="mb-4"><Alert theme="alert">{error}</Alert></div>}
+            {error && <div class="mb-4"><Alert variant="destructive">{error}</Alert></div>}
 
             <form method="post" class="flex flex-col gap-4">
-                <Input type="email" name="email" label="Email" placeholder="you@example.com" required {...{ autocomplete: 'email' }} />
-                <Input type="password" name="password" label="Password" placeholder="••••••••" required {...{ autocomplete: 'current-password' }} />
+                <label class="flex flex-col gap-1.5 text-sm font-medium">
+                    Email
+                    <Input type="email" name="email" placeholder="you@example.com" required {...{ autocomplete: 'email' }} />
+                </label>
+                <label class="flex flex-col gap-1.5 text-sm font-medium">
+                    Password
+                    <Input type="password" name="password" placeholder="••••••••" required {...{ autocomplete: 'current-password' }} />
+                </label>
                 <div class="flex items-center justify-between">
-                    <Checkbox name="remember" label="Remember me" />
+                    <label class="inline-flex items-center gap-2 text-sm text-ink-soft">
+                        <input type="checkbox" name="remember" role="checkbox" data-slot="checkbox" />
+                        Remember me
+                    </label>
                     <a href="/account/recover" class="text-sm link-underline">Forgot password?</a>
                 </div>
-                <Button type="submit" className="w-full">Sign in</Button>
+                <Button type="submit" class="w-full">Sign in</Button>
             </form>
 
             <p class="text-center text-sm text-ink-soft mt-6">
                 New here? <a href="/register" class="link-underline font-medium">Create an account</a>
             </p>
-            <p class="text-center text-xs text-muted mt-4">
+            <p class="text-center text-xs text-muted-foreground mt-4">
                 Demo: any email + password <code>demo1234</code>
             </p>
         </div>

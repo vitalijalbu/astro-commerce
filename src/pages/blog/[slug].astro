@@ -1,13 +1,17 @@
 ---
-/**
- * Journal article detail page.
- */
 import Layout from '@components/layout.astro'
 import { formatBlogDate, getBlogPostBySlug, getRelatedBlogSummaries } from '@lib/blog'
 import BlogCard from '@snippets/blog-card.astro'
 import EmptyState from '@snippets/empty-state.astro'
 import JsonLd from '@snippets/json-ld.astro'
-import { Badge, Breadcrumb, Button } from 'webcoreui/astro'
+import { Badge } from '@/components/ui/badge'
+import { Breadcrumb } from '@/components/ui/breadcrumb'
+import { BreadcrumbList } from '@/components/ui/breadcrumb/breadcrumb-list.astro'
+import { BreadcrumbItem } from '@/components/ui/breadcrumb/breadcrumb-item.astro'
+import { BreadcrumbLink } from '@/components/ui/breadcrumb/breadcrumb-link.astro'
+import { BreadcrumbSeparator } from '@/components/ui/breadcrumb/breadcrumb-separator.astro'
+import { BreadcrumbPage } from '@/components/ui/breadcrumb/breadcrumb-page.astro'
+import { Button } from '@/components/ui/button'
 
 const { slug } = Astro.params
 const post = getBlogPostBySlug(slug || '')
@@ -51,71 +55,73 @@ const articleSchema = post ? {
     <div class="page py-8 md:py-12">
         {post ? (
             <>
-                <Breadcrumb items={[
-            { href: '/', label: 'Home' },
-            { href: '/blog', label: 'Journal' },
-            { label: post.title }
-        ]} />
+                <Breadcrumb>
+                    <BreadcrumbList>
+                        <BreadcrumbItem><BreadcrumbLink href="/">Home</BreadcrumbLink></BreadcrumbItem>
+                        <BreadcrumbSeparator />
+                        <BreadcrumbItem><BreadcrumbLink href="/blog">Journal</BreadcrumbLink></BreadcrumbItem>
+                        <BreadcrumbSeparator />
+                        <BreadcrumbItem><BreadcrumbPage>{post.title}</BreadcrumbPage></BreadcrumbItem>
+                    </BreadcrumbList>
+                </Breadcrumb>
 
-        <article class="max-w-3xl mx-auto mt-6" aria-labelledby="article-title">
-            <header class="flex flex-col gap-4 mb-6">
-                <div class="flex flex-wrap items-center gap-2" aria-label="Article tags">
-                    {post.tags.map(tag => <Badge theme="outline" small>{tag}</Badge>)}
-                </div>
+                <article class="max-w-3xl mx-auto mt-6" aria-labelledby="article-title">
+                    <header class="flex flex-col gap-4 mb-6">
+                        <div class="flex flex-wrap items-center gap-2" aria-label="Article tags">
+                            {post.tags.map(tag => <Badge variant="outline">{tag}</Badge>)}
+                        </div>
 
-                <h1 id="article-title" class="text-4xl md:text-5xl font-semibold tracking-tight m-0">{post.title}</h1>
+                        <h1 id="article-title" class="text-4xl md:text-5xl font-semibold tracking-tight m-0">{post.title}</h1>
 
-                <div class="text-sm text-muted flex flex-wrap items-center gap-2">
-                    <span>{date}</span>
-                    <span>•</span>
-                    <span>{post.author.name}</span>
-                    <span>•</span>
-                    <span>{post.readMinutes} min read</span>
-                </div>
+                        <div class="text-sm text-muted-foreground flex flex-wrap items-center gap-2">
+                            <span>{date}</span>
+                            <span>•</span>
+                            <span>{post.author.name}</span>
+                            <span>•</span>
+                            <span>{post.readMinutes} min read</span>
+                        </div>
 
-                <p class="text-lg text-ink-soft m-0 leading-relaxed">{post.excerpt}</p>
-            </header>
+                        <p class="text-lg text-ink-soft m-0 leading-relaxed">{post.excerpt}</p>
+                    </header>
 
-            <figure class="overflow-hidden rounded-[--radius-card] border border-line bg-paper-soft mb-8">
-                <img src={post.image} alt={post.title} class="w-full aspect-[16/9] object-cover" loading="eager" />
-            </figure>
+                    <figure class="overflow-hidden rounded-lg border border-line bg-paper-soft mb-8">
+                        <img src={post.image} alt={post.title} class="w-full aspect-[16/9] object-cover" loading="eager" />
+                    </figure>
 
-            <div class="flex flex-col gap-8">
-                {post.content.map(block => (
-                    <section class="flex flex-col gap-4">
-                        {block.heading && <h2 class="text-2xl font-semibold tracking-tight m-0">{block.heading}</h2>}
-
-                        {block.paragraphs.map(text => (
-                            <p class="text-ink-soft leading-relaxed m-0">{text}</p>
+                    <div class="flex flex-col gap-8">
+                        {post.content.map(block => (
+                            <section class="flex flex-col gap-4">
+                                {block.heading && <h2 class="text-2xl font-semibold tracking-tight m-0">{block.heading}</h2>}
+                                {block.paragraphs.map(text => (
+                                    <p class="text-ink-soft leading-relaxed m-0">{text}</p>
+                                ))}
+                                {block.bullets && block.bullets.length > 0 && (
+                                    <ul role="list" class="list-disc pl-5 text-ink-soft m-0 flex flex-col gap-2">
+                                        {block.bullets.map(item => <li>{item}</li>)}
+                                    </ul>
+                                )}
+                            </section>
                         ))}
+                    </div>
 
-                        {block.bullets && block.bullets.length > 0 && (
-                            <ul role="list" class="list-disc pl-5 text-ink-soft m-0 flex flex-col gap-2">
-                                {block.bullets.map(item => <li>{item}</li>)}
-                            </ul>
-                        )}
+                    <div class="mt-10 pt-6 border-t border-line flex flex-wrap items-center gap-3">
+                        <Button as="a" href="/blog" variant="secondary">Back to journal</Button>
+                        <Button as="a" href="/collections/all">Shop latest arrivals</Button>
+                    </div>
+                </article>
+
+                {related.length > 0 && (
+                    <section class="mt-14 md:mt-18" aria-labelledby="related-articles">
+                        <h2 id="related-articles" class="text-2xl font-semibold tracking-tight mb-6">Related articles</h2>
+                        <ul role="list" class="grid md:grid-cols-3 gap-6">
+                            {related.map(item => (
+                                <li>
+                                    <BlogCard post={item} />
+                                </li>
+                            ))}
+                        </ul>
                     </section>
-                ))}
-            </div>
-
-            <div class="mt-10 pt-6 border-t border-line flex flex-wrap items-center gap-3">
-                <Button href="/blog" theme="secondary">Back to journal</Button>
-                <Button href="/collections/all">Shop latest arrivals</Button>
-            </div>
-        </article>
-
-        {related.length > 0 && (
-            <section class="mt-14 md:mt-18" aria-labelledby="related-articles">
-                <h2 id="related-articles" class="text-2xl font-semibold tracking-tight mb-6">Related articles</h2>
-                <ul role="list" class="grid md:grid-cols-3 gap-6">
-                    {related.map(item => (
-                        <li>
-                            <BlogCard post={item} />
-                        </li>
-                    ))}
-                </ul>
-            </section>
-        )}
+                )}
             </>
         ) : (
             <EmptyState

@@ -5,6 +5,7 @@
 		"strictNullChecks": true,
 		"types": ["node"],
 		"paths": {
+			"@/*": ["./src/*"],
 			"@components/*": ["src/shared/components/*"],
 			"@sections/*": ["src/shared/sections/*"],
 			"@snippets/*": ["src/shared/snippets/*"],

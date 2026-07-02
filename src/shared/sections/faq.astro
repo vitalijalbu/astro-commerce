@@ -2,10 +2,10 @@
 import type { FaqSection } from '@lib/sections'
 import Section from '@snippets/section.astro'
 import SectionHeading from '@snippets/section-heading.astro'
-/**
- * FAQ section using WebCoreUI <Accordion>.
- */
-import { Accordion } from 'webcoreui/astro'
+import { Accordion } from '@/components/ui/accordion'
+import { AccordionItem } from '@/components/ui/accordion/accordion-item.astro'
+import { AccordionTrigger } from '@/components/ui/accordion/accordion-trigger.astro'
+import { AccordionContent } from '@/components/ui/accordion/accordion-content.astro'
 
 interface Props {
     section: FaqSection
@@ -18,6 +18,15 @@ const s = section.settings
 <Section spacing="md" background={section.background} id={section.id}>
     <div class="max-w-3xl mx-auto">
         <SectionHeading heading={s.heading} subheading={s.subheading} align="center" />
-        <Accordion items={s.items} icon="plus" />
+        <Accordion collapsible>
+            {s.items.map(item => (
+                <AccordionItem value={item.title}>
+                    <AccordionTrigger>{item.title}</AccordionTrigger>
+                    <AccordionContent>
+                        <p>{item.content}</p>
+                    </AccordionContent>
+                </AccordionItem>
+            ))}
+        </Accordion>
     </div>
 </Section>

@@ -1,9 +1,6 @@
 ---
-/**
- * Accessible quantity picker using WebCoreUI buttons and input.
- * Emits a bubbling `quantity-change` event whenever the value changes.
- */
-import { Button, Input } from 'webcoreui/astro'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 
 interface Props {
     id?: string
@@ -32,7 +29,7 @@ const labelId = `${id}-label`
     <div class="flex items-center gap-2">
         <Button
             type="button"
-            theme="flat"
+            variant="ghost"
             data-qty-dec
             aria-controls={id}
             aria-label="Decrease quantity"
@@ -47,10 +44,11 @@ const labelId = `${id}-label`
             value={value}
             data-quantity-input
             aria-label={label}
+            class="w-16 text-center"
         />
         <Button
             type="button"
-            theme="flat"
+            variant="ghost"
             data-qty-inc
             aria-controls={id}
             aria-label="Increase quantity"

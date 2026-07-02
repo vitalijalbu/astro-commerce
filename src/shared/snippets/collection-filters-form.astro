@@ -1,5 +1,6 @@
 ---
-import { Button, Checkbox, List, RangeSlider } from 'webcoreui/astro'
+import { Button } from '@/components/ui/button'
+import { Slider } from '@/components/ui/slider'
 
 interface SubCollectionLink {
     handle: string
@@ -45,23 +46,21 @@ const formatTag = (tag: string): string => tag
 
     <div class="flex items-center justify-between gap-3">
         <h2 class="m-0 text-base font-semibold">Filters</h2>
-        <a href={clearHref} class="link-underline text-xs text-muted">Clear all</a>
+        <a href={clearHref} class="link-underline text-xs text-muted-foreground">Clear all</a>
     </div>
 
     {subCollectionLinks.length > 0 && (
         <div class="flex flex-col gap-2">
             <h3 class="m-0 text-sm font-medium">Subcollections</h3>
-            <List
-                secondary
-                itemGroups={[
-                    {
-                        items: subCollectionLinks.slice(0, 12).map(sub => ({
-                            name: sub.title,
-                            href: `/collections/${sub.handle}`
-                        }))
-                    }
-                ]}
-            />
+            <ul class="list-none p-0 m-0 flex flex-col gap-1">
+                {subCollectionLinks.slice(0, 12).map(sub => (
+                    <li>
+                        <a href={`/collections/${sub.handle}`} class="link-underline text-sm text-ink-soft hover:text-ink">
+                            {sub.title}
+                        </a>
+                    </li>
+                ))}
+            </ul>
         </div>
     )}
 
@@ -70,12 +69,10 @@ const formatTag = (tag: string): string => tag
             <legend class="mb-1 text-sm font-medium">Tags</legend>
             <div class="flex flex-col gap-2">
                 {allTags.map(tag => (
-                    <Checkbox
-                        name="tag"
-                        value={tag}
-                        checked={selectedTags.includes(tag)}
-                        label={formatTag(tag)}
-                    />
+                    <label class="inline-flex items-center gap-2 text-sm text-ink-soft">
+                        <input type="checkbox" name="tag" value={tag} checked={selectedTags.includes(tag)} role="checkbox" data-slot="checkbox" />
+                        {formatTag(tag)}
+                    </label>
                 ))}
             </div>
         </fieldset>
@@ -83,40 +80,27 @@ const formatTag = (tag: string): string => tag
 
     <fieldset class="m-0 flex flex-col gap-2 border-0 p-0">
         <legend class="mb-1 text-sm font-medium">Availability</legend>
-        <Checkbox
-            name="available"
-            value="1"
-            checked={onlyAvailable}
-            label="In stock only"
-        />
+        <label class="inline-flex items-center gap-2 text-sm text-ink-soft">
+            <input type="checkbox" name="available" value="1" checked={onlyAvailable} role="checkbox" data-slot="checkbox" />
+            In stock only
+        </label>
     </fieldset>
 
     <fieldset class="m-0 border-0 p-0">
         <legend class="mb-2 text-sm font-medium">Price range</legend>
-        <RangeSlider
-            name="price"
+        <div class="flex items-center justify-between text-sm text-ink-soft mb-2">
+            <span>€{sliderMin}</span>
+            <span>€{sliderMax}</span>
+        </div>
+        <Slider
+            defaultValue={[sliderMin, sliderMax]}
             min={priceFloor}
             max={priceCeiling}
-            selectedMin={sliderMin}
-            selectedMax={sliderMax}
-            minGap={1}
-            updateLabels
-            minLabel={`€${sliderMin}`}
-            maxLabel={`€${sliderMax}`}
+            step={1}
         />
+        <input type="hidden" name="price" value={sliderMin} data-price-min />
+        <input type="hidden" name="price" value={sliderMax} data-price-max />
     </fieldset>
 
-    <Button type="submit" className="w-full">Apply filters</Button>
+    <Button type="submit" class="w-full">Apply filters</Button>
 </form>
-
-<script>
-    // WebCoreUI's RangeSlider renders two unlabelled <input type="range">.
-    // Give them accessible names (axe: "Form elements must have labels").
-    const label = (selector: string, name: string) => {
-        document.querySelectorAll<HTMLInputElement>(selector).forEach(el => {
-            if (!el.getAttribute('aria-label')) el.setAttribute('aria-label', name)
-        })
-    }
-    label('input[type="range"][data-min]', 'Minimum price')
-    label('input[type="range"][data-max]', 'Maximum price')
-</script>

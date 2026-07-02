@@ -1,16 +1,11 @@
 ---
-/**
- * Placeholder for a product card while a client-rendered grid (e.g. wishlist)
- * hydrates from localStorage. Mirrors the product-card layout: image, title,
- * price.
- */
-import { Skeleton } from 'webcoreui/astro'
+import { Skeleton } from '@/components/ui/skeleton'
 ---
 
 <div class="flex flex-col gap-3">
-    <div class="aspect-4/5 w-full overflow-hidden rounded-[--radius-card]">
-        <Skeleton type="rounded" className="w-full h-full" />
+    <div class="aspect-4/5 w-full overflow-hidden rounded-lg">
+        <Skeleton class="w-full h-full" />
     </div>
-    <div class="h-4 w-2/3"><Skeleton type="rounded" /></div>
-    <div class="h-4 w-1/3"><Skeleton type="rounded" /></div>
+    <div class="h-4 w-2/3"><Skeleton class="h-full w-full" /></div>
+    <div class="h-4 w-1/3"><Skeleton class="h-full w-full" /></div>
 </div>

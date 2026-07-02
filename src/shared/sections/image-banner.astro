@@ -1,9 +1,6 @@
 ---
 import type { ImageBannerSection } from '@lib/sections'
-/**
- * Full-bleed hero / image banner with overlaid copy and CTAs.
- */
-import { Button } from 'webcoreui/astro'
+import { Button } from '@/components/ui/button'
 
 interface Props {
     section: ImageBannerSection
@@ -41,9 +38,9 @@ const align = {
             <h1 class="text-4xl md:text-6xl font-semibold tracking-tight m-0">{s.heading}</h1>
             {s.text && <p class="text-lg text-white/90 m-0">{s.text}</p>}
             <div class="flex flex-wrap gap-3 mt-2">
-                {s.primaryCta && <Button href={s.primaryCta.href}>{s.primaryCta.label}</Button>}
+                {s.primaryCta && <Button as="a" href={s.primaryCta.href}>{s.primaryCta.label}</Button>}
                 {s.secondaryCta && (
-                    <Button href={s.secondaryCta.href} theme="outline" className="!text-white !border-white">
+                    <Button as="a" href={s.secondaryCta.href} variant="outline" class="text-white border-white hover:text-white hover:bg-white/20">
                         {s.secondaryCta.label}
                     </Button>
                 )}

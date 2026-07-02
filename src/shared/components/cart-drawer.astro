@@ -1,58 +1,58 @@
 ---
-/**
- * Cart drawer using WebCoreUI <Sheet>.
- * Line items, quantities and totals are rendered client-side by
- * `utils/cart.ts` into [data-cart-lines] / [data-cart-subtotal].
- */
 import SkeletonCartLine from '@snippets/skeleton-cart-line.astro'
-import { Button, Sheet } from 'webcoreui/astro'
+import { Button } from '@/components/ui/button'
+import { Sheet } from '@/components/ui/sheet'
+import { SheetContent } from '@/components/ui/sheet/sheet-content.astro'
+import { SheetHeader } from '@/components/ui/sheet/sheet-header.astro'
+import { SheetTitle } from '@/components/ui/sheet/sheet-title.astro'
 ---
 
-<Sheet id="cart-drawer" title="Your cart">
-    <!-- Loading skeleton (shown until cart.ts renders) -->
-    <ul data-cart-loading class="list-none p-0 m-0 mt-2">
-        <SkeletonCartLine compact />
-        <SkeletonCartLine compact />
-        <SkeletonCartLine compact />
-    </ul>
-
-    <!-- Empty state -->
-    <div data-cart-empty hidden class="py-16 text-center">
-        <p class="text-muted">Your cart is empty.</p>
-        <Button href="/collections/all" theme="secondary" className="mt-4">
-            Continue shopping
-        </Button>
-    </div>
-
-    <!-- Lines (populated by cart.ts) -->
-    <ul data-cart-lines class="list-none p-0 m-0 mt-2"></ul>
-
-    <!-- Footer / totals -->
-    <div data-cart-footer hidden class="mt-4 pt-4 border-t border-line">
-        <div class="mb-4 rounded-[--radius-card] bg-paper-soft p-4">
-            <div class="mb-2 flex items-center justify-between gap-3 text-sm">
-                <span class="font-medium">Free shipping progress</span>
-                <span data-cart-free-shipping-amount class="text-ink-soft">Add €100</span>
-            </div>
-            <div class="h-2 overflow-hidden rounded-full bg-line/60">
-                <div data-cart-free-shipping-progress class="h-full w-0 rounded-full bg-ink transition-[width] duration-300"></div>
-            </div>
-            <p data-cart-free-shipping-message class="mt-2 mb-0 text-xs text-muted">Add more to unlock free shipping.</p>
-        </div>
-
-        <div class="flex items-center justify-between mb-1">
-            <span class="font-medium">Subtotal</span>
-            <span data-cart-subtotal class="font-semibold">€0</span>
-        </div>
-        <p class="text-xs text-muted mb-4">Shipping &amp; taxes calculated at checkout.</p>
-        <ul class="mb-4 flex flex-col gap-1 text-xs text-ink-soft">
-            <li>Fast dispatch from our EU warehouse</li>
-            <li>30-day returns on unworn items</li>
-            <li>Secure checkout with encrypted payments</li>
+<Sheet id="cart-drawer">
+    <SheetContent side="right">
+        <SheetHeader>
+            <SheetTitle>Your cart</SheetTitle>
+        </SheetHeader>
+        <ul data-cart-loading class="list-none p-0 m-0 mt-2">
+            <SkeletonCartLine compact />
+            <SkeletonCartLine compact />
+            <SkeletonCartLine compact />
         </ul>
-        <div class="flex flex-col gap-2">
-            <Button data-cart-checkout>Checkout</Button>
-            <Button href="/cart" theme="secondary">View cart</Button>
+
+        <div data-cart-empty hidden class="py-16 text-center">
+            <p class="text-muted-foreground">Your cart is empty.</p>
+            <Button as="a" href="/collections/all" variant="secondary" class="mt-4">
+                Continue shopping
+            </Button>
         </div>
-    </div>
+
+        <ul data-cart-lines class="list-none p-0 m-0 mt-2"></ul>
+
+        <div data-cart-footer hidden class="mt-4 pt-4 border-t border-line">
+            <div class="mb-4 rounded-lg bg-paper-soft p-4">
+                <div class="mb-2 flex items-center justify-between gap-3 text-sm">
+                    <span class="font-medium">Free shipping progress</span>
+                    <span data-cart-free-shipping-amount class="text-ink-soft">Add €100</span>
+                </div>
+                <div class="h-2 overflow-hidden rounded-full bg-line/60">
+                    <div data-cart-free-shipping-progress class="h-full w-0 rounded-full bg-ink transition-[width] duration-300"></div>
+                </div>
+                <p data-cart-free-shipping-message class="mt-2 mb-0 text-xs text-muted-foreground">Add more to unlock free shipping.</p>
+            </div>
+
+            <div class="flex items-center justify-between mb-1">
+                <span class="font-medium">Subtotal</span>
+                <span data-cart-subtotal class="font-semibold">€0</span>
+            </div>
+            <p class="text-xs text-muted-foreground mb-4">Shipping &amp; taxes calculated at checkout.</p>
+            <ul class="mb-4 flex flex-col gap-1 text-xs text-ink-soft">
+                <li>Fast dispatch from our EU warehouse</li>
+                <li>30-day returns on unworn items</li>
+                <li>Secure checkout with encrypted payments</li>
+            </ul>
+            <div class="flex flex-col gap-2">
+                <Button data-cart-checkout>Checkout</Button>
+                <Button as="a" href="/cart" variant="secondary">View cart</Button>
+            </div>
+        </div>
+    </SheetContent>
 </Sheet>

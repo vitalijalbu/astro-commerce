@@ -2,10 +2,9 @@
 import type { TestimonialsSection } from '@lib/sections'
 import Section from '@snippets/section.astro'
 import SectionHeading from '@snippets/section-heading.astro'
-/**
- * Customer testimonials grid with star ratings (WebCoreUI <Rating>, <Card compact={true}>).
- */
-import { Card, Rating } from 'webcoreui/astro'
+import { Card } from '@/components/ui/card'
+import { CardContent } from '@/components/ui/card/card-content.astro'
+import { Rating } from '@/components/ui/rating'
 
 interface Props {
     section: TestimonialsSection
@@ -19,13 +18,15 @@ const s = section.settings
     {s.heading && <SectionHeading heading={s.heading} align="center" />}
     <div class="grid md:grid-cols-3 gap-4 md:gap-6">
         {s.items.map(item => (
-            <Card compact={true} className="!border-line">
-                {item.rating && <Rating score={item.rating} size={16} />}
-                <blockquote class="text-lg leading-relaxed my-4">“{item.quote}”</blockquote>
-                <footer class="text-sm">
-                    <span class="font-semibold">{item.author}</span>
-                    {item.role && <span class="text-muted"> · {item.role}</span>}
-                </footer>
+            <Card size="sm" class="border-border">
+                <CardContent>
+                    {item.rating && <Rating value={item.rating} />}
+                    <blockquote class="text-lg leading-relaxed my-4">"“{item.quote}”</blockquote>
+                    <footer class="text-sm">
+                        <span class="font-semibold">{item.author}</span>
+                        {item.role && <span class="text-muted-foreground"> · {item.role}</span>}
+                    </footer>
+                </CardContent>
             </Card>
         ))}
     </div>

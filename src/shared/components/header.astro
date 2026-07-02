@@ -3,7 +3,8 @@ import type { AuthUser } from '@lib/auth'
 import { mainMenu, shop } from '@lib/navigation'
 import Icon from '@snippets/icon.astro'
 import UserDropdown from './user-dropdown.astro'
-import { Button, Badge } from 'webcoreui/astro'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
 
 interface Props {
     user: AuthUser | null
@@ -128,8 +129,8 @@ const { user } = Astro.props
                 aria-haspopup="dialog"
                 aria-controls="cart-drawer"
                 aria-expanded="false"
-                theme="flat"
-                className="relative"
+                variant="ghost"
+                class="relative"
             >
                 <Icon type="cart" size={20} />
                 <Badge

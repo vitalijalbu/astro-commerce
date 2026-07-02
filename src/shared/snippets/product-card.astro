@@ -1,19 +1,15 @@
 ---
-/**
- * Product card — minimal square media-first card with Dawn-like composition.
- * sale <Badge>, <Rating> stars, <Price>, and a quick-add <Button> that pushes
- * to the client cart via [data-add-to-cart].
- */
 import { Image } from 'astro:assets'
 import type { Product } from '@lib/types'
 import { discountPercent } from '@utils/format'
-import { Badge, Button, Rating } from 'webcoreui/astro'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Rating } from '@/components/ui/rating'
 import Icon from './icon.astro'
 import Price from './price.astro'
 
 interface Props {
     product: Product
-    /** Eager-load the image (above-the-fold cards). */
     eager?: boolean
 }
 
@@ -39,7 +35,7 @@ const wishlistItem = encodeURIComponent(JSON.stringify({
 ---
 
 <article aria-label={product.title} class="h-full">
-    <div class="group flex h-full flex-col overflow-hidden rounded-[--radius-card] border border-line bg-paper">
+    <div class="group flex h-full flex-col overflow-hidden rounded-lg border border-line bg-paper">
         <div class="relative">
             <a href={`/products/${product.handle}`} class="block" aria-label={`View ${product.title}`}>
                 <div class="aspect-square overflow-hidden bg-paper-soft">
@@ -65,26 +61,26 @@ const wishlistItem = encodeURIComponent(JSON.stringify({
                 <Icon type="heart" size={18} />
             </button>
             <div class="absolute top-3 left-3 flex flex-col gap-1.5" aria-hidden="true">
-                {discount && <Badge theme="alert" small>-{discount}%</Badge>}
-                {isNew && !discount && <Badge small>New</Badge>}
-                {!product.available && <Badge theme="outline" small>Sold out</Badge>}
+                {discount && <Badge variant="destructive">-{discount}%</Badge>}
+                {isNew && !discount && <Badge variant="default">New</Badge>}
+                {!product.available && <Badge variant="outline">Sold out</Badge>}
             </div>
         </div>
 
         <div class="flex flex-1 flex-col gap-2 p-2">
-            {product.vendor && <span class="text-xs text-muted">{product.vendor}</span>}
+            {product.vendor && <span class="text-xs text-muted-foreground">{product.vendor}</span>}
             <h3 class="m-0 text-base">
                 <a href={`/products/${product.handle}`} data-product-title class="font-medium leading-snug link-underline self-start">
                     {product.title}
                 </a>
             </h3>
             {product.rating && (
-                <Rating score={product.rating} size={14} reviewCount={product.reviewCount} />
+                <Rating value={product.rating} />
             )}
             <div class="mt-auto flex items-center justify-between gap-2 pt-1">
                 <Price price={product.price} compareAtPrice={product.compareAtPrice} />
                 <Button
-                    theme="secondary"
+                    variant="secondary"
                     aria-label={`Add ${product.title} to cart`}
                     disabled={!product.available}
                     data-add-to-cart

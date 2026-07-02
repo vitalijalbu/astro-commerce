@@ -1,5 +1,10 @@
 ---
-import { Button, Sheet } from 'webcoreui/astro'
+import { Button } from '@/components/ui/button'
+import { Sheet } from '@/components/ui/sheet'
+import { SheetContent } from '@/components/ui/sheet/sheet-content.astro'
+import { SheetHeader } from '@/components/ui/sheet/sheet-header.astro'
+import { SheetTitle } from '@/components/ui/sheet/sheet-title.astro'
+import { SheetTrigger } from '@/components/ui/sheet/sheet-trigger.astro'
 
 interface Props {
     id: string
@@ -18,56 +23,24 @@ const {
 } = Astro.props
 ---
 
-<div data-filters-sheet-root data-sheet-id={id} class="lg:hidden">
-    <Button
-        type="button"
-        theme="secondary"
-        data-filters-toggle={id}
-        aria-controls={id}
-        aria-haspopup="dialog"
-        aria-expanded="false"
-        className={buttonClassName}
-    >
+<div class="lg:hidden">
+    <SheetTrigger variant="secondary" class={buttonClassName}>
         {buttonLabel}
-    </Button>
+    </SheetTrigger>
 
-    <Sheet id={id} position="left" title={title} subTitle={description} className="max-w-[92vw]">
-        <div class="mt-4 flex flex-col gap-5">
-            <slot />
+    <Sheet id={id}>
+        <SheetContent side="left" class="max-w-[92vw]">
+            <SheetHeader>
+                <SheetTitle>{title}</SheetTitle>
+                {description && <p class="text-sm text-muted-foreground">{description}</p>}
+            </SheetHeader>
+            <div class="mt-4 flex flex-col gap-5">
+                <slot />
 
-            <Button type="button" theme="secondary" data-filters-close={id} className="w-full">
-                Close filters
-            </Button>
-        </div>
+                <Button type="button" variant="secondary" data-filters-close={id} class="w-full" data-slot="dialog-close">
+                    Close filters
+                </Button>
+            </div>
+        </SheetContent>
     </Sheet>
 </div>
-
-<script>
-    import { closeModal, modal } from 'webcoreui'
-
-    document.querySelectorAll<HTMLElement>('[data-filters-sheet-root]').forEach(root => {
-        if (root.dataset.bound === 'true') return
-        root.dataset.bound = 'true'
-
-        const id = root.dataset.sheetId
-        if (!id) return
-
-        const trigger = root.querySelector<HTMLElement>(`[data-filters-toggle="${id}"]`)
-        const closeButton = root.querySelector<HTMLElement>(`[data-filters-close="${id}"]`)
-        const selector = `#${id}`
-
-        modal({
-            trigger: `[data-filters-toggle="${id}"]`,
-            modal: selector,
-            onOpen() {
-                trigger?.setAttribute('aria-expanded', 'true')
-            },
-            onClose() {
-                trigger?.setAttribute('aria-expanded', 'false')
-                trigger?.focus()
-            }
-        })
-
-        closeButton?.addEventListener('click', () => closeModal(selector))
-    })
-</script>

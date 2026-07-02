@@ -1,12 +1,11 @@
 ---
 import AccountNav from '@components/account-nav.astro'
-/**
- * Account overview (protected). Shows a welcome, quick stats and shortcuts.
- */
 import Layout from '@components/layout.astro'
 import { getCurrentUser, requireAuth } from '@lib/auth'
 import Icon from '@snippets/icon.astro'
-import { Button, Card } from 'webcoreui/astro'
+import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
+import { CardContent } from '@/components/ui/card/card-content.astro'
 
 const guard = requireAuth(Astro)
 if (guard) return guard
@@ -23,7 +22,7 @@ const shortcuts = [
 <Layout title="My account — ATELIER">
     <div class="page py-10 md:py-14">
         <h1 class="text-3xl font-semibold tracking-tight mb-1">
-            Hi {user.firstName || user.name || 'there'} 👋
+            Hi {user.firstName || user.name || 'there'}
         </h1>
         <p class="text-ink-soft mb-8">Welcome back to your account.</p>
 
@@ -31,17 +30,19 @@ const shortcuts = [
 
         <div class="grid sm:grid-cols-3 gap-4">
             {shortcuts.map(s => (
-                <Card compact={true} className="!border-line">
-                    <div class="flex items-start gap-3">
-                        <span class="grid place-items-center w-10 h-10 rounded-full bg-accent-soft text-accent shrink-0">
-                            <Icon type={s.icon} size={18} />
-                        </span>
-                        <div>
-                            <h2 class="font-semibold m-0">{s.title}</h2>
-                            <p class="text-sm text-ink-soft mt-1 mb-3">{s.text}</p>
-                            <Button href={s.href} theme="secondary" className="!py-1.5">Open</Button>
+                <Card size="sm" class="border-border">
+                    <CardContent>
+                        <div class="flex items-start gap-3">
+                            <span class="grid place-items-center w-10 h-10 rounded-full bg-accent-soft text-accent-old shrink-0">
+                                <Icon type={s.icon} size={18} />
+                            </span>
+                            <div>
+                                <h2 class="font-semibold m-0">{s.title}</h2>
+                                <p class="text-sm text-ink-soft mt-1 mb-3">{s.text}</p>
+                                <Button as="a" href={s.href} variant="secondary">Open</Button>
+                            </div>
                         </div>
-                    </div>
+                    </CardContent>
                 </Card>
             ))}
         </div>

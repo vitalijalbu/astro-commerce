@@ -1,12 +1,8 @@
 ---
 import type { NewsletterSection } from '@lib/sections'
 import Section from '@snippets/section.astro'
-/**
- * Newsletter signup. Form is built from WebCoreUI <Input> + <Button>.
- * Submission is handled client-side (vanilla) — wire to your ESP/PrestaShop
- * newsletter endpoint where indicated.
- */
-import { Button, Input } from 'webcoreui/astro'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 
 interface Props {
     section: NewsletterSection
@@ -41,7 +37,6 @@ const s = section.settings
     document.querySelector('[data-newsletter]')?.addEventListener('submit', e => {
         e.preventDefault()
         const form = e.currentTarget as HTMLFormElement
-        // TODO: POST the email to your newsletter endpoint (ESP / PrestaShop).
         form.hidden = true
         form.parentElement?.querySelector<HTMLElement>('[data-newsletter-success]')?.removeAttribute('hidden')
     })

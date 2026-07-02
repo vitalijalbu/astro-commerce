@@ -1,5 +1,7 @@
 ---
-import { Badge, Button, Card } from 'webcoreui/astro'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
 
 interface BlogCardData {
     title: string
@@ -22,7 +24,7 @@ const { post, variant = 'default', showButton = true } = Astro.props
 const feature = variant === 'feature'
 ---
 
-<Card compact={true} flat compact className="p-0! border-line! overflow-hidden h-full">
+<Card size="sm" class="border-border overflow-hidden h-full">
     <article class:list={[feature && 'grid md:grid-cols-2']} aria-label={post.title}>
         <a href={post.href} class="block group" aria-label={`Open article: ${post.title}`}>
             <div class:list={['overflow-hidden bg-paper-soft', feature ? 'aspect-4/3 md:aspect-auto md:h-full' : 'aspect-[3/2]']}>
@@ -36,7 +38,7 @@ const feature = variant === 'feature'
         </a>
 
         <div class="p-5 md:p-6 flex flex-col gap-3">
-            <div class="flex flex-wrap items-center gap-2 text-xs text-muted">
+            <div class="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
                 <span>{post.date}</span>
                 {post.author && <span>• {post.author}</span>}
                 {post.readMinutes && <span>• {post.readMinutes} min read</span>}
@@ -49,13 +51,13 @@ const feature = variant === 'feature'
 
             {post.tags && post.tags.length > 0 && (
                 <div class="flex flex-wrap gap-2 pt-1" aria-label="Article tags">
-                    {post.tags.slice(0, 3).map(tag => <Badge theme="outline" small>{tag}</Badge>)}
+                    {post.tags.slice(0, 3).map(tag => <Badge variant="outline">{tag}</Badge>)}
                 </div>
             )}
 
             {showButton && (
                 <div class="pt-2">
-                    <Button href={post.href} theme="secondary">Read article</Button>
+                    <Button as="a" href={post.href} variant="secondary">Read article</Button>
                 </div>
             )}
         </div>

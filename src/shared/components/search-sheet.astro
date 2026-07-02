@@ -1,50 +1,53 @@
 ---
-/**
- * Search drawer (slides from the top) built with WebCoreUI <Sheet> + <Input>.
- * Submits to the /search page (server-rendered results). Popular searches are
- * quick links. Forms always use WebCoreUI inputs/buttons (never hand-rolled).
- */
-import { Button, Input, Sheet } from 'webcoreui/astro'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Sheet } from '@/components/ui/sheet'
+import { SheetContent } from '@/components/ui/sheet/sheet-content.astro'
+import { SheetHeader } from '@/components/ui/sheet/sheet-header.astro'
+import { SheetTitle } from '@/components/ui/sheet/sheet-title.astro'
 
 const popular = ['Linen', 'Knitwear', 'Loafers', 'Tote bag', 'Sale']
 ---
 
-<Sheet id="search-sheet" position="top" title="Search">
-    <form action="/search" method="get" class="mt-2 flex gap-2">
-        <div class="flex-1">
-            <Input
-                type="search"
-                name="q"
-                placeholder="Search products…"
-                aria-label="Search products"
-                {...{ autocomplete: 'off' }}
-            />
+<Sheet id="search-sheet">
+    <SheetContent side="top">
+        <SheetHeader>
+            <SheetTitle>Search</SheetTitle>
+        </SheetHeader>
+        <form action="/search" method="get" class="mt-2 flex gap-2">
+            <div class="flex-1">
+                <Input
+                    type="search"
+                    name="q"
+                    placeholder="Search products…"
+                    aria-label="Search products"
+                    {...{ autocomplete: 'off' }}
+                />
+            </div>
+            <Button type="submit">Search</Button>
+        </form>
+        <div class="mt-4 flex flex-wrap items-center gap-2">
+            <span class="text-sm text-muted-foreground">Popular:</span>
+            {popular.map(term => (
+                <a href={`/search?q=${encodeURIComponent(term)}`} class="text-sm link-underline">{term}</a>
+            ))}
         </div>
-        <Button type="submit">Search</Button>
-    </form>
-    <div class="mt-4 flex flex-wrap items-center gap-2">
-        <span class="text-sm text-muted">Popular:</span>
-        {popular.map(term => (
-            <a href={`/search?q=${encodeURIComponent(term)}`} class="text-sm link-underline">{term}</a>
-        ))}
-    </div>
+    </SheetContent>
 </Sheet>
 
 <script>
-    import { modal } from 'webcoreui'
     const trigger = document.querySelector<HTMLElement>('[data-search-toggle]')
+    const dialog = document.querySelector<HTMLElement>('#search-sheet')
 
-    if (trigger && trigger.dataset.webcoreBound !== 'true') {
-        trigger.dataset.webcoreBound = 'true'
+    if (trigger && dialog && !trigger.dataset.fulldevBound) {
+        trigger.dataset.fulldevBound = 'true'
 
-        modal({
-            trigger: '[data-search-toggle]',
-            modal: '#search-sheet',
-            onOpen() {
+        dialog.addEventListener('dialog:change', (e: Event) => {
+            const detail = (e as CustomEvent<{ open?: boolean }>).detail
+            if (detail?.open) {
                 trigger.setAttribute('aria-expanded', 'true')
                 setTimeout(() => document.querySelector<HTMLInputElement>('#search-sheet input')?.focus(), 50)
-            },
-            onClose() {
+            } else {
                 trigger.setAttribute('aria-expanded', 'false')
                 trigger.focus()
             }

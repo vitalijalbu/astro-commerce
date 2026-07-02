@@ -3,8 +3,6 @@
 import vercel from '@astrojs/vercel';
 import tailwindcss from '@tailwindcss/vite';
 import { defineConfig, fontProviders, memoryCache } from 'astro/config';
-import { webcore } from 'webcoreui/integration';
-
 // https://astro.build/config
 export default defineConfig({
 	// SSR on-demand: necessario per l'auth cliente PrestaShop via cookie
@@ -62,11 +60,6 @@ export default defineConfig({
 			// SVG/asset piccoli (<4KB) inlined come data-URI: meno richieste HTTP.
 			assetsInlineLimit: 4096,
 		},
-		// Pre-bundla il runtime client di WebCoreUI (modal helper) una sola volta,
-		// così il dev server non lo ri-ottimizza ad ogni pagina.
-		optimizeDeps: {
-			include: ['webcoreui'],
-		},
 	},
-	integrations: [webcore()],
+	integrations: [],
 });

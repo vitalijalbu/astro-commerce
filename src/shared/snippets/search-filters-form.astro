@@ -1,5 +1,5 @@
 ---
-import { Button } from 'webcoreui/astro'
+import { Button } from '@/components/ui/button'
 
 interface Props {
     query: string
@@ -27,7 +27,7 @@ const clearHref = query ? `/search?q=${encodeURIComponent(query)}` : '/search'
 
     <div class="flex items-center justify-between gap-3">
         <h2 class="m-0 text-base font-semibold">Filters</h2>
-        <a href={clearHref} class="link-underline text-xs text-muted">Clear all</a>
+        <a href={clearHref} class="link-underline text-xs text-muted-foreground">Clear all</a>
     </div>
 
     <fieldset class="m-0 flex flex-col gap-2 border-0 p-0">
@@ -51,13 +51,13 @@ const clearHref = query ? `/search?q=${encodeURIComponent(query)}` : '/search'
                 />
                 {vendor}
             </label>
-        )) : <p class="m-0 text-sm text-muted">No vendor filters available.</p>}
+        )) : <p class="m-0 text-sm text-muted-foreground">No vendor filters available.</p>}
     </fieldset>
 
     <fieldset class="m-0 border-0 p-0">
         <legend class="mb-2 text-sm font-medium">Price range</legend>
         <div class="grid grid-cols-2 gap-3">
-            <label class="flex flex-col gap-1 text-xs text-muted">
+            <label class="flex flex-col gap-1 text-xs text-muted-foreground">
                 Min
                 <input
                     type="number"
@@ -65,11 +65,11 @@ const clearHref = query ? `/search?q=${encodeURIComponent(query)}` : '/search'
                     step="1"
                     name="min"
                     value={minPrice ?? ''}
-                    class="h-10 rounded-[--radius-card] border border-line bg-paper px-3 text-sm"
+                    class="h-10 rounded-lg border border-line bg-paper px-3 text-sm"
                     inputmode="numeric"
                 />
             </label>
-            <label class="flex flex-col gap-1 text-xs text-muted">
+            <label class="flex flex-col gap-1 text-xs text-muted-foreground">
                 Max
                 <input
                     type="number"
@@ -77,12 +77,12 @@ const clearHref = query ? `/search?q=${encodeURIComponent(query)}` : '/search'
                     step="1"
                     name="max"
                     value={maxPrice ?? ''}
-                    class="h-10 rounded-[--radius-card] border border-line bg-paper px-3 text-sm"
+                    class="h-10 rounded-lg border border-line bg-paper px-3 text-sm"
                     inputmode="numeric"
                 />
             </label>
         </div>
     </fieldset>
 
-    <Button type="submit" className="w-full">Apply filters</Button>
+    <Button type="submit" class="w-full">Apply filters</Button>
 </form>

@@ -1,14 +1,10 @@
 ---
-/**
- * Full cart page. Lines/totals are rendered client-side from localStorage
- * (the same store the drawer uses). Self-contained script to avoid clashing
- * with the drawer's selectors.
- */
 import Layout from '@components/layout.astro'
 import { getProducts } from '@lib/catalog'
 import ProductCarousel from '@snippets/product-carousel.astro'
 import SkeletonCartLine from '@snippets/skeleton-cart-line.astro'
-import { Button, Skeleton } from 'webcoreui/astro'
+import { Button } from '@/components/ui/button'
+import { Skeleton } from '@/components/ui/skeleton'
 
 const recommended = (await getProducts(12)).slice(0, 8)
 const payments = ['Visa', 'Mastercard', 'Amex', 'PayPal', 'Apple Pay']
@@ -18,32 +14,31 @@ const payments = ['Visa', 'Mastercard', 'Amex', 'PayPal', 'Apple Pay']
     <div class="page py-10 md:py-14">
         <h1 class="text-3xl md:text-4xl font-semibold tracking-tight mb-8">Your cart</h1>
 
-        <!-- Loading skeleton (shown until the cart hydrates) -->
         <div data-page-cart-loading class="grid lg:grid-cols-[1fr_360px] gap-10">
             <ul class="list-none p-0 m-0">
                 <SkeletonCartLine />
                 <SkeletonCartLine />
                 <SkeletonCartLine />
             </ul>
-            <aside class="h-fit border border-line rounded-[--radius-card] p-6 bg-paper-soft flex flex-col gap-4">
-                <div class="h-5 w-1/2"><Skeleton type="rounded" /></div>
-                <div class="h-16 w-full"><Skeleton type="rounded" /></div>
-                <div class="h-4 w-full"><Skeleton type="rounded" /></div>
-                <div class="h-10 w-full"><Skeleton type="rounded" /></div>
+            <aside class="h-fit border border-line rounded-lg p-6 bg-paper-soft flex flex-col gap-4">
+                <div class="h-5 w-1/2"><Skeleton class="h-full w-full" /></div>
+                <div class="h-16 w-full"><Skeleton class="h-full w-full" /></div>
+                <div class="h-4 w-full"><Skeleton class="h-full w-full" /></div>
+                <div class="h-10 w-full"><Skeleton class="h-full w-full" /></div>
             </aside>
         </div>
 
         <div data-page-cart-empty class="py-16 text-center" hidden>
             <p class="text-ink-soft mb-4">Your cart is empty.</p>
-            <Button href="/collections/all" theme="secondary">Continue shopping</Button>
+            <Button as="a" href="/collections/all" variant="secondary">Continue shopping</Button>
         </div>
 
         <div data-page-cart-body class="grid lg:grid-cols-[1fr_360px] gap-10" hidden>
             <ul data-page-cart-lines class="list-none p-0 m-0"></ul>
 
-            <aside class="h-fit border border-line rounded-[--radius-card] p-6 bg-paper-soft">
+            <aside class="h-fit border border-line rounded-lg p-6 bg-paper-soft">
                 <h2 class="text-lg font-semibold m-0 mb-4">Order summary</h2>
-                <div class="mb-5 rounded-[--radius-card] bg-paper px-4 py-4">
+                <div class="mb-5 rounded-lg bg-paper px-4 py-4">
                     <div class="mb-2 flex items-center justify-between gap-3 text-sm">
                         <span class="font-medium">Free shipping progress</span>
                         <span data-page-cart-free-shipping-amount class="text-ink-soft">Add €100</span>
@@ -51,22 +46,22 @@ const payments = ['Visa', 'Mastercard', 'Amex', 'PayPal', 'Apple Pay']
                     <div class="h-2 overflow-hidden rounded-full bg-line/60">
                         <div data-page-cart-free-shipping-progress class="h-full w-0 rounded-full bg-ink transition-[width] duration-300"></div>
                     </div>
-                    <p data-page-cart-free-shipping-message class="mt-2 mb-0 text-xs text-muted">Add more to unlock free shipping.</p>
+                    <p data-page-cart-free-shipping-message class="mt-2 mb-0 text-xs text-muted-foreground">Add more to unlock free shipping.</p>
                 </div>
                 <div class="flex items-center justify-between mb-2">
                     <span class="text-ink-soft">Subtotal</span>
                     <span data-page-cart-subtotal class="font-semibold">€0</span>
                 </div>
-                <p class="text-xs text-muted mb-5">Shipping &amp; taxes calculated at checkout.</p>
+                <p class="text-xs text-muted-foreground mb-5">Shipping &amp; taxes calculated at checkout.</p>
                 <ul class="mb-5 flex flex-col gap-1 text-xs text-ink-soft">
                     <li>Fast dispatch from our EU warehouse</li>
                     <li>30-day returns on unworn items</li>
                     <li>Secure checkout with encrypted payments</li>
                 </ul>
-                <Button data-cart-checkout className="w-full">Checkout</Button>
-                <Button href="/collections/all" theme="secondary" className="w-full mt-2">Continue shopping</Button>
+                <Button data-cart-checkout class="w-full">Checkout</Button>
+                <Button as="a" href="/collections/all" variant="secondary" class="w-full mt-2">Continue shopping</Button>
 
-                <div class="mt-4 flex flex-wrap items-center justify-center gap-2 text-[11px] text-muted" aria-label="Accepted payment methods">
+                <div class="mt-4 flex flex-wrap items-center justify-center gap-2 text-[11px] text-muted-foreground" aria-label="Accepted payment methods">
                     {payments.map(method => (
                         <span class="rounded-full border border-line px-2 py-1">{method}</span>
                     ))}
@@ -74,7 +69,6 @@ const payments = ['Visa', 'Mastercard', 'Amex', 'PayPal', 'Apple Pay']
             </aside>
         </div>
 
-        <!-- Recommendations: keep shoppers in the funnel -->
         {recommended.length > 0 && (
             <section class="mt-16 md:mt-24">
                 <h2 class="text-2xl font-semibold tracking-tight mb-8">You may also like</h2>
@@ -113,15 +107,15 @@ const payments = ['Visa', 'Mastercard', 'Amex', 'PayPal', 'Apple Pay']
             <li class="flex gap-4 py-5 border-b border-line">
                 <a href="/products/${l.handle}" class="shrink-0">
                     <img src="${l.image}" alt="${l.title}" width="96" height="120"
-                        class="w-24 h-30 object-cover rounded-[--radius-card] bg-paper-soft" />
+                        class="w-24 h-30 object-cover rounded-lg bg-paper-soft" />
                 </a>
                 <div class="flex-1 min-w-0">
                     <a href="/products/${l.handle}" class="font-medium">${l.title}</a>
-                    ${l.variantTitle && l.variantTitle !== 'Default' ? `<p class="text-sm text-muted mt-0.5">${l.variantTitle}</p>` : ''}
+                    ${l.variantTitle && l.variantTitle !== 'Default' ? `<p class="text-sm text-muted-foreground mt-0.5">${l.variantTitle}</p>` : ''}
                     <div class="flex items-center gap-3 mt-3">
                         <input type="number" min="1" value="${l.quantity}" data-line-qty="${l.id}" aria-label="Quantity"
-                            class="w-16 h-9 px-2 border border-line rounded-[--radius-card] text-sm" />
-                        <button type="button" data-line-remove="${l.id}" class="text-sm text-muted link-underline">Remove</button>
+                            class="w-16 h-9 px-2 border border-line rounded-lg text-sm" />
+                        <button type="button" data-line-remove="${l.id}" class="text-sm text-muted-foreground link-underline">Remove</button>
                     </div>
                 </div>
                 <div class="text-right font-medium">${fmt(l.price * l.quantity, l.currency)}</div>

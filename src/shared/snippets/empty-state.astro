@@ -1,5 +1,7 @@
 ---
-import { Button, Card } from 'webcoreui/astro'
+import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
+import { CardContent } from '@/components/ui/card/card-content.astro'
 import Icon from './icon.astro'
 
 interface Props {
@@ -11,7 +13,7 @@ interface Props {
     actionLabel?: string
     secondaryHref?: string
     secondaryLabel?: string
-    className?: string
+    class?: string
 }
 
 const {
@@ -23,34 +25,36 @@ const {
     actionLabel,
     secondaryHref,
     secondaryLabel,
-    className
+    class: className
 } = Astro.props
 ---
 
-<Card compact={true} className={`!border-line !p-0 ${className ?? ''}`.trim()}>
-    <section class="px-6 py-12 text-center md:px-10 md:py-16">
-        <div class="mx-auto flex max-w-xl flex-col items-center gap-5">
-            {image ? (
-                <img src={image} alt="" width="112" height="112" class="h-28 w-28 object-contain opacity-90" />
-            ) : (
-                <span class="grid h-16 w-16 place-items-center rounded-full bg-paper-soft text-ink">
-                    <Icon type={icon} size={26} />
-                </span>
-            )}
+<Card size="sm" class={`border-border ${className ?? ''}`.trim()}>
+    <CardContent>
+        <section class="px-6 py-12 text-center md:px-10 md:py-16">
+            <div class="mx-auto flex max-w-xl flex-col items-center gap-5">
+                {image ? (
+                    <img src={image} alt="" width="112" height="112" class="h-28 w-28 object-contain opacity-90" />
+                ) : (
+                    <span class="grid h-16 w-16 place-items-center rounded-full bg-paper-soft text-ink">
+                        <Icon type={icon} size={26} />
+                    </span>
+                )}
 
-            <div class="space-y-2">
-                <h1 class="m-0 text-2xl font-semibold tracking-tight md:text-3xl">{title}</h1>
-                <p class="m-0 text-ink-soft leading-relaxed">{text}</p>
-            </div>
-
-            {(actionHref || secondaryHref) && (
-                <div class="flex flex-col gap-2 pt-2 sm:flex-row">
-                    {actionHref && actionLabel && <Button href={actionHref}>{actionLabel}</Button>}
-                    {secondaryHref && secondaryLabel && (
-                        <Button href={secondaryHref} theme="secondary">{secondaryLabel}</Button>
-                    )}
+                <div class="space-y-2">
+                    <h1 class="m-0 text-2xl font-semibold tracking-tight md:text-3xl">{title}</h1>
+                    <p class="m-0 text-ink-soft leading-relaxed">{text}</p>
                 </div>
-            )}
-        </div>
-    </section>
+
+                {(actionHref || secondaryHref) && (
+                    <div class="flex flex-col gap-2 pt-2 sm:flex-row">
+                        {actionHref && actionLabel && <Button as="a" href={actionHref}>{actionLabel}</Button>}
+                        {secondaryHref && secondaryLabel && (
+                            <Button as="a" href={secondaryHref} variant="secondary">{secondaryLabel}</Button>
+                        )}
+                    </div>
+                )}
+            </div>
+        </section>
+    </CardContent>
 </Card>

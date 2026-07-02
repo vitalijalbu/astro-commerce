@@ -2,12 +2,23 @@
 import Layout from '@components/layout.astro'
 import { homepageBrands } from '@lib/sections'
 import BrandLogos from '@sections/brand-logos.astro'
-import { Breadcrumb } from 'webcoreui/astro'
+import { Breadcrumb } from '@/components/ui/breadcrumb'
+import { BreadcrumbList } from '@/components/ui/breadcrumb/breadcrumb-list.astro'
+import { BreadcrumbItem } from '@/components/ui/breadcrumb/breadcrumb-item.astro'
+import { BreadcrumbLink } from '@/components/ui/breadcrumb/breadcrumb-link.astro'
+import { BreadcrumbSeparator } from '@/components/ui/breadcrumb/breadcrumb-separator.astro'
+import { BreadcrumbPage } from '@/components/ui/breadcrumb/breadcrumb-page.astro'
 ---
 
 <Layout title="Brands — ATELIER" description="All partner brands and labels available across the ATELIER catalog.">
     <div class="page py-8 md:py-12">
-        <Breadcrumb items={[{ href: '/', label: 'Home' }, { label: 'Brands' }]} />
+        <Breadcrumb>
+            <BreadcrumbList>
+                <BreadcrumbItem><BreadcrumbLink href="/">Home</BreadcrumbLink></BreadcrumbItem>
+                <BreadcrumbSeparator />
+                <BreadcrumbItem><BreadcrumbPage>Brands</BreadcrumbPage></BreadcrumbItem>
+            </BreadcrumbList>
+        </Breadcrumb>
     </div>
 
     <BrandLogos section={{

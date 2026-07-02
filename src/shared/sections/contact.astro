@@ -3,12 +3,9 @@ import { shop } from '@lib/navigation'
 import type { ContactSection } from '@lib/sections'
 import Section from '@snippets/section.astro'
 import SectionHeading from '@snippets/section-heading.astro'
-/**
- * Contact form section. Built entirely from WebCoreUI form components
- * (<Input>, <Textarea>, <Button>). Submits client-side for the template —
- * wire to your support inbox / PrestaShop contact endpoint.
- */
-import { Button, Input, Textarea } from 'webcoreui/astro'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
 
 interface Props {
     section: ContactSection
@@ -30,11 +27,23 @@ const s = section.settings
 
         <form data-contact class="flex flex-col gap-4">
             <div class="grid sm:grid-cols-2 gap-4">
-                <Input name="name" label="Name" required {...{ autocomplete: 'name' }} />
-                <Input type="email" name="email" label="Email" required {...{ autocomplete: 'email' }} />
+                <label class="flex flex-col gap-1.5 text-sm font-medium">
+                    Name
+                    <Input name="name" required {...{ autocomplete: 'name' }} />
+                </label>
+                <label class="flex flex-col gap-1.5 text-sm font-medium">
+                    Email
+                    <Input type="email" name="email" required {...{ autocomplete: 'email' }} />
+                </label>
             </div>
-            <Input name="subject" label="Subject" />
-            <Textarea name="message" label="Message" rows={5} required />
+            <label class="flex flex-col gap-1.5 text-sm font-medium">
+                Subject
+                <Input name="subject" />
+            </label>
+            <label class="flex flex-col gap-1.5 text-sm font-medium">
+                Message
+                <Textarea name="message" rows={5} required />
+            </label>
             <div class="flex items-center gap-3">
                 <Button type="submit">Send message</Button>
                 <span data-contact-success hidden class="text-sm text-accent">Thanks — we'll be in touch soon.</span>
@@ -47,7 +56,6 @@ const s = section.settings
     document.querySelector('[data-contact]')?.addEventListener('submit', e => {
         e.preventDefault()
         const form = e.currentTarget as HTMLFormElement
-        // TODO: POST to your contact endpoint.
         form.reset()
         form.querySelector<HTMLElement>('[data-contact-success]')?.removeAttribute('hidden')
     })

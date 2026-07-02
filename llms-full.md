@@ -5083,7 +5083,6 @@ type MaintenanceProps = {
             title="Page title"
             url="http://webcoreui.dev/blocks/seo"
             description="Short description about your page"
-            faviconUrl="http://webcoreui.dev/favicon.ico"
             prefetchGTAG={true}
             prefetchGA={true}
             noIndex={false}
