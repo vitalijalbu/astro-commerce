@@ -192,7 +192,7 @@ const pdpWishlistItem = product
                 <div
                     data-pdp-sticky-bar
                     hidden
-                    class="fixed inset-x-0 top-0 z-60 border-b border-line bg-paper/95 shadow-sm backdrop-blur"
+                    class="fixed inset-x-0 top-16 md:top-20 z-30 border-b border-line bg-paper/95 shadow-sm backdrop-blur"
                 >
                     <div class="page flex items-center gap-3 py-3">
                         <Image
@@ -389,8 +389,13 @@ const pdpWishlistItem = product
 
         if ('IntersectionObserver' in window) {
             const observer = new IntersectionObserver(([entry]) => {
-                updateVisibility(!entry.isIntersecting)
-            }, { threshold: 0.15 })
+                // Only show the bar once the buy block has scrolled ABOVE the
+                // viewport (scrolled down past it). When it sits below the
+                // viewport — e.g. at the top of the page — keep the bar hidden
+                // so it never overlays the header.
+                const scrolledPast = !entry.isIntersecting && entry.boundingClientRect.top < 0
+                updateVisibility(scrolledPast)
+            }, { threshold: 0 })
 
             observer.observe(observed)
         }

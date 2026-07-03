@@ -26,8 +26,8 @@ const panels = mainMenu
         <SheetHeader>
             <SheetTitle>{shop.name}</SheetTitle>
         </SheetHeader>
-        <div data-mobile-nav class="relative min-h-[60vh] overflow-hidden">
-            <nav data-panel="root" class="mobile-panel flex flex-col" aria-label="Mobile">
+        <div data-mobile-nav class="relative min-h-0 flex-1 overflow-x-hidden overflow-y-auto">
+            <nav data-panel="root" class="mobile-panel flex flex-col px-4" aria-label="Mobile">
                 {mainMenu.map((item, index) => (
                     item.columns?.length ? (
                         <button
@@ -68,7 +68,7 @@ const panels = mainMenu
             {panels.map(panel => (
                 <nav
                     data-panel={panel.index}
-                    class="mobile-panel mobile-panel--child flex flex-col"
+                    class="mobile-panel mobile-panel--child flex flex-col px-4"
                     aria-label={panel.label}
                     aria-hidden="true"
                 >
@@ -101,6 +101,12 @@ const panels = mainMenu
         nav.dataset.bound = 'true'
 
         const dialog = document.querySelector<HTMLElement>('#mobile-menu')
+
+        // Open the Sheet (a headless dialog) from the header toggle by
+        // dispatching the dialog's inbound `dialog:set` event on its root.
+        document.querySelector<HTMLElement>('[data-menu-toggle]')?.addEventListener('click', () => {
+            dialog?.dispatchEvent(new CustomEvent('dialog:set', { detail: { open: true } }))
+        })
 
         const closeAll = () => {
             nav.querySelectorAll('.mobile-panel--child.is-active').forEach(p => p.classList.remove('is-active'))
