@@ -1,0 +1,28 @@
+---
+/**
+ * Deferred product recommendations (server island).
+ *
+ * Rendered with `server:defer` so the parent page paints immediately with a
+ * skeleton fallback while this component fetches the catalog out-of-band and
+ * streams the real carousel in when ready. All props are serializable so the
+ * island can be rendered from its own request.
+ */
+import { getProducts } from '@lib/catalog'
+import ProductCarousel from '@snippets/product-carousel.astro'
+
+interface Props {
+    limit?: number
+    excludeHandle?: string
+    ariaLabel?: string
+}
+
+const { limit = 4, excludeHandle, ariaLabel = 'Recommended products' } = Astro.props
+
+const recommended = (await getProducts(12))
+    .filter(product => product.handle !== excludeHandle)
+    .slice(0, limit)
+---
+
+{recommended.length > 0 && (
+    <ProductCarousel products={recommended} ariaLabel={ariaLabel} />
+)}

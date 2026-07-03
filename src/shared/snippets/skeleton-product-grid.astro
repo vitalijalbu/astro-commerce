@@ -1,0 +1,29 @@
+---
+/**
+ * Skeleton placeholder for a product grid — used as the `fallback` slot of
+ * deferred (server:defer) product islands so the layout is reserved and the
+ * page paints instantly while the real products stream in.
+ */
+import SkeletonProductCard from '@snippets/skeleton-product-card.astro'
+
+interface Props {
+    count?: number
+    columns?: 2 | 3 | 4
+    className?: string
+}
+
+const { count = 4, columns = 4, className } = Astro.props
+
+const lgCols = {
+    2: 'lg:grid-cols-2',
+    3: 'lg:grid-cols-3',
+    4: 'lg:grid-cols-4'
+}[columns]
+---
+
+<div
+    class:list={['grid grid-cols-2 gap-4 md:gap-6', lgCols, className]}
+    aria-hidden="true"
+>
+    {Array.from({ length: count }).map(() => <SkeletonProductCard />)}
+</div>

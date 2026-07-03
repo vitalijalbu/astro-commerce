@@ -7,13 +7,14 @@ import { Image } from 'astro:assets'
  * <Button>, <Accordion>. Quantity uses a native number input for accessibility.
  */
 import Layout from '@components/layout.astro'
-import { getProductByHandle, getProducts } from '@lib/catalog'
+import { getProductByHandle } from '@lib/catalog'
 import EmptyState from '@snippets/empty-state.astro'
 import Icon from '@snippets/icon.astro'
 import JsonLd from '@snippets/json-ld.astro'
 import Price from '@snippets/price.astro'
-import ProductCarousel from '@snippets/product-carousel.astro'
+import ProductRecommendations from '@snippets/product-recommendations.astro'
 import QuantityPicker from '@snippets/quantity-picker.astro'
+import SkeletonProductGrid from '@snippets/skeleton-product-grid.astro'
 import { discountPercent } from '@utils/format'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
 import { Badge } from '@/components/ui/badge'
@@ -32,7 +33,6 @@ if (!product) {
 const productVariantId = product?.variants[0]?.id ?? ''
 const productVariantTitle = product?.variants[0]?.title ?? 'Default'
 const discount = product ? discountPercent(product.price, product.compareAtPrice) : null
-const recommended = product ? (await getProducts(12)).filter(p => p.handle !== product.handle).slice(0, 4) : []
 const galleryImages = product ? (product.images.length > 0 ? product.images : [product.featuredImage]) : []
 const productUrl = product ? new URL(`/products/${product.handle}`, Astro.url).toString() : ''
 const productSchema = product ? {
