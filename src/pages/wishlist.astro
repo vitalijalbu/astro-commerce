@@ -2,7 +2,7 @@
 import Layout from '@components/layout.astro'
 import EmptyState from '@snippets/empty-state.astro'
 import SkeletonProductCard from '@snippets/skeleton-product-card.astro'
-import { Rating } from 'webcoreui/astro'
+import { Rating } from '@/components/ui/rating'
 ---
 
 <Layout title="Wishlist — ATELIER" noindex>
@@ -39,6 +39,6 @@ import { Rating } from 'webcoreui/astro'
         <!-- Style primer: the injected product cards use <Rating>, whose CSS
              isn't otherwise loaded on this page. Rendering one hidden instance
              bundles those styles so the fetched cards are styled correctly. -->
-        <div hidden aria-hidden="true"><Rating score={0} /></div>
+        <div hidden aria-hidden="true"><Rating value={0} /></div>
     </div>
 </Layout>

@@ -8,14 +8,16 @@ import Layout from '@components/layout.astro'
 import { requireAuth } from '@lib/auth'
 import { getOrders, orderItemCount, orderTotal } from '@lib/orders'
 import { formatMoney } from '@utils/format'
-import { Badge, Button } from 'webcoreui/astro'
+import { Badge } from '@/components/ui/badge'
+import type { BadgeVariantProps } from '@/components/ui/badge/badge-variants'
+import { Button } from '@/components/ui/button'
 
 const guard = requireAuth(Astro)
 if (guard) return guard
 
 const orders = getOrders()
-const statusTheme: Record<string, 'success' | 'info' | 'warning' | 'alert'> = {
-    Delivered: 'success', Shipped: 'info', Processing: 'warning', Cancelled: 'alert'
+const statusTheme: Record<string, BadgeVariantProps['variant']> = {
+    Delivered: 'default', Shipped: 'secondary', Processing: 'outline', Cancelled: 'destructive'
 }
 ---
 
@@ -32,10 +34,10 @@ const statusTheme: Record<string, 'success' | 'info' | 'warning' | 'alert'> = {
                 <div class="grid sm:grid-cols-[1fr_1fr_1fr_1fr_auto] gap-2 sm:gap-4 px-5 py-4 border-t border-line items-center">
                     <span class="font-medium">{o.number}</span>
                     <span class="text-sm text-ink-soft">{o.date}</span>
-                    <span><Badge theme={statusTheme[o.status]} small>{o.status}</Badge></span>
+                    <span><Badge variant={statusTheme[o.status]}>{o.status}</Badge></span>
                     <span class="text-sm">{formatMoney({ amount: orderTotal(o), currencyCode: o.currency })} · {orderItemCount(o)} items</span>
                     <a href={`/account/orders/${o.id}`}>
-                        <Button theme="secondary" className="!py-1.5 justify-self-start sm:justify-self-end">View</Button>
+                        <Button variant="secondary" class="justify-self-start sm:justify-self-end">View</Button>
                     </a>
                 </div>
             ))}

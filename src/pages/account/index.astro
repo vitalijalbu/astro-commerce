@@ -4,8 +4,7 @@ import Layout from '@components/layout.astro'
 import { getCurrentUser, requireAuth } from '@lib/auth'
 import Icon from '@snippets/icon.astro'
 import { Button } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
-import { CardContent } from '@/components/ui/card/card-content.astro'
+import { Card, CardContent } from '@/components/ui/card'
 
 const guard = requireAuth(Astro)
 if (guard) return guard

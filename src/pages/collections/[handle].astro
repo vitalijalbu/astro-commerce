@@ -17,10 +17,8 @@ import CollectionFiltersForm from '@snippets/collection-filters-form.astro'
 import EmptyState from '@snippets/empty-state.astro'
 import FiltersSheet from '@snippets/filters-sheet.astro'
 import ProductGrid from '@snippets/product-grid.astro'
-import {
-    Breadcrumb,
-    Select
-} from 'webcoreui/astro'
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 
 const humanize = (value: string): string => value
     .split('-')
@@ -185,11 +183,15 @@ const activeFilters: { label: string; href: string }[] = [
     description={collection.description || `Shop ${collection.title}`}
 >
     <div class="page py-8 md:py-10">
-        <Breadcrumb items={[
-            { href: '/', label: 'Home' },
-            { href: '/collections', label: 'Collections' },
-            { label: collection.title }
-        ]} />
+        <Breadcrumb>
+            <BreadcrumbList>
+                <BreadcrumbItem><BreadcrumbLink href="/">Home</BreadcrumbLink></BreadcrumbItem>
+                <BreadcrumbSeparator />
+                <BreadcrumbItem><BreadcrumbLink href="/collections">Collections</BreadcrumbLink></BreadcrumbItem>
+                <BreadcrumbSeparator />
+                <BreadcrumbItem><BreadcrumbPage>{collection.title}</BreadcrumbPage></BreadcrumbItem>
+            </BreadcrumbList>
+        </Breadcrumb>
 
         <div class="mt-6 flex flex-col md:flex-row md:items-end md:justify-between gap-4">
             <div>
@@ -213,13 +215,16 @@ const activeFilters: { label: string; href: string }[] = [
                 <input type="hidden" name="sort" value={sort} data-sort-input />
 
                 <div class="min-w-56">
-                    <Select
-                        name="collection-sort"
-                        value={sort}
-                        label="Sort"
-                        itemGroups={[{ items: sortItems }]}
-                        updateValue
-                    />
+                    <Select defaultValue={sort} placeholder="Sort" class="w-full" data-collection-sort>
+                        <SelectTrigger class="w-full" aria-label="Sort">
+                            <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {sortItems.map(item => (
+                                <SelectItem value={item.value}>{item.name}</SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
                 </div>
             </form>
         </div>
@@ -324,17 +329,19 @@ const activeFilters: { label: string; href: string }[] = [
 
         scopedWindow.__collectionSortBound = true
 
-        document.addEventListener('selectOnChange', (event: Event) => {
-            const customEvent = event as CustomEvent<{ select?: string; value?: string }>
-            const detail = customEvent.detail
-
-            if (!detail || detail.select !== 'collection-sort' || typeof detail.value !== 'string') {
+        document.addEventListener('select:change', (event: Event) => {
+            const select = event.target
+            if (!(select instanceof HTMLElement) || !select.matches('[data-collection-sort]')) {
                 return
             }
 
-            const form = document.querySelector<HTMLFormElement>('[data-collection-sort-form]')
-            const sortInput = form?.querySelector<HTMLInputElement>('[data-sort-input]')
+            const detail = (event as CustomEvent<{ value?: string }>).detail
+            if (typeof detail?.value !== 'string') {
+                return
+            }
 
+            const form = select.closest<HTMLFormElement>('[data-collection-sort-form]')
+            const sortInput = form?.querySelector<HTMLInputElement>('[data-sort-input]')
             if (!form || !sortInput) {
                 return
             }

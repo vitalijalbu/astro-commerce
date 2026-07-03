@@ -13,7 +13,11 @@ import AddressModal from '@components/address-modal.astro'
 import Layout from '@components/layout.astro'
 import { deleteAddress, getAddresses, upsertAddress } from '@lib/addresses'
 import { getCurrentUser, requireAuth } from '@lib/auth'
-import { Alert, Badge, Button, Input, Modal } from 'webcoreui/astro'
+import { Alert, AlertTitle } from '@/components/ui/alert'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
 
 const guard = requireAuth(Astro)
 if (guard) return guard
@@ -99,7 +103,7 @@ const passwordError = passwordErrors[params.get('err') ?? '']
         <h1 class="text-3xl font-semibold tracking-tight mb-6">Profile</h1>
         <AccountNav active="/account/profile" />
 
-        {okMessage && <div class="mb-6 max-w-lg"><Alert theme="success">{okMessage}</Alert></div>}
+        {okMessage && <div class="mb-6 max-w-lg"><Alert><AlertTitle>{okMessage}</AlertTitle></Alert></div>}
 
         <!-- Personal details -->
         <section class="max-w-lg">
@@ -107,13 +111,22 @@ const passwordError = passwordErrors[params.get('err') ?? '']
             <form method="post" class="flex flex-col gap-4">
                 <input type="hidden" name="intent" value="profile" />
                 <div class="grid grid-cols-2 gap-4">
-                    <Input name="firstName" label="First name" value={user.firstName} />
-                    <Input name="lastName" label="Last name" value={user.lastName} />
+                    <label class="flex flex-col gap-1.5 text-sm font-medium">
+                        First name
+                        <Input name="firstName" value={user.firstName} />
+                    </label>
+                    <label class="flex flex-col gap-1.5 text-sm font-medium">
+                        Last name
+                        <Input name="lastName" value={user.lastName} />
+                    </label>
                 </div>
-                <Input type="email" name="email" label="Email" value={user.email} />
+                <label class="flex flex-col gap-1.5 text-sm font-medium">
+                    Email
+                    <Input type="email" name="email" value={user.email} />
+                </label>
                 <div class="flex gap-2 mt-2">
                     <Button type="submit">Save changes</Button>
-                    <Button href="/logout" theme="secondary">Sign out</Button>
+                    <Button as="a" href="/logout" variant="secondary">Sign out</Button>
                 </div>
             </form>
         </section>
@@ -121,12 +134,22 @@ const passwordError = passwordErrors[params.get('err') ?? '']
         <!-- Change password -->
         <section id="password" class="max-w-lg mt-12 pt-12 border-t border-line">
             <h2 class="text-xl font-semibold mb-4">Change password</h2>
-            {passwordError && <div class="mb-4"><Alert theme="alert">{passwordError}</Alert></div>}
+            {passwordError && <div class="mb-4"><Alert variant="destructive"><AlertTitle>{passwordError}</AlertTitle></Alert></div>}
             <form method="post" class="flex flex-col gap-4">
                 <input type="hidden" name="intent" value="password" />
-                <Input type="password" name="currentPassword" label="Current password" required {...{ autocomplete: 'current-password' }} />
-                <Input type="password" name="newPassword" label="New password" subText="At least 8 characters." required {...{ autocomplete: 'new-password' }} />
-                <Input type="password" name="confirmPassword" label="Confirm new password" required {...{ autocomplete: 'new-password' }} />
+                <label class="flex flex-col gap-1.5 text-sm font-medium">
+                    Current password
+                    <Input type="password" name="currentPassword" required {...{ autocomplete: 'current-password' }} />
+                </label>
+                <label class="flex flex-col gap-1.5 text-sm font-medium">
+                    New password
+                    <Input type="password" name="newPassword" required {...{ autocomplete: 'new-password' }} />
+                    <span class="text-xs font-normal text-ink-soft">At least 8 characters.</span>
+                </label>
+                <label class="flex flex-col gap-1.5 text-sm font-medium">
+                    Confirm new password
+                    <Input type="password" name="confirmPassword" required {...{ autocomplete: 'new-password' }} />
+                </label>
                 <div class="mt-2"><Button type="submit">Update password</Button></div>
             </form>
         </section>
@@ -135,7 +158,7 @@ const passwordError = passwordErrors[params.get('err') ?? '']
         <section id="addresses" data-address-section class="max-w-lg mt-12 pt-12 border-t border-line">
             <div class="flex items-center justify-between mb-4">
                 <h2 class="text-xl font-semibold">Addresses</h2>
-                <Button type="button" theme="secondary" className="!py-1.5" data-open-modal="addr-new">Add address</Button>
+                <Button type="button" variant="secondary" size="sm" data-open-modal="addr-new">Add address</Button>
             </div>
 
             {addresses.length === 0 ? (
@@ -147,7 +170,7 @@ const passwordError = passwordErrors[params.get('err') ?? '']
                             <div class="text-sm leading-relaxed">
                                 <p class="font-medium flex items-center gap-2 mb-0.5">
                                     {a.firstName} {a.lastName}
-                                    {a.isDefault && <Badge theme="info" small>Default</Badge>}
+                                    {a.isDefault && <Badge variant="secondary">Default</Badge>}
                                 </p>
                                 {a.company && <p class="text-ink-soft">{a.company}</p>}
                                 <p class="text-ink-soft">{a.line1}{a.line2 ? `, ${a.line2}` : ''}</p>
@@ -156,11 +179,12 @@ const passwordError = passwordErrors[params.get('err') ?? '']
                                 {a.phone && <p class="text-ink-soft">{a.phone}</p>}
                             </div>
                             <div class="flex flex-col gap-2 shrink-0">
-                                <Button type="button" theme="secondary" className="!py-1.5" data-open-modal={`addr-edit-${a.id}`}>Edit</Button>
+                                <Button type="button" variant="secondary" size="sm" data-open-modal={`addr-edit-${a.id}`}>Edit</Button>
                                 <Button
                                     type="button"
-                                    theme="flat"
-                                    className="!py-1.5 w-full text-sale"
+                                    variant="ghost"
+                                    size="sm"
+                                    class="w-full text-sale"
                                     data-delete-id={a.id}
                                     data-delete-label={`${a.firstName} ${a.lastName}`}
                                 >Delete</Button>
@@ -175,52 +199,55 @@ const passwordError = passwordErrors[params.get('err') ?? '']
                 <AddressModal id={`addr-edit-${a.id}`} title="Edit address" address={a} />
             ))}
 
-            <Modal id="addr-delete-confirm" title="Remove address" theme="alert" className="!max-w-md">
-                <p class="text-sm text-ink-soft mt-1">
-                    Remove <span data-delete-label class="font-medium text-ink">this address</span> from your account? This can't be undone.
-                </p>
-                <form method="post" class="flex gap-2 mt-5">
-                    <input type="hidden" name="intent" value="address-delete" />
-                    <input type="hidden" name="id" data-delete-id-input />
-                    <Button type="submit" theme="alert">Remove address</Button>
-                    <Button type="button" theme="secondary" data-close-modal="addr-delete-confirm">Cancel</Button>
-                </form>
-            </Modal>
+            <Dialog id="addr-delete-confirm">
+                <DialogContent class="max-w-md">
+                    <DialogHeader>
+                        <DialogTitle>Remove address</DialogTitle>
+                    </DialogHeader>
+                    <p class="text-sm text-ink-soft mt-1">
+                        Remove <span data-delete-label class="font-medium text-ink">this address</span> from your account? This can't be undone.
+                    </p>
+                    <form method="post" class="flex gap-2 mt-5">
+                        <input type="hidden" name="intent" value="address-delete" />
+                        <input type="hidden" name="id" data-delete-id-input />
+                        <Button type="submit" variant="destructive">Remove address</Button>
+                        <Button type="button" variant="secondary" data-slot="dialog-close">Cancel</Button>
+                    </form>
+                </DialogContent>
+            </Dialog>
         </section>
     </div>
 </Layout>
 
 <script>
-    import { closeModal, modal } from 'webcoreui'
+    const openDialog = (id: string) => {
+        document
+            .getElementById(id)
+            ?.dispatchEvent(new CustomEvent('dialog:set', { detail: { open: true } }))
+    }
 
     const initAccountModals = () => {
         const section = document.querySelector<HTMLElement>('[data-address-section]')
         if (!section || section.dataset.bound === 'true') return
         section.dataset.bound = 'true'
 
-        // Bind each open trigger to its modal (auto-wires open + close handlers once).
+        // Open triggers point at a dialog by id; close is handled natively by
+        // the dialog's [data-slot="dialog-close"] buttons.
         section.querySelectorAll<HTMLElement>('[data-open-modal]').forEach(trigger => {
-            const id = trigger.dataset.openModal
-            if (id) modal({ trigger: `[data-open-modal="${id}"]`, modal: `#${id}` })
-        })
-
-        // Cancel buttons close their own modal without submitting.
-        section.querySelectorAll<HTMLElement>('[data-close-modal]').forEach(button => {
-            button.addEventListener('click', () => {
-                const id = button.dataset.closeModal
-                if (id) closeModal(`#${id}`)
+            trigger.addEventListener('click', () => {
+                const id = trigger.dataset.openModal
+                if (id) openDialog(id)
             })
         })
 
-        // Shared delete-confirm modal: fill the id + label, then open it.
-        const deleteModal = modal('#addr-delete-confirm')
+        // Shared delete-confirm dialog: fill the id + label, then open it.
         const deleteIdInput = section.querySelector<HTMLInputElement>('[data-delete-id-input]')
         const deleteLabel = section.querySelector<HTMLElement>('#addr-delete-confirm [data-delete-label]')
         section.querySelectorAll<HTMLElement>('[data-delete-id]').forEach(trigger => {
             trigger.addEventListener('click', () => {
                 if (deleteIdInput) deleteIdInput.value = trigger.dataset.deleteId || ''
                 if (deleteLabel) deleteLabel.textContent = trigger.dataset.deleteLabel || 'this address'
-                deleteModal?.open()
+                openDialog('addr-delete-confirm')
             })
         })
     }

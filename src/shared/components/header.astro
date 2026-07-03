@@ -2,9 +2,9 @@
 import type { AuthUser } from '@lib/auth'
 import { mainMenu, shop } from '@lib/navigation'
 import Icon from '@snippets/icon.astro'
-import UserDropdown from './user-dropdown.astro'
-import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import UserDropdown from './user-dropdown.astro'
 
 interface Props {
     user: AuthUser | null
@@ -134,6 +134,7 @@ const { user } = Astro.props
             >
                 <Icon type="cart" size={20} />
                 <Badge
+                    as="span"
                     data-cart-count
                     hidden
                     aria-hidden="true"

@@ -1,10 +1,11 @@
 /**
  * Storefront icon set.
  *
- * WebCoreUI's <Icon> ships a small built-in set (search, close, chevrons,
- * plus/minus…). We extend it via its `iconSet` prop with the commerce icons
- * Dawn needs (cart, account, shipping, etc.). All icons are 24x24 stroke
- * icons using currentColor so they inherit text color and Icon's `size`.
+ * Commerce icon set (cart, account, shipping, etc.) as raw 24x24 stroke SVGs
+ * using currentColor so they inherit text color and size.
+ *
+ * NOTE: currently unused — icons are rendered via the fulldev/ui <Icon> through
+ * `@snippets/icon.astro`. Kept for reference; safe to delete if not needed.
  */
 const svg = (paths: string) =>
 	`<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">${paths}</svg>`;

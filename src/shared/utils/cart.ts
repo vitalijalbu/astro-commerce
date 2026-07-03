@@ -16,8 +16,6 @@
  * Real checkout should POST this cart to PrestaShop (cart + cart rules API);
  * `checkout()` is the single integration point for that.
  */
-import { modal } from 'webcoreui';
-
 export interface ClientCartLine {
 	id: string;
 	handle: string;
@@ -182,22 +180,25 @@ function checkout() {
 export function initCart() {
 	const toggle = document.querySelector<HTMLElement>('[data-cart-toggle]');
 
-	if (toggle && toggle.dataset.webcoreBound !== 'true') {
-		toggle.dataset.webcoreBound = 'true';
+	if (toggle && toggle.dataset.cartBound !== 'true') {
+		toggle.dataset.cartBound = 'true';
 
-		const drawer = modal({
-			trigger: '[data-cart-toggle]',
-			modal: '#cart-drawer',
-			onOpen() {
-				toggle.setAttribute('aria-expanded', 'true');
-			},
-			onClose() {
-				toggle.setAttribute('aria-expanded', 'false');
-				toggle.focus();
-			},
+		// The cart drawer is a fulldev/ui Sheet (a headless dialog). Open it by
+		// dispatching the dialog's inbound `dialog:set` event on its root, and
+		// mirror the open state back onto the toggle via `dialog:change`.
+		const drawer = document.querySelector<HTMLElement>('#cart-drawer');
+		const setOpen = (open: boolean) =>
+			drawer?.dispatchEvent(new CustomEvent('dialog:set', { detail: { open } }));
+
+		toggle.addEventListener('click', () => setOpen(true));
+
+		drawer?.addEventListener('dialog:change', (event) => {
+			const open = (event as CustomEvent<{ open?: boolean }>).detail?.open === true;
+			toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+			if (!open) toggle.focus();
 		});
 
-		openDrawer = () => drawer?.open();
+		openDrawer = () => setOpen(true);
 	}
 
 	if (!listenersBound) {

@@ -11,7 +11,8 @@ import EmptyState from '@snippets/empty-state.astro'
 import FiltersSheet from '@snippets/filters-sheet.astro'
 import ProductGrid from '@snippets/product-grid.astro'
 import SearchFiltersForm from '@snippets/search-filters-form.astro'
-import { Button, Input } from 'webcoreui/astro'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 
 const params = Astro.url.searchParams
 const query = (params.get('q') || '').trim()

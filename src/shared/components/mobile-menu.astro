@@ -2,10 +2,7 @@
 import type { AuthUser } from '@lib/auth'
 import { mainMenu, shop } from '@lib/navigation'
 import Icon from '@snippets/icon.astro'
-import { Sheet } from '@/components/ui/sheet'
-import { SheetContent } from '@/components/ui/sheet/sheet-content.astro'
-import { SheetHeader } from '@/components/ui/sheet/sheet-header.astro'
-import { SheetTitle } from '@/components/ui/sheet/sheet-title.astro'
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 
 interface Props {
     user: AuthUser | null

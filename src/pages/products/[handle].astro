@@ -3,7 +3,7 @@ import { Image } from 'astro:assets'
 /**
  * Product detail page (PDP), rendered on demand (SSR).
  *
- * Uses WebCoreUI throughout: <Breadcrumb>, <Rating>, <Badge>, <Carousel>,
+ * Uses fulldev/ui throughout: <Breadcrumb>, <Rating>, <Badge>, <Carousel>,
  * <Button>, <Accordion>. Quantity uses a native number input for accessibility.
  */
 import Layout from '@components/layout.astro'
@@ -15,7 +15,12 @@ import Price from '@snippets/price.astro'
 import ProductCarousel from '@snippets/product-carousel.astro'
 import QuantityPicker from '@snippets/quantity-picker.astro'
 import { discountPercent } from '@utils/format'
-import { Accordion, Badge, Breadcrumb, Button, Carousel, CarouselItem, Rating } from 'webcoreui/astro'
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
+import { Badge } from '@/components/ui/badge'
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb'
+import { Button } from '@/components/ui/button'
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel'
+import { Rating } from '@/components/ui/rating'
 
 const { handle } = Astro.params
 const product = handle ? await getProductByHandle(handle) : null
@@ -109,36 +114,43 @@ const pdpWishlistItem = product
     <div class="page py-6 md:py-10">
         {product ? (
             <>
-                <Breadcrumb items={[
-            { href: '/', label: 'Home' },
-            { href: '/collections/all', label: 'Shop' },
-            { label: product.title }
-        ]} />
+                <Breadcrumb>
+            <BreadcrumbList>
+                <BreadcrumbItem><BreadcrumbLink href="/">Home</BreadcrumbLink></BreadcrumbItem>
+                <BreadcrumbSeparator />
+                <BreadcrumbItem><BreadcrumbLink href="/collections/all">Shop</BreadcrumbLink></BreadcrumbItem>
+                <BreadcrumbSeparator />
+                <BreadcrumbItem><BreadcrumbPage>{product.title}</BreadcrumbPage></BreadcrumbItem>
+            </BreadcrumbList>
+        </Breadcrumb>
 
         <div class="grid md:grid-cols-2 gap-8 lg:gap-14 mt-6">
             <!-- Gallery -->
             <div>
                 <div class="product-gallery overflow-hidden rounded-[--radius-card] border border-line bg-paper-soft" aria-label="Product gallery">
-                    <Carousel
-                        items={galleryImages.length}
-                        itemsPerSlide={1}
-                        pagination={{ type: 'dots' }}
-                        className="w-full"
-                    >
-                        {galleryImages.map((image, i) => (
-                            <CarouselItem>
-                                <Image
-                                    src={image.url}
-                                    alt={image.alt || `${product.title} image ${i + 1}`}
-                                    width={image.width ?? 1000}
-                                    height={image.height ?? 1250}
-                                    loading={i === 0 ? 'eager' : 'lazy'}
-                                    fetchpriority={i === 0 ? 'high' : 'auto'}
-                                    sizes="(min-width: 768px) 50vw, 100vw"
-                                    class="w-full object-cover aspect-4/5"
-                                />
-                            </CarouselItem>
-                        ))}
+                    <Carousel class="w-full">
+                        <CarouselContent>
+                            {galleryImages.map((image, i) => (
+                                <CarouselItem class="basis-full">
+                                    <Image
+                                        src={image.url}
+                                        alt={image.alt || `${product.title} image ${i + 1}`}
+                                        width={image.width ?? 1000}
+                                        height={image.height ?? 1250}
+                                        loading={i === 0 ? 'eager' : 'lazy'}
+                                        fetchpriority={i === 0 ? 'high' : 'auto'}
+                                        sizes="(min-width: 768px) 50vw, 100vw"
+                                        class="w-full object-cover aspect-4/5"
+                                    />
+                                </CarouselItem>
+                            ))}
+                        </CarouselContent>
+                        {galleryImages.length > 1 && (
+                            <>
+                                <CarouselPrevious class="left-3" />
+                                <CarouselNext class="right-3" />
+                            </>
+                        )}
                     </Carousel>
                 </div>
 
@@ -166,7 +178,12 @@ const pdpWishlistItem = product
 
                 <div class="flex items-center gap-3 mt-8" data-pdp-buy-block>
                     {product.rating && (
-                        <Rating score={product.rating} size={16} reviewCount={product.reviewCount} showText />
+                        <div class="flex items-center gap-2">
+                            <Rating value={product.rating} />
+                            <span class="text-sm text-ink-soft">
+                                {product.rating.toFixed(1)}{product.reviewCount ? ` (${product.reviewCount})` : ''}
+                            </span>
+                        </div>
                     )}
                 </div>
 
@@ -191,7 +208,7 @@ const pdpWishlistItem = product
                             <p class="m-0 text-sm text-ink-soft">{product.price.currencyCode} {product.price.amount}</p>
                         </div>
                         <Button
-                            theme="secondary"
+                            variant="secondary"
                             data-add-to-cart
                             data-id={productVariantId}
                             data-handle={product.handle}
@@ -203,15 +220,15 @@ const pdpWishlistItem = product
                             data-quantity="1"
                             aria-label={`Add ${product.title} to cart`}
                             disabled={!product.available}
-                            className="shrink-0"
+                            class="shrink-0"
                         >
                             {product.available ? 'Add to cart' : 'Sold out'}
                         </Button>
                     </div>
                 </div>
 
-                    {discount && <Badge theme="alert" small>-{discount}%</Badge>}
-                    {!product.available && <Badge theme="outline" small>Sold out</Badge>}
+                    {discount && <Badge variant="destructive">-{discount}%</Badge>}
+                    {!product.available && <Badge variant="outline">Sold out</Badge>}
                 </div>
 
                 <p class="text-ink-soft mt-4 leading-relaxed">{product.description}</p>
@@ -246,7 +263,7 @@ const pdpWishlistItem = product
                 <div class="flex items-center gap-3 mt-8">
                     <QuantityPicker id="pdp-quantity" name="quantity" value={1} min={1} max={12} />
                     <Button
-                        className="flex-1"
+                        class="flex-1"
                         disabled={!product.available}
                         data-add-to-cart
                         data-id={productVariantId}
@@ -263,7 +280,8 @@ const pdpWishlistItem = product
                     </Button>
                     <Button
                         type="button"
-                        theme="outline"
+                        variant="outline"
+                        size="icon"
                         data-wishlist-toggle
                         data-wishlist-item={pdpWishlistItem}
                         aria-pressed="false"
@@ -292,7 +310,19 @@ const pdpWishlistItem = product
                 </ul>
 
                 <div class="mt-8 border-t border-line pt-2">
-                    <Accordion items={accordionItems} icon="plus" />
+                    <Accordion
+                        collapsible
+                        defaultValue={accordionItems.find(item => item.expanded)?.title}
+                    >
+                        {accordionItems.map(item => (
+                            <AccordionItem value={item.title}>
+                                <AccordionTrigger>{item.title}</AccordionTrigger>
+                                <AccordionContent>
+                                    <div class="prose-sm" set:html={item.content} />
+                                </AccordionContent>
+                            </AccordionItem>
+                        ))}
+                    </Accordion>
                 </div>
             </div>
         </div>
