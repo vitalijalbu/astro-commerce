@@ -1,14 +1,15 @@
 ---
 /**
- * Featured product collection — grid or fulldev/ui <Carousel>. Products are
- * fetched server-side from the catalog (PrestaShop, with mock fallback).
+ * Featured product collection — grid or fulldev/ui <Carousel>. The heading
+ * renders immediately; the products are a deferred server island so the page
+ * shell paints without waiting on the catalog fetch (a skeleton grid holds the
+ * space until the real products stream in).
  */
-import { getCollectionProducts } from '@lib/catalog'
 import type { FeaturedCollectionSection } from '@lib/sections'
-import ProductCard from '@snippets/product-card.astro'
-import ProductCarousel from '@snippets/product-carousel.astro'
+import FeaturedCollectionProducts from '@sections/featured-collection-products.astro'
 import Section from '@snippets/section.astro'
 import SectionHeading from '@snippets/section-heading.astro'
+import SkeletonProductGrid from '@snippets/skeleton-product-grid.astro'
 
 interface Props {
     section: FeaturedCollectionSection
@@ -16,20 +17,20 @@ interface Props {
 
 const { section } = Astro.props
 const s = section.settings
-const products = await getCollectionProducts(s.collectionHandle ?? 'all', s.limit ?? 4)
 const isCarousel = s.layout === 'carousel'
+const limit = s.limit ?? 4
 ---
 
 <Section spacing="md" background={section.background} id={section.id}>
     <SectionHeading heading={s.heading} subheading={s.subheading} align="left" cta={s.cta} />
 
-    {isCarousel ? (
-        <ProductCarousel products={products} ariaLabel={s.heading} />
-    ) : (
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-            {products.map((product, i) => (
-                <ProductCard product={product} eager={i < 4} />
-            ))}
-        </div>
-    )}
+    <FeaturedCollectionProducts
+        collectionHandle={s.collectionHandle ?? 'all'}
+        limit={limit}
+        layout={isCarousel ? 'carousel' : 'grid'}
+        ariaLabel={s.heading}
+        server:defer
+    >
+        <SkeletonProductGrid slot="fallback" count={limit} columns={4} />
+    </FeaturedCollectionProducts>
 </Section>

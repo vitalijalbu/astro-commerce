@@ -327,13 +327,17 @@ const pdpWishlistItem = product
             </div>
         </div>
 
-        <!-- Recommendations -->
-        {recommended.length > 0 && (
-            <section class="mt-16 md:mt-24">
-                <h2 class="text-2xl font-semibold tracking-tight mb-8">You may also like</h2>
-                <ProductCarousel products={recommended} ariaLabel="Recommended products" />
-            </section>
-        )}
+        <!-- Recommendations (deferred: streams in after the product shell) -->
+        <section class="mt-16 md:mt-24">
+            <h2 class="text-2xl font-semibold tracking-tight mb-8">You may also like</h2>
+            <ProductRecommendations
+                excludeHandle={product.handle}
+                ariaLabel="Recommended products"
+                server:defer
+            >
+                <SkeletonProductGrid slot="fallback" count={4} columns={4} />
+            </ProductRecommendations>
+        </section>
 
                 {productSchema && <JsonLd slot="structured-data" data={productSchema} />}
             </>

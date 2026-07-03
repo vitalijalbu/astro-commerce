@@ -1,0 +1,233 @@
+---
+/**
+ * Deferred collection results region (server island).
+ *
+ * Owns the heavy catalog fetch (products + collections) and all facet/filter/
+ * sort/pagination derivation, so the collection page shell (breadcrumb, title,
+ * sort control) paints instantly. Raw filter values are passed in as
+ * serializable props and clamped here against the fetched price range.
+ */
+import { getCollectionProducts, getCollections, getProducts } from '@lib/catalog'
+import { paginateItems } from '@lib/paginate'
+import CatalogPagination from '@snippets/catalog-pagination.astro'
+import CollectionFiltersForm from '@snippets/collection-filters-form.astro'
+import EmptyState from '@snippets/empty-state.astro'
+import FiltersSheet from '@snippets/filters-sheet.astro'
+import ProductGrid from '@snippets/product-grid.astro'
+
+interface Props {
+    handle: string
+    sort?: string
+    selectedTags?: string[]
+    onlyAvailable?: boolean
+    minPrice?: number | null
+    maxPrice?: number | null
+    page?: number
+    search?: string
+    notFound?: boolean
+}
+
+const {
+    handle,
+    sort = 'featured',
+    selectedTags = [],
+    onlyAvailable = false,
+    page = 1,
+    search = '',
+    notFound = false
+} = Astro.props
+
+const humanize = (value: string): string => value
+    .split('-')
+    .filter(Boolean)
+    .map(part => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(' ')
+
+const params = new URLSearchParams(search)
+const clearHref = `/collections/${handle}`
+
+let minPrice = Astro.props.minPrice ?? null
+let maxPrice = Astro.props.maxPrice ?? null
+
+const allCollections = await getCollections(120)
+const baseProducts = handle === 'all'
+    ? await getProducts(500)
+    : await getCollectionProducts(handle, 500)
+
+const priceFloor = baseProducts.length > 0
+    ? Math.floor(Math.min(...baseProducts.map(product => product.price.amount)))
+    : 0
+
+const priceCeiling = baseProducts.length > 0
+    ? Math.ceil(Math.max(...baseProducts.map(product => product.price.amount)))
+    : 500
+
+if (minPrice !== null) {
+    minPrice = Math.max(priceFloor, Math.min(minPrice, priceCeiling))
+}
+
+if (maxPrice !== null) {
+    maxPrice = Math.max(priceFloor, Math.min(maxPrice, priceCeiling))
+}
+
+if (minPrice !== null && maxPrice !== null && minPrice > maxPrice) {
+    const swappedMin = minPrice
+    minPrice = maxPrice
+    maxPrice = swappedMin
+}
+
+const sliderMin = minPrice ?? priceFloor
+const sliderMax = maxPrice ?? priceCeiling
+
+const subCollectionLinks = [
+    { handle: 'all', title: 'All products' },
+    ...allCollections.map(item => ({ handle: item.handle, title: item.title }))
+].filter(item => item.handle !== handle)
+
+const allTags = [...new Set(baseProducts.flatMap(product => product.tags.map(tag => tag.toLowerCase())))]
+    .sort((a, b) => a.localeCompare(b))
+
+const filteredProducts = baseProducts
+    .filter(product => selectedTags.length > 0
+        ? selectedTags.some(tag => product.tags.map(t => t.toLowerCase()).includes(tag))
+        : true
+    )
+    .filter(product => onlyAvailable ? product.available : true)
+    .filter(product => minPrice !== null ? product.price.amount >= minPrice : true)
+    .filter(product => maxPrice !== null ? product.price.amount <= maxPrice : true)
+
+const products = [...filteredProducts].sort((a, b) => {
+    if (sort === 'price-asc') return a.price.amount - b.price.amount
+    if (sort === 'price-desc') return b.price.amount - a.price.amount
+    if (sort === 'title-asc') return a.title.localeCompare(b.title)
+    if (sort === 'title-desc') return b.title.localeCompare(a.title)
+    if (sort === 'newest') {
+        const aNew = a.tags.map(tag => tag.toLowerCase()).includes('new') ? 1 : 0
+        const bNew = b.tags.map(tag => tag.toLowerCase()).includes('new') ? 1 : 0
+        return bNew - aNew
+    }
+    if (sort === 'best-selling') {
+        const aScore = (a.reviewCount || 0) * (a.rating || 0)
+        const bScore = (b.reviewCount || 0) * (b.rating || 0)
+        return bScore - aScore
+    }
+    return 0
+})
+
+const paginated = paginateItems(products, page, 24)
+
+// Active-filter chips: each links back to the page with that one filter removed.
+const buildHref = (mutate: (next: URLSearchParams) => void): string => {
+    const next = new URLSearchParams(params)
+    next.delete('page')
+    mutate(next)
+    const qs = next.toString()
+    return qs ? `/collections/${handle}?${qs}` : clearHref
+}
+
+const activeFilters: { label: string; href: string }[] = [
+    ...selectedTags.map(tag => ({
+        label: humanize(tag),
+        href: buildHref(next => {
+            const remaining = next.getAll('tag').filter(value => value.toLowerCase() !== tag)
+            next.delete('tag')
+            for (const value of remaining) next.append('tag', value)
+        })
+    })),
+    ...(onlyAvailable ? [{ label: 'In stock', href: buildHref(next => next.delete('available')) }] : []),
+    ...((minPrice !== null || maxPrice !== null)
+        ? [{
+            label: `€${sliderMin} – €${sliderMax}`,
+            href: buildHref(next => { next.delete('price'); next.delete('min'); next.delete('max') })
+        }]
+        : [])
+]
+---
+
+<div class="mt-5 lg:hidden">
+    <FiltersSheet
+        id="collection-filters-sheet"
+        title="Collection filters"
+        description="Filter by tag, availability, price and linked subcollections."
+        buttonLabel="Open filters"
+    >
+        <CollectionFiltersForm
+            action={`/collections/${handle}`}
+            sort={sort}
+            clearHref={clearHref}
+            subCollectionLinks={subCollectionLinks}
+            allTags={allTags}
+            selectedTags={selectedTags}
+            onlyAvailable={onlyAvailable}
+            priceFloor={priceFloor}
+            priceCeiling={priceCeiling}
+            sliderMin={sliderMin}
+            sliderMax={sliderMax}
+        />
+    </FiltersSheet>
+</div>
+
+<div class="mt-8 grid lg:grid-cols-[280px_1fr] gap-8 items-start">
+    <aside class="hidden lg:block rounded-[--radius-card] border border-line bg-paper-soft p-5 md:p-6 h-fit" aria-label="Collection filters">
+        <CollectionFiltersForm
+            action={`/collections/${handle}`}
+            sort={sort}
+            clearHref={clearHref}
+            subCollectionLinks={subCollectionLinks}
+            allTags={allTags}
+            selectedTags={selectedTags}
+            onlyAvailable={onlyAvailable}
+            priceFloor={priceFloor}
+            priceCeiling={priceCeiling}
+            sliderMin={sliderMin}
+            sliderMax={sliderMax}
+        />
+    </aside>
+
+    <div>
+        {activeFilters.length > 0 && (
+            <div class="mb-4 flex flex-wrap items-center gap-2" aria-label="Active filters">
+                {activeFilters.map(filter => (
+                    <a
+                        href={filter.href}
+                        class="inline-flex items-center gap-1.5 rounded-full border border-line bg-paper-soft px-3 py-1 text-xs transition hover:border-ink"
+                        aria-label={`Remove filter ${filter.label}`}
+                    >
+                        {filter.label}
+                        <span aria-hidden="true">×</span>
+                    </a>
+                ))}
+                <a href={clearHref} class="text-xs text-muted link-underline ml-1">Clear all</a>
+            </div>
+        )}
+
+        <p class="text-ink-soft m-0 mb-6" aria-live="polite">
+            {paginated.totalItems} product{paginated.totalItems === 1 ? '' : 's'}
+        </p>
+
+        {paginated.totalItems > 0 ? (
+            <>
+                <ProductGrid products={paginated.items} eagerCount={4} columns={3} />
+                <CatalogPagination
+                    basePath={`/collections/${handle}`}
+                    params={params}
+                    currentPage={paginated.currentPage}
+                    totalPages={paginated.totalPages}
+                    ariaLabel={`${humanize(handle)} pages`}
+                />
+            </>
+        ) : (
+            <EmptyState
+                title={notFound ? 'Collection not found' : 'No products found'}
+                text={notFound
+                    ? 'This collection does not exist. Browse the full catalog or return to the collections index.'
+                    : 'No products matched your current filters. Reset them or explore the full catalog.'}
+                image="/images/placeholder.png"
+                actionHref="/collections/all"
+                actionLabel="Browse all products"
+                secondaryHref={notFound ? '/collections' : clearHref}
+                secondaryLabel={notFound ? 'View collections' : 'Reset filters'}
+            />
+        )}
+    </div>
+</div>

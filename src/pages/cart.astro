@@ -1,12 +1,11 @@
 ---
 import Layout from '@components/layout.astro'
-import { getProducts } from '@lib/catalog'
-import ProductCarousel from '@snippets/product-carousel.astro'
+import ProductRecommendations from '@snippets/product-recommendations.astro'
 import SkeletonCartLine from '@snippets/skeleton-cart-line.astro'
+import SkeletonProductGrid from '@snippets/skeleton-product-grid.astro'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 
-const recommended = (await getProducts(12)).slice(0, 8)
 const payments = ['Visa', 'Mastercard', 'Amex', 'PayPal', 'Apple Pay']
 ---
 
@@ -69,12 +68,12 @@ const payments = ['Visa', 'Mastercard', 'Amex', 'PayPal', 'Apple Pay']
             </aside>
         </div>
 
-        {recommended.length > 0 && (
-            <section class="mt-16 md:mt-24">
-                <h2 class="text-2xl font-semibold tracking-tight mb-8">You may also like</h2>
-                <ProductCarousel products={recommended} ariaLabel="Recommended products" />
-            </section>
-        )}
+        <section class="mt-16 md:mt-24">
+            <h2 class="text-2xl font-semibold tracking-tight mb-8">You may also like</h2>
+            <ProductRecommendations limit={8} ariaLabel="Recommended products" server:defer>
+                <SkeletonProductGrid slot="fallback" count={4} columns={4} />
+            </ProductRecommendations>
+        </section>
     </div>
 </Layout>
 

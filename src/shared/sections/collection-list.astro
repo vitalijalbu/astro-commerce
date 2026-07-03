@@ -1,11 +1,14 @@
 ---
-import { getCollections } from '@lib/catalog'
-import type { CollectionListSection } from '@lib/sections'
 /**
- * Collection list — image cards linking to category pages.
+ * Collection list — image cards linking to category pages. The heading renders
+ * immediately; the cards are a deferred server island so the section shell
+ * paints without waiting on the collections fetch.
  */
+import type { CollectionListSection } from '@lib/sections'
+import CollectionListItems from '@sections/collection-list-items.astro'
 import Section from '@snippets/section.astro'
 import SectionHeading from '@snippets/section-heading.astro'
+import { Skeleton } from '@/components/ui/skeleton'
 
 interface Props {
     section: CollectionListSection
@@ -13,39 +16,25 @@ interface Props {
 
 const { section } = Astro.props
 const s = section.settings
-const all = await getCollections(12)
-const collections = s.handles?.length
-    ? s.handles.map(h => all.find(c => c.handle === h)).filter(Boolean)
-    : all
+const columns = s.columns ?? 3
 
 const cols = {
     2: 'sm:grid-cols-2',
     3: 'sm:grid-cols-2 lg:grid-cols-3',
     4: 'grid-cols-2 lg:grid-cols-4'
-}[s.columns ?? 3]
+}[columns]
 ---
 
 <Section spacing="md" background={section.background} id={section.id}>
     <SectionHeading heading={s.heading} subheading={s.subheading} align="left" />
-    <div class:list={['grid gap-4 md:gap-6', cols]}>
-        {collections.map(collection => collection && (
-            <a href={`/collections/${collection.handle}`} class="group block relative overflow-hidden rounded-[--radius-card] bg-paper-soft">
-                <div class="aspect-[3/4] overflow-hidden">
-                    <img
-                        src={collection.image?.url}
-                        alt={collection.image?.alt ?? collection.title}
-                        loading="lazy"
-                        class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
+
+    <CollectionListItems handles={s.handles} columns={columns} server:defer>
+        <div slot="fallback" class:list={['grid gap-4 md:gap-6', cols]} aria-hidden="true">
+            {Array.from({ length: s.handles?.length || columns }).map(() => (
+                <div class="aspect-[3/4] overflow-hidden rounded-[--radius-card]">
+                    <Skeleton class="w-full h-full" />
                 </div>
-                <div class="absolute inset-0 bg-gradient-to-t from-black/55 to-transparent"></div>
-                <div class="absolute bottom-0 left-0 p-5 text-white">
-                    <h3 class="text-lg md:text-xl font-semibold m-0">{collection.title}</h3>
-                    {collection.productCount && (
-                        <span class="text-sm text-white/80">{collection.productCount} items</span>
-                    )}
-                </div>
-            </a>
-        ))}
-    </div>
+            ))}
+        </div>
+    </CollectionListItems>
 </Section>

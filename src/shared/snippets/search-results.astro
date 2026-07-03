@@ -1,0 +1,146 @@
+---
+/**
+ * Deferred search results region (server island).
+ *
+ * Owns the catalog fetch, filtering, sorting and pagination so the search page
+ * shell (hero + search box) paints instantly. All inputs are passed as
+ * serializable props; the original query string is passed through so pagination
+ * links can be rebuilt without access to the page URL.
+ */
+import { getProducts } from '@lib/catalog'
+import { paginateItems } from '@lib/paginate'
+import CatalogPagination from '@snippets/catalog-pagination.astro'
+import EmptyState from '@snippets/empty-state.astro'
+import FiltersSheet from '@snippets/filters-sheet.astro'
+import ProductGrid from '@snippets/product-grid.astro'
+import SearchFiltersForm from '@snippets/search-filters-form.astro'
+
+interface Props {
+    query?: string
+    sort?: string
+    page?: number
+    selectedVendors?: string[]
+    onlyAvailable?: boolean
+    minPrice?: number | null
+    maxPrice?: number | null
+    search?: string
+}
+
+const {
+    query = '',
+    sort = 'relevance',
+    page = 1,
+    selectedVendors = [],
+    onlyAvailable = false,
+    minPrice = null,
+    maxPrice = null,
+    search = ''
+} = Astro.props
+
+const params = new URLSearchParams(search)
+
+const all = await getProducts(500)
+const vendors = [...new Set(all.map(p => p.vendor).filter((v): v is string => Boolean(v)))].sort()
+
+const base = query
+    ? all.filter(p => {
+        const haystack = `${p.title} ${p.vendor ?? ''} ${p.tags.join(' ')}`.toLowerCase()
+        return query.toLowerCase().split(/\s+/).every(term => haystack.includes(term))
+    })
+    : all
+
+const results = base
+    .filter(p => selectedVendors.length ? selectedVendors.includes(p.vendor ?? '') : true)
+    .filter(p => onlyAvailable ? p.available : true)
+    .filter(p => minPrice !== null ? p.price.amount >= minPrice : true)
+    .filter(p => maxPrice !== null ? p.price.amount <= maxPrice : true)
+    .sort((a, b) => {
+        if (sort === 'price-asc') return a.price.amount - b.price.amount
+        if (sort === 'price-desc') return b.price.amount - a.price.amount
+        if (sort === 'name-asc') return a.title.localeCompare(b.title)
+        return 0
+    })
+
+const paginated = paginateItems(results, page, 24)
+---
+
+<div class="mb-5 lg:hidden">
+    <FiltersSheet
+        id="search-filters-sheet"
+        title="Search filters"
+        description="Refine results by availability, brand and price."
+        buttonLabel="Open filters"
+    >
+        <SearchFiltersForm
+            query={query}
+            vendors={vendors}
+            selectedVendors={selectedVendors}
+            onlyAvailable={onlyAvailable}
+            minPrice={minPrice}
+            maxPrice={maxPrice}
+        />
+    </FiltersSheet>
+</div>
+
+<div class="grid lg:grid-cols-[280px_1fr] gap-8 items-start">
+    <aside class="hidden lg:block rounded-[--radius-card] border border-line bg-paper-soft p-5 md:p-6 h-fit" aria-label="Search filters">
+        <SearchFiltersForm
+            query={query}
+            vendors={vendors}
+            selectedVendors={selectedVendors}
+            onlyAvailable={onlyAvailable}
+            minPrice={minPrice}
+            maxPrice={maxPrice}
+        />
+    </aside>
+
+    <div>
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
+            <p class="text-ink-soft m-0" aria-live="polite">
+                {paginated.totalItems} result{paginated.totalItems === 1 ? '' : 's'}
+                {query ? <> for <strong>“{query}”</strong></> : ' in catalog'}
+            </p>
+
+            <form action="/search" method="get" class="flex items-center gap-2" aria-label="Sort search results">
+                {query && <input type="hidden" name="q" value={query} />}
+                {selectedVendors.map(v => <input type="hidden" name="vendor" value={v} />)}
+                {onlyAvailable && <input type="hidden" name="available" value="1" />}
+                {minPrice !== null && <input type="hidden" name="min" value={String(minPrice)} />}
+                {maxPrice !== null && <input type="hidden" name="max" value={String(maxPrice)} />}
+                <label for="search-sort" class="text-sm text-muted">Sort</label>
+                <select
+                    id="search-sort"
+                    name="sort"
+                    class="h-10 rounded-[--radius-card] border border-line bg-paper px-3 text-sm"
+                    onchange="this.form.submit()"
+                >
+                    <option value="relevance" selected={sort === 'relevance'}>Relevance</option>
+                    <option value="price-asc" selected={sort === 'price-asc'}>Price low to high</option>
+                    <option value="price-desc" selected={sort === 'price-desc'}>Price high to low</option>
+                    <option value="name-asc" selected={sort === 'name-asc'}>Name A-Z</option>
+                </select>
+            </form>
+        </div>
+
+        {paginated.totalItems > 0 && <ProductGrid products={paginated.items} eagerCount={4} columns={3} />}
+
+        <CatalogPagination
+            basePath="/search"
+            params={params}
+            currentPage={paginated.currentPage}
+            totalPages={paginated.totalPages}
+            ariaLabel="Search results pages"
+        />
+
+        {paginated.totalItems === 0 && (
+            <EmptyState
+                title="No products found"
+                text="No products matched your current search or filters. Try a broader term or reset the filters."
+                actionHref="/collections/all"
+                actionLabel="Browse all products"
+                secondaryHref="/search"
+                secondaryLabel="Reset search"
+            />
+        )}
+    </div>
+</div>

@@ -1,0 +1,32 @@
+---
+/**
+ * Deferred products for a featured-collection section (server island).
+ *
+ * The parent section renders its heading immediately; this island fetches the
+ * collection's products out-of-band and streams the grid/carousel in. Props are
+ * serializable so the island can render from its own request.
+ */
+import { getCollectionProducts } from '@lib/catalog'
+import ProductCard from '@snippets/product-card.astro'
+import ProductCarousel from '@snippets/product-carousel.astro'
+
+interface Props {
+    collectionHandle?: string
+    limit?: number
+    layout?: 'grid' | 'carousel'
+    ariaLabel?: string
+}
+
+const { collectionHandle = 'all', limit = 4, layout = 'grid', ariaLabel } = Astro.props
+const products = await getCollectionProducts(collectionHandle, limit)
+---
+
+{layout === 'carousel' ? (
+    <ProductCarousel products={products} ariaLabel={ariaLabel} />
+) : (
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+        {products.map((product, i) => (
+            <ProductCard product={product} eager={i < 4} />
+        ))}
+    </div>
+)}
