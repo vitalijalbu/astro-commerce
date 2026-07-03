@@ -1,4 +1,5 @@
 ---
+import { Image } from 'astro:assets'
 import { getCollections } from '@lib/catalog'
 
 interface Props {
@@ -24,11 +25,11 @@ const cols = {
     {collections.map(collection => collection && (
         <a href={`/collections/${collection.handle}`} class="group block relative overflow-hidden rounded-[--radius-card] bg-paper-soft">
             <div class="aspect-[3/4] overflow-hidden">
-                <img
-                    src={collection.image?.url}
+                <Image
+                    src={collection.image?.url ?? ''}
                     alt={collection.image?.alt ?? collection.title}
-                    width={collection.image?.width}
-                    height={collection.image?.height}
+                    width={collection.image?.width ?? 500}
+                    height={collection.image?.height ?? 600}
                     loading="lazy"
                     class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                 />

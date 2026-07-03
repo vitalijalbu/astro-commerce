@@ -1,4 +1,5 @@
 ---
+import { Image } from 'astro:assets'
 import AccountNav from '@components/account-nav.astro'
 import Layout from '@components/layout.astro'
 import { requireAuth } from '@lib/auth'
@@ -46,11 +47,11 @@ const money = (amount: number) => formatMoney({ amount, currencyCode: order?.cur
                 <div class="border border-line rounded-[--radius-card] overflow-hidden mb-8">
                     {order.lines.map(line => (
                         <div class="flex items-center gap-4 px-5 py-4 border-b border-line last:border-b-0">
-                            <img
+                            <Image
                                 src={`https://picsum.photos/seed/${line.imageSeed}/120/120`}
                                 alt={line.title}
-                                width="60"
-                                height="60"
+                                width={60}
+                                height={60}
                                 loading="lazy"
                                 class="w-15 h-15 rounded-[--radius-card] object-cover bg-paper-soft shrink-0"
                             />

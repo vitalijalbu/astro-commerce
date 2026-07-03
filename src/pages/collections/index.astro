@@ -1,4 +1,5 @@
 ---
+import { Image } from 'astro:assets'
 import Layout from '@components/layout.astro'
 import { getCollections } from '@lib/catalog'
 import { paginateItems, parsePageParam } from '@lib/paginate'
@@ -25,7 +26,9 @@ const paginated = paginateItems(collections, page, 12)
             {paginated.items.map(collection => (
                 <a href={`/collections/${collection.handle}`} class="group block relative overflow-hidden rounded-[--radius-card] bg-paper-soft">
                     <div class="aspect-4/3 overflow-hidden">
-                        <img src={collection.image?.url} alt={collection.title} loading="lazy"
+                        <Image src={collection.image?.url ?? ''} alt={collection.title}
+                            width={collection.image?.width ?? 500} height={collection.image?.height ?? 600}
+                            loading="lazy"
                             class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
                     </div>
                     <div class="absolute inset-0 bg-gradient-to-t from-black/55 to-transparent"></div>

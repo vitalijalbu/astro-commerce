@@ -1,4 +1,5 @@
 ---
+import { Image } from 'astro:assets'
 import type { ImageWithTextSection } from '@lib/sections'
 import Section from '@snippets/section.astro'
 import { parseImgDimensions } from '@utils/images'
@@ -10,16 +11,17 @@ interface Props {
 const { section } = Astro.props
 const s = section.settings
 const imageRight = s.imageSide === 'right'
-const imgSize = parseImgDimensions(s.image)
+const imgSize = parseImgDimensions(s.image) ?? { width: 900, height: 1125 }
 ---
 
 <Section spacing="lg" background={section.background} id={section.id}>
     <div class="grid md:grid-cols-2 gap-8 md:gap-14 items-center">
         <div class:list={['overflow-hidden rounded-lg bg-paper-soft', imageRight && 'md:order-2']}>
-            <img
+            <Image
                 src={s.image}
                 alt={s.heading}
-                {...imgSize}
+                width={imgSize.width}
+                height={imgSize.height}
                 loading="lazy"
                 class="w-full h-full object-cover aspect-[4/5]"
             />

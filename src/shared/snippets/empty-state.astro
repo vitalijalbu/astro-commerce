@@ -1,4 +1,5 @@
 ---
+import { Image } from 'astro:assets'
 import Icon from './icon.astro'
 
 interface Props {
@@ -31,7 +32,7 @@ const {
         <section class="px-6 py-12 text-center md:px-10 md:py-16">
             <div class="mx-auto flex max-w-xl flex-col items-center gap-5">
                 {image ? (
-                    <img src={image} alt="" width="112" height="112" class="h-28 w-28 object-contain opacity-90" />
+                    <Image src={image} alt="" width={112} height={112} class="h-28 w-28 object-contain opacity-90" />
                 ) : (
                     <span class="grid h-16 w-16 place-items-center rounded-full bg-paper-soft text-ink">
                         <Icon type={icon} size={26} />

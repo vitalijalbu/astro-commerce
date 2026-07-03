@@ -1,4 +1,5 @@
 ---
+import { Image } from 'astro:assets'
 import { parseImgDimensions } from '@utils/images'
 
 interface BlogCardData {
@@ -26,10 +27,11 @@ const feature = variant === 'feature'
     <article class:list={[feature && 'grid md:grid-cols-2']} aria-label={post.title}>
         <a href={post.href} class="block group" aria-label={`Open article: ${post.title}`}>
             <div class:list={['overflow-hidden bg-paper-soft', feature ? 'aspect-4/3 md:aspect-auto md:h-full' : 'aspect-[3/2]']}>
-                <img
+                <Image
                     src={post.image}
                     alt={post.title}
-                    {...parseImgDimensions(post.image) ?? {}}
+                    width={parseImgDimensions(post.image)?.width ?? 600}
+                    height={parseImgDimensions(post.image)?.height ?? 400}
                     loading="lazy"
                     class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                 />

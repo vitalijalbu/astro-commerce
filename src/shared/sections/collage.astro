@@ -1,4 +1,5 @@
 ---
+import { Image } from 'astro:assets'
 import type { CollageSection } from '@lib/sections'
 import Section from '@snippets/section.astro'
 import SectionHeading from '@snippets/section-heading.astro'
@@ -18,16 +19,20 @@ const small = s.tiles.filter(t => t !== large)
     {s.heading && <SectionHeading heading={s.heading} subheading={s.subheading} align="left" />}
     <div class="grid md:grid-cols-2 gap-4 md:gap-6">
         <a href={large.href} class="group relative block overflow-hidden rounded-[--radius-card] bg-paper-soft">
-            <img src={large.image} alt="" {...parseImgDimensions(large.image) ?? {}} loading="lazy"
-                class="w-full h-full object-cover aspect-[4/5] md:aspect-auto md:min-h-[520px] transition-transform duration-500 group-hover:scale-105" />
+            <Image src={large.image} alt="" loading="lazy"
+                    width={parseImgDimensions(large.image)?.width ?? 600}
+                    height={parseImgDimensions(large.image)?.height ?? 750}
+                    class="w-full h-full object-cover aspect-[4/5] md:aspect-auto md:min-h-[520px] transition-transform duration-500 group-hover:scale-105" />
             <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
             <span class="absolute bottom-0 left-0 p-6 text-white text-2xl font-semibold">{large.title}</span>
         </a>
         <div class="grid gap-4 md:gap-6">
             {small.map(tile => (
                 <a href={tile.href} class="group relative block overflow-hidden rounded-[--radius-card] bg-paper-soft">
-                    <img src={tile.image} alt="" {...parseImgDimensions(tile.image) ?? {}} loading="lazy"
-                        class="w-full h-full object-cover aspect-[16/10] md:min-h-[248px] transition-transform duration-500 group-hover:scale-105" />
+                    <Image src={tile.image} alt="" loading="lazy"
+                                width={parseImgDimensions(tile.image)?.width ?? 600}
+                                height={parseImgDimensions(tile.image)?.height ?? 375}
+                                class="w-full h-full object-cover aspect-[16/10] md:min-h-[248px] transition-transform duration-500 group-hover:scale-105" />
                     <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
                     <span class="absolute bottom-0 left-0 p-5 text-white text-xl font-semibold">{tile.title}</span>
                 </a>

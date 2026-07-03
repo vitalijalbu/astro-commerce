@@ -1,4 +1,6 @@
 ---
+import { Image } from 'astro:assets'
+import { parseImgDimensions } from '@utils/images'
 import type { AuthUser } from '@lib/auth'
 import { mainMenu, shop } from '@lib/navigation'
 import Icon from '@snippets/icon.astro'
@@ -64,7 +66,10 @@ const { user } = Astro.props
                                     </div>
                                     {item.promo && (
                                         <a href={item.promo.href} class="group relative w-56 shrink-0 overflow-hidden rounded-[--radius-card]">
-                                            <img src={item.promo.image} alt={item.promo.title} class="w-full h-full object-cover aspect-[4/5] transition-transform duration-500 group-hover:scale-105" />
+                                            <Image src={item.promo.image} alt={item.promo.title}
+                                width={parseImgDimensions(item.promo.image)?.width ?? 300}
+                                height={parseImgDimensions(item.promo.image)?.height ?? 375}
+                                class="w-full h-full object-cover aspect-[4/5] transition-transform duration-500 group-hover:scale-105" />
                                             <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
                                             <div class="absolute bottom-0 left-0 p-4 text-white">
                                                 {item.promo.eyebrow && <span class="eyebrow !text-white/80">{item.promo.eyebrow}</span>}
