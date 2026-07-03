@@ -1,7 +1,4 @@
 ---
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-
 interface Props {
     id?: string
     name?: string
@@ -27,14 +24,15 @@ const labelId = `${id}-label`
 
 <div class:list={['flex flex-col gap-1.5', className]} data-quantity-picker role="group" aria-labelledby={labelId}>
     <div class="flex items-center gap-2">
-        <Button
+        <button
             type="button"
-            variant="ghost"
+            class="btn"
+            data-variant="ghost"
             data-qty-dec
             aria-controls={id}
             aria-label="Decrease quantity"
-        >−</Button>
-        <Input
+        >−</button>
+        <input
             id={id}
             name={name}
             type="number"
@@ -44,15 +42,16 @@ const labelId = `${id}-label`
             value={value}
             data-quantity-input
             aria-label={label}
-            class="w-16 text-center"
+            class="input w-16 text-center"
         />
-        <Button
+        <button
             type="button"
-            variant="ghost"
+            class="btn"
+            data-variant="ghost"
             data-qty-inc
             aria-controls={id}
             aria-label="Increase quantity"
-        >+</Button>
+        >+</button>
     </div>
 </div>
 

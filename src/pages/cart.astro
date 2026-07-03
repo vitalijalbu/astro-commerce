@@ -3,8 +3,7 @@ import Layout from '@components/layout.astro'
 import ProductRecommendations from '@snippets/product-recommendations.astro'
 import SkeletonCartLine from '@snippets/skeleton-cart-line.astro'
 import SkeletonProductGrid from '@snippets/skeleton-product-grid.astro'
-import { Button } from '@/components/ui/button'
-import { Skeleton } from '@/components/ui/skeleton'
+
 
 const payments = ['Visa', 'Mastercard', 'Amex', 'PayPal', 'Apple Pay']
 ---
@@ -20,16 +19,16 @@ const payments = ['Visa', 'Mastercard', 'Amex', 'PayPal', 'Apple Pay']
                 <SkeletonCartLine />
             </ul>
             <aside class="h-fit border border-line rounded-lg p-6 bg-paper-soft flex flex-col gap-4">
-                <div class="h-5 w-1/2"><Skeleton class="h-full w-full" /></div>
-                <div class="h-16 w-full"><Skeleton class="h-full w-full" /></div>
-                <div class="h-4 w-full"><Skeleton class="h-full w-full" /></div>
-                <div class="h-10 w-full"><Skeleton class="h-full w-full" /></div>
+                <div class="h-5 w-1/2"><div class="skeleton h-full w-full"></div></div>
+                <div class="h-16 w-full"><div class="skeleton h-full w-full"></div></div>
+                <div class="h-4 w-full"><div class="skeleton h-full w-full"></div></div>
+                <div class="h-10 w-full"><div class="skeleton h-full w-full"></div></div>
             </aside>
         </div>
 
         <div data-page-cart-empty class="py-16 text-center" hidden>
             <p class="text-ink-soft mb-4">Your cart is empty.</p>
-            <Button as="a" href="/collections/all" variant="secondary">Continue shopping</Button>
+            <a href="/collections/all" class="btn" data-variant="secondary">Continue shopping</a>
         </div>
 
         <div data-page-cart-body class="grid lg:grid-cols-[1fr_360px] gap-10" hidden>
@@ -57,8 +56,8 @@ const payments = ['Visa', 'Mastercard', 'Amex', 'PayPal', 'Apple Pay']
                     <li>30-day returns on unworn items</li>
                     <li>Secure checkout with encrypted payments</li>
                 </ul>
-                <Button data-cart-checkout class="w-full">Checkout</Button>
-                <Button as="a" href="/collections/all" variant="secondary" class="w-full mt-2">Continue shopping</Button>
+                <button data-cart-checkout class="btn w-full">Checkout</button>
+                <a href="/collections/all" class="btn w-full mt-2" data-variant="secondary">Continue shopping</a>
 
                 <div class="mt-4 flex flex-wrap items-center justify-center gap-2 text-[11px] text-muted-foreground" aria-label="Accepted payment methods">
                     {payments.map(method => (

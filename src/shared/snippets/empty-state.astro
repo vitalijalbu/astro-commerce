@@ -1,6 +1,4 @@
 ---
-import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
 import Icon from './icon.astro'
 
 interface Props {
@@ -28,8 +26,8 @@ const {
 } = Astro.props
 ---
 
-<Card size="sm" class={`border-border ${className ?? ''}`.trim()}>
-    <CardContent>
+<div class={`card border-border ${className ?? ''}`.trim()}>
+    <div class="card-section">
         <section class="px-6 py-12 text-center md:px-10 md:py-16">
             <div class="mx-auto flex max-w-xl flex-col items-center gap-5">
                 {image ? (
@@ -47,13 +45,13 @@ const {
 
                 {(actionHref || secondaryHref) && (
                     <div class="flex flex-col gap-2 pt-2 sm:flex-row">
-                        {actionHref && actionLabel && <Button as="a" href={actionHref}>{actionLabel}</Button>}
+                        {actionHref && actionLabel && <a href={actionHref} class="btn">{actionLabel}</a>}
                         {secondaryHref && secondaryLabel && (
-                            <Button as="a" href={secondaryHref} variant="secondary">{secondaryLabel}</Button>
+                            <a href={secondaryHref} class="btn" data-variant="secondary">{secondaryLabel}</a>
                         )}
                     </div>
                 )}
             </div>
         </section>
-    </CardContent>
-</Card>
+    </div>
+</div>

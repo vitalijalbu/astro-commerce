@@ -183,19 +183,21 @@ export function initCart() {
 	if (toggle && toggle.dataset.cartBound !== 'true') {
 		toggle.dataset.cartBound = 'true';
 
-		// The cart drawer is a fulldev/ui Sheet (a headless dialog). Open it by
-		// dispatching the dialog's inbound `dialog:set` event on its root, and
-		// mirror the open state back onto the toggle via `dialog:change`.
-		const drawer = document.querySelector<HTMLElement>('#cart-drawer');
-		const setOpen = (open: boolean) =>
-			drawer?.dispatchEvent(new CustomEvent('dialog:set', { detail: { open } }));
+		const drawer = document.querySelector<HTMLDialogElement>('#cart-drawer');
+		const setOpen = (open: boolean) => {
+			if (!drawer) return;
+			if (open) {
+				drawer.showModal();
+			} else {
+				drawer.close();
+			}
+		};
 
 		toggle.addEventListener('click', () => setOpen(true));
 
-		drawer?.addEventListener('dialog:change', (event) => {
-			const open = (event as CustomEvent<{ open?: boolean }>).detail?.open === true;
-			toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
-			if (!open) toggle.focus();
+		drawer?.addEventListener('close', () => {
+			toggle.setAttribute('aria-expanded', 'false');
+			toggle.focus();
 		});
 
 		openDrawer = () => setOpen(true);

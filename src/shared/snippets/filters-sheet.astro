@@ -1,7 +1,4 @@
 ---
-import { Button } from '@/components/ui/button'
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
-
 interface Props {
     id: string
     title: string
@@ -20,23 +17,25 @@ const {
 ---
 
 <div class="lg:hidden">
-    <SheetTrigger variant="secondary" class={buttonClassName}>
+    <button type="button" class={`btn ${buttonClassName}`.trim()} data-variant="secondary" data-drawer-open={id}>
         {buttonLabel}
-    </SheetTrigger>
+    </button>
 
-    <Sheet id={id}>
-        <SheetContent side="left" class="max-w-[92vw]">
-            <SheetHeader>
-                <SheetTitle>{title}</SheetTitle>
+    <dialog class="drawer" data-side="left" id={id}>
+        <article>
+            <header>
+                <h3>{title}</h3>
                 {description && <p class="text-sm text-muted-foreground">{description}</p>}
-            </SheetHeader>
-            <div class="mt-4 flex flex-col gap-5">
-                <slot />
+            </header>
+            <section>
+                <div class="flex flex-col gap-5">
+                    <slot />
 
-                <Button type="button" variant="secondary" data-filters-close={id} class="w-full" data-slot="dialog-close">
-                    Close filters
-                </Button>
-            </div>
-        </SheetContent>
-    </Sheet>
+                    <button type="button" class="btn w-full" data-variant="secondary" data-drawer-close={id}>
+                        Close filters
+                    </button>
+                </div>
+            </section>
+        </article>
+    </dialog>
 </div>

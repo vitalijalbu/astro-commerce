@@ -4,9 +4,7 @@ import { formatBlogDate, getBlogPostBySlug, getRelatedBlogSummaries } from '@lib
 import BlogCard from '@snippets/blog-card.astro'
 import EmptyState from '@snippets/empty-state.astro'
 import JsonLd from '@snippets/json-ld.astro'
-import { Badge } from '@/components/ui/badge'
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb'
-import { Button } from '@/components/ui/button'
+
 
 const { slug } = Astro.params
 const post = getBlogPostBySlug(slug || '')
@@ -50,20 +48,20 @@ const articleSchema = post ? {
     <div class="page py-8 md:py-12">
         {post ? (
             <>
-                <Breadcrumb>
-                    <BreadcrumbList>
-                        <BreadcrumbItem><BreadcrumbLink href="/">Home</BreadcrumbLink></BreadcrumbItem>
-                        <BreadcrumbSeparator />
-                        <BreadcrumbItem><BreadcrumbLink href="/blog">Journal</BreadcrumbLink></BreadcrumbItem>
-                        <BreadcrumbSeparator />
-                        <BreadcrumbItem><BreadcrumbPage>{post.title}</BreadcrumbPage></BreadcrumbItem>
-                    </BreadcrumbList>
-                </Breadcrumb>
+                <nav class="breadcrumb">
+                    <ol>
+                        <li><a href="/">Home</a></li>
+                        <li>→</li>
+                        <li><a href="/blog">Journal</a></li>
+                        <li>→</li>
+                        <li aria-current="page">{post.title}</li>
+                    </ol>
+                </nav>
 
                 <article class="max-w-3xl mx-auto mt-6" aria-labelledby="article-title">
                     <header class="flex flex-col gap-4 mb-6">
                         <div class="flex flex-wrap items-center gap-2" aria-label="Article tags">
-                            {post.tags.map(tag => <Badge variant="outline">{tag}</Badge>)}
+                            {post.tags.map(tag => <span class="badge" data-variant="outline">{tag}</span>)}
                         </div>
 
                         <h1 id="article-title" class="text-4xl md:text-5xl font-semibold tracking-tight m-0">{post.title}</h1>
@@ -100,8 +98,8 @@ const articleSchema = post ? {
                     </div>
 
                     <div class="mt-10 pt-6 border-t border-line flex flex-wrap items-center gap-3">
-                        <Button as="a" href="/blog" variant="secondary">Back to journal</Button>
-                        <Button as="a" href="/collections/all">Shop latest arrivals</Button>
+                        <a href="/blog" class="btn" data-variant="secondary">Back to journal</a>
+                        <a href="/collections/all" class="btn">Shop latest arrivals</a>
                     </div>
                 </article>
 

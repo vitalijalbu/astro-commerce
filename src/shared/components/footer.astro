@@ -4,8 +4,6 @@ import Icon from '@snippets/icon.astro'
 /**
  * Dark, ecommerce-ready footer with newsletter, support links and trust signals.
  */
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 
 const year = new Date().getFullYear()
 
@@ -35,16 +33,17 @@ const payments = ['Visa', 'Mastercard', 'Amex', 'PayPal', 'Apple Pay']
 
                 <form data-footer-newsletter class="flex flex-col sm:flex-row gap-2 max-w-md" aria-label="Footer newsletter signup">
                     <div class="flex-1 input-on-dark">
-                        <Input
+                        <input
+                            class="input"
                             type="email"
                             name="email"
                             required
                             placeholder="Your email"
                             aria-label="Email address"
-                            {...{ autocomplete: 'email' }}
+                            autocomplete="email"
                         />
                     </div>
-                    <Button type="submit">Join</Button>
+                    <button type="submit" class="btn">Join</button>
                 </form>
                 <p data-footer-newsletter-success hidden class="m-0 text-sm text-white/75">Thank you. You're on the list.</p>
 

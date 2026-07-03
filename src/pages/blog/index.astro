@@ -2,10 +2,7 @@
 import Layout from '@components/layout.astro'
 import { getBlogSummaries, getBlogTags } from '@lib/blog'
 import BlogCard from '@snippets/blog-card.astro'
-import { Badge } from '@/components/ui/badge'
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
+
 
 const params = Astro.url.searchParams
 const query = (params.get('q') || '').trim().toLowerCase()
@@ -32,13 +29,12 @@ const clearHref = '/blog'
     type="website"
 >
     <div class="page py-8 md:py-12">
-        <Breadcrumb>
-            <BreadcrumbList>
-                <BreadcrumbItem><BreadcrumbLink href="/">Home</BreadcrumbLink></BreadcrumbItem>
-                <BreadcrumbSeparator />
-                <BreadcrumbItem><BreadcrumbPage>Journal</BreadcrumbPage></BreadcrumbItem>
-            </BreadcrumbList>
-        </Breadcrumb>
+        <nav class="breadcrumb" aria-label="Breadcrumb">
+            <ol>
+                <li><a href="/">Home</a></li>
+                <li aria-current="page">Journal</li>
+            </ol>
+        </nav>
 
         <header class="mt-6 mb-8 md:mb-10 flex flex-col gap-4">
             <h1 class="text-4xl md:text-5xl font-semibold tracking-tight m-0">Journal</h1>
@@ -46,20 +42,20 @@ const clearHref = '/blog'
 
             <form action="/blog" method="get" role="search" aria-label="Search journal articles" class="flex gap-2 max-w-xl">
                 <div class="flex-1">
-                    <Input type="search" name="q" value={query} placeholder="Search journal articles" aria-label="Search journal articles" />
+                    <input class="input" type="search" name="q" value={query} placeholder="Search journal articles" aria-label="Search journal articles" />
                 </div>
                 {selectedTag && <input type="hidden" name="tag" value={selectedTag} />}
-                <Button type="submit">Search</Button>
+                <button type="submit" class="btn">Search</button>
             </form>
         </header>
 
         <nav aria-label="Journal tags" class="flex flex-wrap items-center gap-2 mb-8">
             <a href={clearHref}>
-                <Badge variant={!selectedTag ? 'default' : 'outline'}>All</Badge>
+                <span class="badge" data-variant={!selectedTag ? 'default' : 'outline'}>All</span>
             </a>
             {tags.map(tag => (
                 <a href={`/blog?tag=${encodeURIComponent(tag)}`}>
-                    <Badge variant={selectedTag === tag ? 'default' : 'outline'}>{tag}</Badge>
+                    <span class="badge" data-variant={selectedTag === tag ? 'default' : 'outline'}>{tag}</span>
                 </a>
             ))}
         </nav>
@@ -89,7 +85,7 @@ const clearHref = '/blog'
         ) : (
             <section class="py-14 text-center border border-line rounded-lg bg-paper-soft">
                 <p class="text-ink-soft mb-4">No articles matched this filter.</p>
-                <Button as="a" href="/blog" variant="secondary">View all journal articles</Button>
+                <a href="/blog" class="btn" data-variant="secondary">View all journal articles</a>
             </section>
         )}
     </div>

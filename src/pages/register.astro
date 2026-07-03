@@ -1,9 +1,7 @@
 ---
 import Layout from '@components/layout.astro'
 import { register, requireGuest } from '@lib/auth'
-import { Alert } from '@/components/ui/alert'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
+
 
 const guard = requireGuest(Astro)
 if (guard) return guard
@@ -33,33 +31,33 @@ if (Astro.request.method === 'POST') {
             <h1 class="text-3xl font-semibold tracking-tight text-center mb-2">Create your account</h1>
             <p class="text-center text-ink-soft mb-8">Faster checkout, order history and saved details.</p>
 
-            {error && <div class="mb-4"><Alert variant="destructive">{error}</Alert></div>}
+            {error && <div class="mb-4"><div class="alert" data-variant="destructive">{error}</div></div>}
 
             <form method="post" class="flex flex-col gap-4">
                 <div class="grid grid-cols-2 gap-4">
                     <label class="flex flex-col gap-1.5 text-sm font-medium">
                         First name
-                        <Input name="firstName" required {...{ autocomplete: 'given-name' }} />
+                        <input name="firstName" required autocomplete="given-name" class="input" />
                     </label>
                     <label class="flex flex-col gap-1.5 text-sm font-medium">
                         Last name
-                        <Input name="lastName" required {...{ autocomplete: 'family-name' }} />
+                        <input name="lastName" required autocomplete="family-name" class="input" />
                     </label>
                 </div>
                 <label class="flex flex-col gap-1.5 text-sm font-medium">
                     Email
-                    <Input type="email" name="email" placeholder="you@example.com" required {...{ autocomplete: 'email' }} />
+                    <input type="email" name="email" placeholder="you@example.com" required autocomplete="email" class="input" />
                 </label>
                 <label class="flex flex-col gap-1.5 text-sm font-medium">
                     Password
-                    <Input type="password" name="password" placeholder="At least 8 characters" required {...{ autocomplete: 'new-password' }} />
+                    <input type="password" name="password" placeholder="At least 8 characters" required autocomplete="new-password" class="input" />
                     <span class="text-xs text-muted-foreground">At least 8 characters</span>
                 </label>
                 <label class="inline-flex items-center gap-2 text-sm text-ink-soft">
                     <input type="checkbox" name="newsletter" role="checkbox" data-slot="checkbox" />
                     Email me about new arrivals and offers
                 </label>
-                <Button type="submit" class="w-full">Create account</Button>
+                <button type="submit" class="btn w-full">Create account</button>
             </form>
 
             <p class="text-center text-sm text-ink-soft mt-6">

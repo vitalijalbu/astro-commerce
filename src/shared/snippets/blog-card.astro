@@ -1,8 +1,4 @@
 ---
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
-
 interface BlogCardData {
     title: string
     excerpt: string
@@ -24,7 +20,7 @@ const { post, variant = 'default', showButton = true } = Astro.props
 const feature = variant === 'feature'
 ---
 
-<Card size="sm" class="border-border overflow-hidden h-full">
+<div class="card border-border overflow-hidden h-full">
     <article class:list={[feature && 'grid md:grid-cols-2']} aria-label={post.title}>
         <a href={post.href} class="block group" aria-label={`Open article: ${post.title}`}>
             <div class:list={['overflow-hidden bg-paper-soft', feature ? 'aspect-4/3 md:aspect-auto md:h-full' : 'aspect-[3/2]']}>
@@ -51,15 +47,15 @@ const feature = variant === 'feature'
 
             {post.tags && post.tags.length > 0 && (
                 <div class="flex flex-wrap gap-2 pt-1" aria-label="Article tags">
-                    {post.tags.slice(0, 3).map(tag => <Badge variant="outline">{tag}</Badge>)}
+                    {post.tags.slice(0, 3).map(tag => <span class="badge">{tag}</span>)}
                 </div>
             )}
 
             {showButton && (
                 <div class="pt-2">
-                    <Button as="a" href={post.href} variant="secondary">Read article</Button>
+                    <a href={post.href} class="btn" data-variant="secondary">Read article</a>
                 </div>
             )}
         </div>
     </article>
-</Card>
+</div>

@@ -1,53 +1,50 @@
 ---
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet'
-
 const popular = ['Linen', 'Knitwear', 'Loafers', 'Tote bag', 'Sale']
 ---
 
-<Sheet id="search-sheet">
-    <SheetContent side="top">
-        <SheetHeader>
-            <SheetTitle>Search</SheetTitle>
-        </SheetHeader>
-        <form action="/search" method="get" class="mt-2 flex gap-2">
-            <div class="flex-1">
-                <Input
-                    type="search"
-                    name="q"
-                    placeholder="Search products…"
-                    aria-label="Search products"
-                    {...{ autocomplete: 'off' }}
-                />
+<dialog id="search-sheet" class="drawer" data-side="top" aria-labelledby="search-sheet-title">
+    <article>
+        <header>
+            <h2 id="search-sheet-title">Search</h2>
+        </header>
+        <section class="px-4">
+            <form action="/search" method="get" class="flex gap-2">
+                <div class="flex-1">
+                    <input
+                        class="input w-full"
+                        type="search"
+                        name="q"
+                        placeholder="Search products…"
+                        aria-label="Search products"
+                        autocomplete="off"
+                    />
+                </div>
+                <button type="submit" class="btn">Search</button>
+            </form>
+            <div class="mt-4 flex flex-wrap items-center gap-2">
+                <span class="text-sm text-muted-foreground">Popular:</span>
+                {popular.map(term => (
+                    <a href={`/search?q=${encodeURIComponent(term)}`} class="text-sm link-underline">{term}</a>
+                ))}
             </div>
-            <Button type="submit">Search</Button>
-        </form>
-        <div class="mt-4 flex flex-wrap items-center gap-2">
-            <span class="text-sm text-muted-foreground">Popular:</span>
-            {popular.map(term => (
-                <a href={`/search?q=${encodeURIComponent(term)}`} class="text-sm link-underline">{term}</a>
-            ))}
-        </div>
-    </SheetContent>
-</Sheet>
+        </section>
+    </article>
+</dialog>
 
 <script>
     const trigger = document.querySelector<HTMLElement>('[data-search-toggle]')
-    const dialog = document.querySelector<HTMLElement>('#search-sheet')
+    const dialog = document.querySelector<HTMLDialogElement>('#search-sheet')
 
-    if (trigger && dialog && !trigger.dataset.fulldevBound) {
-        trigger.dataset.fulldevBound = 'true'
+    if (trigger && dialog) {
+        trigger.addEventListener('click', () => dialog.showModal())
 
-        dialog.addEventListener('dialog:change', (e: Event) => {
-            const detail = (e as CustomEvent<{ open?: boolean }>).detail
-            if (detail?.open) {
-                trigger.setAttribute('aria-expanded', 'true')
-                setTimeout(() => document.querySelector<HTMLInputElement>('#search-sheet input')?.focus(), 50)
-            } else {
-                trigger.setAttribute('aria-expanded', 'false')
-                trigger.focus()
-            }
+        dialog.addEventListener('close', () => {
+            trigger.setAttribute('aria-expanded', 'false')
+            trigger.focus()
+        })
+
+        dialog.addEventListener('click', (e) => {
+            if (e.target === dialog) dialog.close()
         })
     }
 </script>

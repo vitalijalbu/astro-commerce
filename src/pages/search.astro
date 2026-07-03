@@ -8,9 +8,7 @@ import Layout from '@components/layout.astro'
 import { parsePageParam } from '@lib/paginate'
 import SearchResults from '@snippets/search-results.astro'
 import SkeletonProductGrid from '@snippets/skeleton-product-grid.astro'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Skeleton } from '@/components/ui/skeleton'
+
 
 const params = Astro.url.searchParams
 const query = (params.get('q') || '').trim()
@@ -39,9 +37,9 @@ const maxPrice = parsePrice(params.get('max'))
 
             <form action="/search" method="get" class="mt-6 flex gap-2" role="search" aria-label="Catalog search">
                 <div class="flex-1">
-                    <Input type="search" name="q" value={query} placeholder="Search products…" aria-label="Search products" autofocus />
+                    <input class="input" type="search" name="q" value={query} placeholder="Search products…" aria-label="Search products" autofocus />
                 </div>
-                <Button type="submit">Search</Button>
+                <button type="submit" class="btn">Search</button>
             </form>
         </div>
 
@@ -59,10 +57,10 @@ const maxPrice = parsePrice(params.get('max'))
             <div slot="fallback" class="grid lg:grid-cols-[280px_1fr] gap-8 items-start" aria-hidden="true">
                 <aside class="hidden lg:block rounded-[--radius-card] border border-line bg-paper-soft p-5 md:p-6 h-fit">
                     <div class="flex flex-col gap-4">
-                        <div class="h-5 w-1/2"><Skeleton class="h-full w-full" /></div>
-                        <div class="h-9 w-full"><Skeleton class="h-full w-full" /></div>
-                        <div class="h-9 w-full"><Skeleton class="h-full w-full" /></div>
-                        <div class="h-9 w-full"><Skeleton class="h-full w-full" /></div>
+                        <div class="h-5 w-1/2"><div class="skeleton h-full w-full"></div></div>
+                        <div class="h-9 w-full"><div class="skeleton h-full w-full"></div></div>
+                        <div class="h-9 w-full"><div class="skeleton h-full w-full"></div></div>
+                        <div class="h-9 w-full"><div class="skeleton h-full w-full"></div></div>
                     </div>
                 </aside>
                 <SkeletonProductGrid count={6} columns={3} />

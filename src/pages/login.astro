@@ -1,9 +1,7 @@
 ---
 import Layout from '@components/layout.astro'
 import { login, requireGuest } from '@lib/auth'
-import { Alert } from '@/components/ui/alert'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
+
 
 const guard = requireGuest(Astro)
 if (guard) return guard
@@ -29,16 +27,16 @@ if (Astro.request.method === 'POST') {
             <h1 class="text-3xl font-semibold tracking-tight text-center mb-2">Welcome back</h1>
             <p class="text-center text-ink-soft mb-8">Sign in to your account to continue.</p>
 
-            {error && <div class="mb-4"><Alert variant="destructive">{error}</Alert></div>}
+            {error && <div class="mb-4"><div class="alert" data-variant="destructive">{error}</div></div>}
 
             <form method="post" class="flex flex-col gap-4">
                 <label class="flex flex-col gap-1.5 text-sm font-medium">
                     Email
-                    <Input type="email" name="email" placeholder="you@example.com" required {...{ autocomplete: 'email' }} />
+                    <input type="email" name="email" placeholder="you@example.com" required autocomplete="email" class="input" />
                 </label>
                 <label class="flex flex-col gap-1.5 text-sm font-medium">
                     Password
-                    <Input type="password" name="password" placeholder="••••••••" required {...{ autocomplete: 'current-password' }} />
+                    <input type="password" name="password" placeholder="••••••••" required autocomplete="current-password" class="input" />
                 </label>
                 <div class="flex items-center justify-between">
                     <label class="inline-flex items-center gap-2 text-sm text-ink-soft">
@@ -47,7 +45,7 @@ if (Astro.request.method === 'POST') {
                     </label>
                     <a href="/account/recover" class="text-sm link-underline">Forgot password?</a>
                 </div>
-                <Button type="submit" class="w-full">Sign in</Button>
+                <button type="submit" class="btn w-full">Sign in</button>
             </form>
 
             <p class="text-center text-sm text-ink-soft mt-6">

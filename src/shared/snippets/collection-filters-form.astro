@@ -1,7 +1,4 @@
 ---
-import { Button } from '@/components/ui/button'
-import { Slider } from '@/components/ui/slider'
-
 interface SubCollectionLink {
     handle: string
     title: string
@@ -70,7 +67,7 @@ const formatTag = (tag: string): string => tag
             <div class="flex flex-col gap-2">
                 {allTags.map(tag => (
                     <label class="inline-flex items-center gap-2 text-sm text-ink-soft">
-                        <input type="checkbox" name="tag" value={tag} checked={selectedTags.includes(tag)} role="checkbox" data-slot="checkbox" />
+                        <input type="checkbox" name="tag" value={tag} checked={selectedTags.includes(tag)} role="checkbox" />
                         {formatTag(tag)}
                     </label>
                 ))}
@@ -81,7 +78,7 @@ const formatTag = (tag: string): string => tag
     <fieldset class="m-0 flex flex-col gap-2 border-0 p-0">
         <legend class="mb-1 text-sm font-medium">Availability</legend>
         <label class="inline-flex items-center gap-2 text-sm text-ink-soft">
-            <input type="checkbox" name="available" value="1" checked={onlyAvailable} role="checkbox" data-slot="checkbox" />
+            <input type="checkbox" name="available" value="1" checked={onlyAvailable} role="checkbox" />
             In stock only
         </label>
     </fieldset>
@@ -92,15 +89,13 @@ const formatTag = (tag: string): string => tag
             <span>€{sliderMin}</span>
             <span>€{sliderMax}</span>
         </div>
-        <Slider
-            defaultValue={[sliderMin, sliderMax]}
-            min={priceFloor}
-            max={priceCeiling}
-            step={1}
-        />
+        <div class="flex flex-col gap-2">
+            <input type="range" min={priceFloor} max={priceCeiling} step={1} value={sliderMin} data-price-min class="w-full" aria-label="Minimum price" />
+            <input type="range" min={priceFloor} max={priceCeiling} step={1} value={sliderMax} data-price-max class="w-full" aria-label="Maximum price" />
+        </div>
         <input type="hidden" name="price" value={sliderMin} data-price-min />
         <input type="hidden" name="price" value={sliderMax} data-price-max />
     </fieldset>
 
-    <Button type="submit" class="w-full">Apply filters</Button>
+    <button type="submit" class="btn w-full">Apply filters</button>
 </form>

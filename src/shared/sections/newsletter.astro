@@ -1,8 +1,6 @@
 ---
 import type { NewsletterSection } from '@lib/sections'
 import Section from '@snippets/section.astro'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 
 interface Props {
     section: NewsletterSection
@@ -19,7 +17,8 @@ const s = section.settings
 
         <form data-newsletter class="w-full flex flex-col sm:flex-row gap-2 mt-2">
             <div class="flex-1 input-on-dark">
-                <Input
+                <input
+                    class="input"
                     type="email"
                     name="email"
                     required
@@ -27,7 +26,7 @@ const s = section.settings
                     aria-label="Email address"
                 />
             </div>
-            <Button type="submit">{s.buttonLabel ?? 'Subscribe'}</Button>
+            <button type="submit" class="btn">{s.buttonLabel ?? 'Subscribe'}</button>
         </form>
         <p data-newsletter-success hidden class="text-sm opacity-80 m-0">Thanks — you're on the list!</p>
     </div>

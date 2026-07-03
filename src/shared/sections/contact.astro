@@ -3,9 +3,6 @@ import { shop } from '@lib/navigation'
 import type { ContactSection } from '@lib/sections'
 import Section from '@snippets/section.astro'
 import SectionHeading from '@snippets/section-heading.astro'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
 
 interface Props {
     section: ContactSection
@@ -29,23 +26,23 @@ const s = section.settings
             <div class="grid sm:grid-cols-2 gap-4">
                 <label class="flex flex-col gap-1.5 text-sm font-medium">
                     Name
-                    <Input name="name" required {...{ autocomplete: 'name' }} />
+                    <input class="input" name="name" required {...{ autocomplete: 'name' }} />
                 </label>
                 <label class="flex flex-col gap-1.5 text-sm font-medium">
                     Email
-                    <Input type="email" name="email" required {...{ autocomplete: 'email' }} />
+                    <input class="input" type="email" name="email" required {...{ autocomplete: 'email' }} />
                 </label>
             </div>
             <label class="flex flex-col gap-1.5 text-sm font-medium">
                 Subject
-                <Input name="subject" />
+                <input class="input" name="subject" />
             </label>
             <label class="flex flex-col gap-1.5 text-sm font-medium">
                 Message
-                <Textarea name="message" rows={5} required />
+                <textarea class="textarea" name="message" rows={5} required></textarea>
             </label>
             <div class="flex items-center gap-3">
-                <Button type="submit">Send message</Button>
+                <button type="submit" class="btn">Send message</button>
                 <span data-contact-success hidden class="text-sm text-accent">Thanks — we'll be in touch soon.</span>
             </div>
         </form>

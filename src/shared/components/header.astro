@@ -2,8 +2,6 @@
 import type { AuthUser } from '@lib/auth'
 import { mainMenu, shop } from '@lib/navigation'
 import Icon from '@snippets/icon.astro'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
 import UserDropdown from './user-dropdown.astro'
 
 interface Props {
@@ -122,25 +120,24 @@ const { user } = Astro.props
                 </a>
             )}
 
-            <Button
+            <button
                 type="button"
                 data-cart-toggle
                 aria-label="Open cart"
                 aria-haspopup="dialog"
                 aria-controls="cart-drawer"
                 aria-expanded="false"
-                variant="ghost"
-                class="relative"
+                class="btn relative"
+                data-variant="ghost"
             >
                 <Icon type="cart" size={20} />
-                <Badge
-                    as="span"
+                <span
                     data-cart-count
                     hidden
                     aria-hidden="true"
-                    class="absolute -top-0.5 -right-0.5"
-                >0</Badge>
-            </Button>
+                    class="badge absolute -top-0.5 -right-0.5"
+                >0</span>
+            </button>
         </div>
     </div>
 </header>

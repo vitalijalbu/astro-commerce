@@ -2,18 +2,18 @@
 import Layout from '@components/layout.astro'
 import { homepageBrands } from '@lib/sections'
 import BrandLogos from '@sections/brand-logos.astro'
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb'
+
 ---
 
 <Layout title="Brands — ATELIER" description="All partner brands and labels available across the ATELIER catalog.">
     <div class="page py-8 md:py-12">
-        <Breadcrumb>
-            <BreadcrumbList>
-                <BreadcrumbItem><BreadcrumbLink href="/">Home</BreadcrumbLink></BreadcrumbItem>
-                <BreadcrumbSeparator />
-                <BreadcrumbItem><BreadcrumbPage>Brands</BreadcrumbPage></BreadcrumbItem>
-            </BreadcrumbList>
-        </Breadcrumb>
+        <nav class="breadcrumb">
+            <ol>
+                <li><a href="/">Home</a></li>
+                <li>→</li>
+                <li aria-current="page">Brands</li>
+            </ol>
+        </nav>
     </div>
 
     <BrandLogos section={{

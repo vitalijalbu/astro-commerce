@@ -2,7 +2,6 @@
 import type { FaqSection } from '@lib/sections'
 import Section from '@snippets/section.astro'
 import SectionHeading from '@snippets/section-heading.astro'
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
 
 interface Props {
     section: FaqSection
@@ -15,15 +14,11 @@ const s = section.settings
 <Section spacing="md" background={section.background} id={section.id}>
     <div class="max-w-3xl mx-auto">
         <SectionHeading heading={s.heading} subheading={s.subheading} align="center" />
-        <Accordion collapsible>
-            {s.items.map(item => (
-                <AccordionItem value={item.title}>
-                    <AccordionTrigger>{item.title}</AccordionTrigger>
-                    <AccordionContent>
-                        <p>{item.content}</p>
-                    </AccordionContent>
-                </AccordionItem>
-            ))}
-        </Accordion>
+        {s.items.map(item => (
+            <details class="accordion">
+                <summary>{item.title}</summary>
+                <p>{item.content}</p>
+            </details>
+        ))}
     </div>
 </Section>

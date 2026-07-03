@@ -10,9 +10,7 @@ import { requireAuth } from '@lib/auth'
 import { getOrderById, orderItemCount, orderSubtotal, orderTotal } from '@lib/orders'
 import Icon from '@snippets/icon.astro'
 import { formatMoney } from '@utils/format'
-import { Badge } from '@/components/ui/badge'
-import type { BadgeVariantProps } from '@/components/ui/badge/badge-variants'
-import { Button } from '@/components/ui/button'
+
 
 const guard = requireAuth(Astro)
 if (guard) return guard
@@ -24,7 +22,7 @@ if (!order) {
     Astro.response.status = 404
 }
 
-const statusTheme: Record<string, BadgeVariantProps['variant']> = {
+const statusTheme: Record<string, string> = {
     Delivered: 'default', Shipped: 'secondary', Processing: 'outline', Cancelled: 'destructive'
 }
 const money = (amount: number) => formatMoney({ amount, currencyCode: order?.currency || 'EUR' })
@@ -47,7 +45,7 @@ const money = (amount: number) => formatMoney({ amount, currencyCode: order?.cur
                         <p class="text-2xl font-semibold">{order.number}</p>
                         <p class="text-sm text-ink-soft">Placed on {order.date} · {orderItemCount(order)} items</p>
                     </div>
-                    <Badge variant={statusTheme[order.status]}>{order.status}</Badge>
+                    <span class="badge" data-variant={statusTheme[order.status]}>{order.status}</span>
                 </div>
 
                 <div class="border border-line rounded-[--radius-card] overflow-hidden mb-8">
@@ -101,7 +99,7 @@ const money = (amount: number) => formatMoney({ amount, currencyCode: order?.cur
             <div class="max-w-md py-10 text-center">
                 <p class="text-lg font-medium mb-2">Order not found</p>
                 <p class="text-ink-soft mb-6">We couldn't find an order with that reference.</p>
-                <a href="/account/orders"><Button variant="secondary">Back to orders</Button></a>
+                <a href="/account/orders" class="btn" data-variant="secondary">Back to orders</a>
             </div>
         )}
     </div>

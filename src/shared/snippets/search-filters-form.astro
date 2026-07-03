@@ -1,6 +1,4 @@
 ---
-import { Button } from '@/components/ui/button'
-
 interface Props {
     query: string
     vendors: string[]
@@ -84,5 +82,5 @@ const clearHref = query ? `/search?q=${encodeURIComponent(query)}` : '/search'
         </div>
     </fieldset>
 
-    <Button type="submit" class="w-full">Apply filters</Button>
+    <button type="submit" class="btn w-full">Apply filters</button>
 </form>

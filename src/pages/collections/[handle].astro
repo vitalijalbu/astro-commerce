@@ -13,9 +13,7 @@ import { parsePageParam } from '@lib/paginate'
 import type { Collection } from '@lib/types'
 import CollectionResults from '@snippets/collection-results.astro'
 import SkeletonProductGrid from '@snippets/skeleton-product-grid.astro'
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Skeleton } from '@/components/ui/skeleton'
+
 
 const humanize = (value: string): string => value
     .split('-')
@@ -87,15 +85,13 @@ const sortItems = [
     description={collection.description || `Shop ${collection.title}`}
 >
     <div class="page py-8 md:py-10">
-        <Breadcrumb>
-            <BreadcrumbList>
-                <BreadcrumbItem><BreadcrumbLink href="/">Home</BreadcrumbLink></BreadcrumbItem>
-                <BreadcrumbSeparator />
-                <BreadcrumbItem><BreadcrumbLink href="/collections">Collections</BreadcrumbLink></BreadcrumbItem>
-                <BreadcrumbSeparator />
-                <BreadcrumbItem><BreadcrumbPage>{collection.title}</BreadcrumbPage></BreadcrumbItem>
-            </BreadcrumbList>
-        </Breadcrumb>
+        <nav class="breadcrumb" aria-label="Breadcrumb">
+            <ol>
+                <li><a href="/">Home</a></li>
+                <li><a href="/collections">Collections</a></li>
+                <li aria-current="page">{collection.title}</li>
+            </ol>
+        </nav>
 
         <div class="mt-6 flex flex-col md:flex-row md:items-end md:justify-between gap-4">
             <div>
@@ -119,16 +115,11 @@ const sortItems = [
                 <input type="hidden" name="sort" value={sort} data-sort-input />
 
                 <div class="min-w-56">
-                    <Select defaultValue={sort} placeholder="Sort" class="w-full" data-collection-sort>
-                        <SelectTrigger class="w-full" aria-label="Sort">
-                            <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                            {sortItems.map(item => (
-                                <SelectItem value={item.value}>{item.name}</SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
+                    <select name="sort" data-collection-sort class="select w-full" aria-label="Sort">
+                        {sortItems.map(item => (
+                            <option value={item.value} selected={sort === item.value}>{item.name}</option>
+                        ))}
+                    </select>
                 </div>
             </form>
         </div>
@@ -148,10 +139,10 @@ const sortItems = [
             <div slot="fallback" class="mt-8 grid lg:grid-cols-[280px_1fr] gap-8 items-start" aria-hidden="true">
                 <aside class="hidden lg:block rounded-[--radius-card] border border-line bg-paper-soft p-5 md:p-6 h-fit">
                     <div class="flex flex-col gap-4">
-                        <div class="h-5 w-1/2"><Skeleton class="h-full w-full" /></div>
-                        <div class="h-9 w-full"><Skeleton class="h-full w-full" /></div>
-                        <div class="h-9 w-full"><Skeleton class="h-full w-full" /></div>
-                        <div class="h-24 w-full"><Skeleton class="h-full w-full" /></div>
+                        <div class="h-5 w-1/2"><div class="skeleton h-full w-full"></div></div>
+                        <div class="h-9 w-full"><div class="skeleton h-full w-full"></div></div>
+                        <div class="h-9 w-full"><div class="skeleton h-full w-full"></div></div>
+                        <div class="h-24 w-full"><div class="skeleton h-full w-full"></div></div>
                     </div>
                 </aside>
                 <SkeletonProductGrid count={6} columns={3} />
@@ -162,34 +153,11 @@ const sortItems = [
 
 <script>
     const bindCollectionSort = () => {
-        const scopedWindow = window as Window & { __collectionSortBound?: boolean }
-
-        if (scopedWindow.__collectionSortBound) {
-            return
-        }
-
-        scopedWindow.__collectionSortBound = true
-
-        document.addEventListener('select:change', (event: Event) => {
-            const select = event.target
-            if (!(select instanceof HTMLElement) || !select.matches('[data-collection-sort]')) {
-                return
-            }
-
-            const detail = (event as CustomEvent<{ value?: string }>).detail
-            if (typeof detail?.value !== 'string') {
-                return
-            }
-
-            const form = select.closest<HTMLFormElement>('[data-collection-sort-form]')
-            const sortInput = form?.querySelector<HTMLInputElement>('[data-sort-input]')
-            if (!form || !sortInput) {
-                return
-            }
-
-            sortInput.value = detail.value
-            form.requestSubmit()
-        })
+        const form = document.querySelector<HTMLFormElement>('[data-collection-sort-form]')
+        const select = form?.querySelector<HTMLSelectElement>('[data-collection-sort]')
+        if (!select || select.dataset.bound === 'true') return
+        select.dataset.bound = 'true'
+        select.addEventListener('change', () => form?.requestSubmit())
     }
 
     bindCollectionSort()

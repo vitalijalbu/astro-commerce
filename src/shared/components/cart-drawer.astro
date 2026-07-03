@@ -1,17 +1,14 @@
 ---
 import SkeletonCartLine from '@snippets/skeleton-cart-line.astro'
-import { Button } from '@/components/ui/button'
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 ---
 
-<Sheet id="cart-drawer">
-    <SheetContent side="right" class="w-full! gap-0 sm:max-w-md!">
-        <SheetHeader>
-            <SheetTitle>Your cart</SheetTitle>
-        </SheetHeader>
-
-        <div class="min-h-0 flex-1 overflow-y-auto px-4">
-            <ul data-cart-loading class="list-none p-0 m-0 mt-2">
+<dialog id="cart-drawer" class="drawer" data-side="right" aria-labelledby="cart-drawer-title">
+    <article class="w-full sm:max-w-md!">
+        <header>
+            <h2 id="cart-drawer-title">Your cart</h2>
+        </header>
+        <section class="px-4 min-h-0 flex-1 overflow-y-auto">
+            <ul data-cart-loading class="list-none p-0 m-0">
                 <SkeletonCartLine compact />
                 <SkeletonCartLine compact />
                 <SkeletonCartLine compact />
@@ -19,15 +16,12 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sh
 
             <div data-cart-empty hidden class="py-16 text-center">
                 <p class="text-muted-foreground">Your cart is empty.</p>
-                <Button as="a" href="/collections/all" variant="secondary" class="mt-4">
-                    Continue shopping
-                </Button>
+                <a href="/collections/all" class="btn mt-4" data-variant="secondary">Continue shopping</a>
             </div>
 
-            <ul data-cart-lines class="list-none p-0 m-0 mt-2"></ul>
-        </div>
-
-        <div data-cart-footer hidden class="mt-auto border-t border-line p-4">
+            <ul data-cart-lines class="list-none p-0 m-0"></ul>
+        </section>
+        <footer data-cart-footer hidden class="border-t border-line px-4 pb-4">
             <div class="mb-4 rounded-lg bg-paper-soft p-4">
                 <div class="mb-2 flex items-center justify-between gap-3 text-sm">
                     <span class="font-medium">Free shipping progress</span>
@@ -50,9 +44,9 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sh
                 <li>Secure checkout with encrypted payments</li>
             </ul>
             <div class="flex flex-col gap-2">
-                <Button data-cart-checkout>Checkout</Button>
-                <Button as="a" href="/cart" variant="secondary">View cart</Button>
+                <button data-cart-checkout class="btn w-full">Checkout</button>
+                <a href="/cart" class="btn w-full" data-variant="secondary">View cart</a>
             </div>
-        </div>
-    </SheetContent>
-</Sheet>
+        </footer>
+    </article>
+</dialog>

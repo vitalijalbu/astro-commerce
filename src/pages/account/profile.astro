@@ -13,11 +13,7 @@ import AddressModal from '@components/address-modal.astro'
 import Layout from '@components/layout.astro'
 import { deleteAddress, getAddresses, upsertAddress } from '@lib/addresses'
 import { getCurrentUser, requireAuth } from '@lib/auth'
-import { Alert, AlertTitle } from '@/components/ui/alert'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { Input } from '@/components/ui/input'
+
 
 const guard = requireAuth(Astro)
 if (guard) return guard
@@ -103,7 +99,7 @@ const passwordError = passwordErrors[params.get('err') ?? '']
         <h1 class="text-3xl font-semibold tracking-tight mb-6">Profile</h1>
         <AccountNav active="/account/profile" />
 
-        {okMessage && <div class="mb-6 max-w-lg"><Alert><AlertTitle>{okMessage}</AlertTitle></Alert></div>}
+        {okMessage && <div class="mb-6 max-w-lg"><div class="alert"><div class="alert-title">{okMessage}</div></div></div>}
 
         <!-- Personal details -->
         <section class="max-w-lg">
@@ -113,20 +109,20 @@ const passwordError = passwordErrors[params.get('err') ?? '']
                 <div class="grid grid-cols-2 gap-4">
                     <label class="flex flex-col gap-1.5 text-sm font-medium">
                         First name
-                        <Input name="firstName" value={user.firstName} />
+                        <input class="input" name="firstName" value={user.firstName} />
                     </label>
                     <label class="flex flex-col gap-1.5 text-sm font-medium">
                         Last name
-                        <Input name="lastName" value={user.lastName} />
+                        <input class="input" name="lastName" value={user.lastName} />
                     </label>
                 </div>
                 <label class="flex flex-col gap-1.5 text-sm font-medium">
                     Email
-                    <Input type="email" name="email" value={user.email} />
+                    <input class="input" type="email" name="email" value={user.email} />
                 </label>
                 <div class="flex gap-2 mt-2">
-                    <Button type="submit">Save changes</Button>
-                    <Button as="a" href="/logout" variant="secondary">Sign out</Button>
+                    <button type="submit" class="btn">Save changes</button>
+                    <a href="/logout" class="btn" data-variant="secondary">Sign out</a>
                 </div>
             </form>
         </section>
@@ -134,23 +130,23 @@ const passwordError = passwordErrors[params.get('err') ?? '']
         <!-- Change password -->
         <section id="password" class="max-w-lg mt-12 pt-12 border-t border-line">
             <h2 class="text-xl font-semibold mb-4">Change password</h2>
-            {passwordError && <div class="mb-4"><Alert variant="destructive"><AlertTitle>{passwordError}</AlertTitle></Alert></div>}
+            {passwordError && <div class="mb-4"><div class="alert" data-variant="destructive"><div class="alert-title">{passwordError}</div></div></div>}
             <form method="post" class="flex flex-col gap-4">
                 <input type="hidden" name="intent" value="password" />
                 <label class="flex flex-col gap-1.5 text-sm font-medium">
                     Current password
-                    <Input type="password" name="currentPassword" required {...{ autocomplete: 'current-password' }} />
+                    <input class="input" type="password" name="currentPassword" required {...{ autocomplete: 'current-password' }} />
                 </label>
                 <label class="flex flex-col gap-1.5 text-sm font-medium">
                     New password
-                    <Input type="password" name="newPassword" required {...{ autocomplete: 'new-password' }} />
+                    <input class="input" type="password" name="newPassword" required {...{ autocomplete: 'new-password' }} />
                     <span class="text-xs font-normal text-ink-soft">At least 8 characters.</span>
                 </label>
                 <label class="flex flex-col gap-1.5 text-sm font-medium">
                     Confirm new password
-                    <Input type="password" name="confirmPassword" required {...{ autocomplete: 'new-password' }} />
+                    <input class="input" type="password" name="confirmPassword" required {...{ autocomplete: 'new-password' }} />
                 </label>
-                <div class="mt-2"><Button type="submit">Update password</Button></div>
+                <div class="mt-2"><button type="submit" class="btn">Update password</button></div>
             </form>
         </section>
 
@@ -158,7 +154,7 @@ const passwordError = passwordErrors[params.get('err') ?? '']
         <section id="addresses" data-address-section class="max-w-lg mt-12 pt-12 border-t border-line">
             <div class="flex items-center justify-between mb-4">
                 <h2 class="text-xl font-semibold">Addresses</h2>
-                <Button type="button" variant="secondary" size="sm" data-open-modal="addr-new">Add address</Button>
+                <button type="button" class="btn" data-variant="secondary" data-size="sm" data-open-modal="addr-new">Add address</button>
             </div>
 
             {addresses.length === 0 ? (
@@ -170,7 +166,7 @@ const passwordError = passwordErrors[params.get('err') ?? '']
                             <div class="text-sm leading-relaxed">
                                 <p class="font-medium flex items-center gap-2 mb-0.5">
                                     {a.firstName} {a.lastName}
-                                    {a.isDefault && <Badge variant="secondary">Default</Badge>}
+                                    {a.isDefault && <span class="badge" data-variant="secondary">Default</span>}
                                 </p>
                                 {a.company && <p class="text-ink-soft">{a.company}</p>}
                                 <p class="text-ink-soft">{a.line1}{a.line2 ? `, ${a.line2}` : ''}</p>
@@ -179,15 +175,15 @@ const passwordError = passwordErrors[params.get('err') ?? '']
                                 {a.phone && <p class="text-ink-soft">{a.phone}</p>}
                             </div>
                             <div class="flex flex-col gap-2 shrink-0">
-                                <Button type="button" variant="secondary" size="sm" data-open-modal={`addr-edit-${a.id}`}>Edit</Button>
-                                <Button
+                                <button type="button" class="btn" data-variant="secondary" data-size="sm" data-open-modal={`addr-edit-${a.id}`}>Edit</button>
+                                <button
                                     type="button"
-                                    variant="ghost"
-                                    size="sm"
-                                    class="w-full text-sale"
+                                    class="btn w-full text-sale"
+                                    data-variant="ghost"
+                                    data-size="sm"
                                     data-delete-id={a.id}
                                     data-delete-label={`${a.firstName} ${a.lastName}`}
-                                >Delete</Button>
+                                >Delete</button>
                             </div>
                         </div>
                     ))}
@@ -199,55 +195,54 @@ const passwordError = passwordErrors[params.get('err') ?? '']
                 <AddressModal id={`addr-edit-${a.id}`} title="Edit address" address={a} />
             ))}
 
-            <Dialog id="addr-delete-confirm">
-                <DialogContent class="max-w-md">
-                    <DialogHeader>
-                        <DialogTitle>Remove address</DialogTitle>
-                    </DialogHeader>
-                    <p class="text-sm text-ink-soft mt-1">
-                        Remove <span data-delete-label class="font-medium text-ink">this address</span> from your account? This can't be undone.
-                    </p>
-                    <form method="post" class="flex gap-2 mt-5">
-                        <input type="hidden" name="intent" value="address-delete" />
-                        <input type="hidden" name="id" data-delete-id-input />
-                        <Button type="submit" variant="destructive">Remove address</Button>
-                        <Button type="button" variant="secondary" data-slot="dialog-close">Cancel</Button>
-                    </form>
-                </DialogContent>
-            </Dialog>
+            <dialog class="dialog" id="addr-delete-confirm" aria-labelledby="addr-delete-title">
+                <article>
+                    <header>
+                        <h3 id="addr-delete-title">Remove address</h3>
+                    </header>
+                    <section>
+                        <p class="text-sm text-ink-soft mt-1">
+                            Remove <span data-delete-label class="font-medium text-ink">this address</span> from your account? This can't be undone.
+                        </p>
+                        <form method="post" class="flex gap-2 mt-5">
+                            <input type="hidden" name="intent" value="address-delete" />
+                            <input type="hidden" name="id" data-delete-id-input />
+                            <button type="submit" class="btn" data-variant="destructive">Remove address</button>
+                            <button type="button" class="btn" data-variant="secondary" onclick="this.closest('dialog').close()">Cancel</button>
+                        </form>
+                    </section>
+                    <button type="button" class="btn" data-variant="ghost" data-size="icon-sm" aria-label="Close dialog" onclick="this.closest('dialog').close()">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                    </button>
+                </article>
+            </dialog>
         </section>
     </div>
 </Layout>
 
 <script>
-    const openDialog = (id: string) => {
-        document
-            .getElementById(id)
-            ?.dispatchEvent(new CustomEvent('dialog:set', { detail: { open: true } }))
-    }
-
     const initAccountModals = () => {
         const section = document.querySelector<HTMLElement>('[data-address-section]')
         if (!section || section.dataset.bound === 'true') return
         section.dataset.bound = 'true'
 
-        // Open triggers point at a dialog by id; close is handled natively by
-        // the dialog's [data-slot="dialog-close"] buttons.
         section.querySelectorAll<HTMLElement>('[data-open-modal]').forEach(trigger => {
             trigger.addEventListener('click', () => {
                 const id = trigger.dataset.openModal
-                if (id) openDialog(id)
+                if (!id) return
+                const el = document.getElementById(id)
+                if (el instanceof HTMLDialogElement) el.showModal()
             })
         })
 
-        // Shared delete-confirm dialog: fill the id + label, then open it.
         const deleteIdInput = section.querySelector<HTMLInputElement>('[data-delete-id-input]')
-        const deleteLabel = section.querySelector<HTMLElement>('#addr-delete-confirm [data-delete-label]')
+        const deleteLabel = section.querySelector<HTMLElement>('[data-delete-label]')
         section.querySelectorAll<HTMLElement>('[data-delete-id]').forEach(trigger => {
             trigger.addEventListener('click', () => {
                 if (deleteIdInput) deleteIdInput.value = trigger.dataset.deleteId || ''
                 if (deleteLabel) deleteLabel.textContent = trigger.dataset.deleteLabel || 'this address'
-                openDialog('addr-delete-confirm')
+                const dialog = document.getElementById('addr-delete-confirm')
+                if (dialog instanceof HTMLDialogElement) dialog.showModal()
             })
         })
     }

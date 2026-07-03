@@ -1,5 +1,5 @@
 ---
-import { Icon as FulldevIcon } from '@/components/ui/icon'
+import type { HTMLAttributes } from "astro/types"
 
 const iconMap: Record<string, string> = {
   cart: 'shopping-cart',
@@ -8,14 +8,31 @@ const iconMap: Record<string, string> = {
   share: 'share-2',
 }
 
+const icons = import.meta.glob(
+  "/node_modules/lucide-static/icons/*.svg",
+  { eager: true }
+) as Record<string, { default: (_props: HTMLAttributes<"svg">) => unknown }>
+
 interface Props {
   type: string
   size?: number
   color?: string
+  class?: string
 }
 
-const { type, size = 24, color } = Astro.props
+const { type, size = 24, color, class: className } = Astro.props
 const name = iconMap[type] ?? type
+const iconPath = `/node_modules/lucide-static/icons/${name}.svg`
+const module = icons[iconPath]
+const Comp = module?.default
 ---
 
-<FulldevIcon name={name} style={`width:${size}px;height:${size}px`} class={color ? `text-${color}` : ''} />
+{Comp && (
+  <Comp
+    height={size}
+    width={size}
+    fill="none"
+    style={`width:${size}px;height:${size}px`}
+    class:list={['text-base', color && `text-${color}`, className]}
+  />
+)}

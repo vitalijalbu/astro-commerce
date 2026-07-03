@@ -3,8 +3,7 @@ import AccountNav from '@components/account-nav.astro'
 import Layout from '@components/layout.astro'
 import { getCurrentUser, requireAuth } from '@lib/auth'
 import Icon from '@snippets/icon.astro'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
+
 
 const guard = requireAuth(Astro)
 if (guard) return guard
@@ -29,8 +28,8 @@ const shortcuts = [
 
         <div class="grid sm:grid-cols-3 gap-4">
             {shortcuts.map(s => (
-                <Card size="sm" class="border-border">
-                    <CardContent>
+                <div class="card border-border">
+                    <div class="card-section">
                         <div class="flex items-start gap-3">
                             <span class="grid place-items-center w-10 h-10 rounded-full bg-accent-soft text-accent-old shrink-0">
                                 <Icon type={s.icon} size={18} />
@@ -38,11 +37,11 @@ const shortcuts = [
                             <div>
                                 <h2 class="font-semibold m-0">{s.title}</h2>
                                 <p class="text-sm text-ink-soft mt-1 mb-3">{s.text}</p>
-                                <Button as="a" href={s.href} variant="secondary">Open</Button>
+                                <a href={s.href} class="btn" data-variant="secondary">Open</a>
                             </div>
                         </div>
-                    </CardContent>
-                </Card>
+                    </div>
+                </div>
             ))}
         </div>
     </div>
