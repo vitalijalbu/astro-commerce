@@ -3,35 +3,28 @@
 import vercel from '@astrojs/vercel';
 import tailwindcss from '@tailwindcss/vite';
 import { defineConfig, fontProviders, memoryCache } from 'astro/config';
-// https://astro.build/config
+
 export default defineConfig({
-	// SSR on-demand: necessario per l'auth cliente PrestaShop via cookie
-	// (login / register / account). Node standalone legge HOST/PORT dall'ambiente.
 	output: 'server',
 	adapter: vercel(),
 	server: { host: true, port: Number(process.env.PORT) || 4321 },
 
-	// Astro v7: route caching SSR nativa (process-local memory cache).
 	cache: {
 		provider: memoryCache(),
 	},
 
-	// Prefetch dei link in viewport: navigazioni interne quasi istantanee.
 	prefetch: {
 		prefetchAll: true,
 		defaultStrategy: 'viewport',
 	},
 
-	// Comprimi l'HTML emesso (rimuove whitespace inutile dalle pagine SSR).
 	compressHTML: true,
 
-	// Astro v6+: gestione font nativa (self-hosted + preload automatico).
 	fonts: [
 		{
 			name: 'Inter',
 			cssVariable: '--font-inter',
 			provider: fontProviders.fontsource(),
-			// Evita file non usati (es. italic) e limita download ai pesi realmente usati.
 			styles: ['normal'],
 			weights: [400, 500, 600, 700, 800],
 			subsets: ['latin', 'latin-ext'],
@@ -45,7 +38,6 @@ export default defineConfig({
 		service: {
 			entrypoint: 'astro/assets/services/sharp',
 			config: {
-				// Fail-fast contro input enormi e encoding moderno più efficiente.
 				limitInputPixels: true,
 				jpeg: { mozjpeg: true, progressive: true, quality: 78 },
 				webp: { effort: 6, quality: 76 },
@@ -57,8 +49,16 @@ export default defineConfig({
 		plugins: [tailwindcss()],
 		build: {
 			cssMinify: 'lightningcss',
-			// SVG/asset piccoli (<4KB) inlined come data-URI: meno richieste HTTP.
 			assetsInlineLimit: 4096,
+			rollupOptions: {
+				output: {
+					manualChunks(id) {
+						if (id.includes('lucide-static')) return 'icons'
+						if (id.includes('basecoat-css')) return 'styles'
+						if (id.includes('node_modules')) return 'vendor'
+					},
+				},
+			},
 		},
 	},
 	integrations: [],

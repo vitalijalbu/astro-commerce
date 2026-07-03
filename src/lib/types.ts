@@ -1,11 +1,3 @@
-/**
- * Normalized domain types used across the storefront.
- *
- * These are intentionally decoupled from the raw PrestaShop webservice
- * payloads so that the UI never depends on PrestaShop's XML/JSON shape.
- * The mappers in `prestashop.ts` convert raw responses into these types.
- */
-
 export interface Money {
 	amount: number;
 	currencyCode: string;
@@ -49,7 +41,6 @@ export interface Product {
 	images: ProductImage[];
 	tags: string[];
 	variants: ProductVariant[];
-	/** True when compareAtPrice is set and higher than price. */
 	onSale: boolean;
 }
 

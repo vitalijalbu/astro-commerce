@@ -1,12 +1,4 @@
 ---
-/**
- * Collection page (SSR).
- * Handles /collections/all as a first-class route and supports GET filters.
- *
- * The shell (breadcrumb, title, sort control) renders immediately; the results
- * region (filters, product grid, pagination) is a deferred server island that
- * owns the heavy catalog fetch, so slow backends never block the shell.
- */
 import Layout from '@components/layout.astro'
 import { getCollectionByHandle } from '@lib/catalog'
 import { parsePageParam } from '@lib/paginate'

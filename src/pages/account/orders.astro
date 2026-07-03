@@ -1,9 +1,5 @@
 ---
 import AccountNav from '@components/account-nav.astro'
-/**
- * Order history (protected). Orders would come from PrestaShop's `orders`
- * resource filtered by the signed-in customer id; a demo list is shown here.
- */
 import Layout from '@components/layout.astro'
 import { requireAuth } from '@lib/auth'
 import { getOrders, orderItemCount, orderTotal } from '@lib/orders'

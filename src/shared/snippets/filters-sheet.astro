@@ -39,3 +39,34 @@ const {
         </article>
     </dialog>
 </div>
+
+<script>
+    import { closeDrawer, initDrawerCancel, initDrawerBackdrop } from '@utils/dom'
+
+    const initFiltersSheet = () => {
+        document.querySelectorAll<HTMLElement>('[data-drawer-open]').forEach(btn => {
+            if (btn.dataset.bound === 'true') return
+            btn.dataset.bound = 'true'
+            const id = btn.dataset.drawerOpen
+            if (!id) return
+            const dialog = document.getElementById(id)
+            if (!(dialog instanceof HTMLDialogElement)) return
+            btn.addEventListener('click', () => dialog.showModal())
+        })
+
+        document.querySelectorAll<HTMLElement>('[data-drawer-close]').forEach(btn => {
+            if (btn.dataset.bound === 'true') return
+            btn.dataset.bound = 'true'
+            const id = btn.dataset.drawerClose
+            if (!id) return
+            const dialog = document.getElementById(id)
+            if (!(dialog instanceof HTMLDialogElement)) return
+            initDrawerCancel(dialog)
+            initDrawerBackdrop(dialog)
+            btn.addEventListener('click', () => closeDrawer(dialog))
+        })
+    }
+
+    initFiltersSheet()
+    document.addEventListener('astro:after-swap', initFiltersSheet)
+</script>

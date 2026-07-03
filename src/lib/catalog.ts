@@ -1,12 +1,3 @@
-/**
- * High-level catalog access used by pages and sections.
- *
- * Always returns data: it tries the PrestaShop webservice first and
- * transparently falls back to the static mock catalog when PrestaShop is
- * not configured or a request fails. This is what makes the storefront
- * render end-to-end with or without a live backend.
- */
-
 import { mockCollections, mockProducts } from './mock';
 import {
 	fetchCollectionByHandle,
@@ -52,7 +43,6 @@ export async function getCollections(limit = 12): Promise<Collection[]> {
 	return collections.slice(0, limit);
 }
 
-/* Collections derived from the catalog rather than stored as their own entity. */
 const VIRTUAL_COLLECTIONS: Record<string, Collection> = {
 	'best-sellers': {
 		id: 'best-sellers',
@@ -72,7 +62,6 @@ export async function getCollectionByHandle(handle: string): Promise<Collection 
 	);
 }
 
-/** Products for a given collection. Mock fallback returns a tag/handle slice. */
 export async function getCollectionProducts(handle: string, limit = 12): Promise<Product[]> {
 	const all = await getProducts(500);
 	const normalizedHandle = handle.toLowerCase();

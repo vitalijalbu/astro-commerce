@@ -1,12 +1,3 @@
-/**
- * Journal content model (Shopify-like blog).
- *
- * A single source of truth used by:
- * - homepage journal section
- * - /blog index
- * - /blog/[slug] article pages
- */
-
 export interface BlogAuthor {
 	name: string;
 	role: string;

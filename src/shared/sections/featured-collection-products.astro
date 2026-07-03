@@ -1,11 +1,4 @@
 ---
-/**
- * Deferred products for a featured-collection section (server island).
- *
- * The parent section renders its heading immediately; this island fetches the
- * collection's products out-of-band and streams the grid/carousel in. Props are
- * serializable so the island can render from its own request.
- */
 import { getCollectionProducts } from '@lib/catalog'
 import ProductCard from '@snippets/product-card.astro'
 import ProductCarousel from '@snippets/product-carousel.astro'

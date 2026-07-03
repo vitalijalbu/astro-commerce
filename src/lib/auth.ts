@@ -1,26 +1,10 @@
-/**
- * Cookie-based customer auth (SSR).
- *
- * PrestaShop's core webservice does not expose a customer login endpoint, so
- * production setups add a small auth module (e.g. `/api/auth/login`). This
- * client posts to that endpoint when `PRESTASHOP_AUTH_URL` is configured, and
- * otherwise uses a built-in DEMO account so the flow is fully testable.
- *
- * Session model (mirrors common Astro SSR auth):
- *   - `auth_token`        httpOnly bearer token (server only)
- *   - `auth_user`         JSON user, readable client-side for the header
- *   - `is_authenticated`  cheap boolean flag
- */
 import type { AstroCookies } from 'astro';
 
 const AUTH_URL = import.meta.env.PRESTASHOP_AUTH_URL?.replace(/\/$/, '');
 const DAY = 60 * 60 * 24;
 
-/**
- * Static login (temporaneo): quando `true`, ogni visitatore è trattato come un
- * cliente demo già autenticato, così le pagine /account sono visibili senza una
- * vera sessione PrestaShop. Rimettere a `false` per ripristinare l'auth via cookie.
- */
+/** Static login: quando true ogni visitatore e autenticato come demo. */
+
 const STATIC_LOGIN = true;
 const STATIC_USER: AuthUser = {
 	id: 'static-1',
@@ -49,7 +33,6 @@ interface Session {
 	token: string;
 }
 
-/* Demo account used when no PrestaShop auth endpoint is configured. */
 const DEMO_PASSWORD = 'demo1234';
 const demoUser = (email: string): AuthUser => ({
 	id: 'demo-1',
@@ -90,7 +73,6 @@ export async function login(
 	try {
 		let session = await callAuth('/login', { email, password });
 		if (!session) {
-			// Demo fallback (no PrestaShop auth endpoint configured).
 			if (password !== DEMO_PASSWORD) return { ok: false, error: 'invalid_credentials' };
 			session = { user: demoUser(email), token: 'demo-token' };
 		}
@@ -144,21 +126,17 @@ export function getCurrentUser(ctx: { cookies: AstroCookies }): AuthUser | null 
 	if (raw) {
 		try {
 			return JSON.parse(raw) as AuthUser;
-		} catch {
-			/* cookie corrotto: ricade sull'utente statico o null sotto */
-		}
+		} catch {}
 	}
 	return STATIC_LOGIN ? STATIC_USER : null;
 }
 
-/** Redirect to /login (preserving target) when not authenticated. */
 export function requireAuth(ctx: AuthCtx): Response | null {
 	if (isAuthenticated(ctx)) return null;
 	const back = encodeURIComponent(ctx.url.pathname + ctx.url.search);
 	return ctx.redirect(`/login?redirect=${back}`);
 }
 
-/** Redirect away from login/register when already authenticated. */
 export function requireGuest(ctx: AuthCtx): Response | null {
 	return isAuthenticated(ctx) ? ctx.redirect('/account') : null;
 }

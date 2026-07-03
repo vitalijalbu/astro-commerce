@@ -13,7 +13,6 @@ const { user } = Astro.props
 
 <header class="sticky top-0 z-40 bg-paper/95 backdrop-blur border-b border-line" role="banner">
     <div class="page flex items-center justify-between h-16 md:h-20 gap-4">
-        <!-- Left: mobile menu + nav -->
         <div class="flex items-center gap-2 flex-1 min-w-0">
             <button
                 type="button"
@@ -82,12 +81,10 @@ const { user } = Astro.props
             </nav>
         </div>
 
-        <!-- Center: logo -->
         <a href="/" class="text-xl md:text-2xl font-semibold tracking-[0.25em] shrink-0">
             {shop.name}
         </a>
 
-        <!-- Right: utilities -->
         <div class="flex items-center justify-end gap-1 flex-1">
             <button
                 type="button"

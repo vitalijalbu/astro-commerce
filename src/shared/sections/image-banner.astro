@@ -1,5 +1,6 @@
 ---
 import type { ImageBannerSection } from '@lib/sections'
+import { parseImgDimensions } from '@utils/images'
 
 interface Props {
     section: ImageBannerSection
@@ -7,6 +8,7 @@ interface Props {
 
 const { section } = Astro.props
 const s = section.settings
+const imgSize = parseImgDimensions(s.image)
 
 const height = {
     medium: 'min-h-[420px]',
@@ -25,6 +27,7 @@ const align = {
     <img
         src={s.image}
         alt={s.heading}
+        {...imgSize}
         loading="eager"
         class="absolute inset-0 w-full h-full object-cover"
     />

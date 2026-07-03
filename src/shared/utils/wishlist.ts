@@ -93,8 +93,6 @@ async function renderWishlistPage() {
 
 	empty.toggleAttribute('hidden', true);
 
-	// Render the cards server-side with the real <ProductCard> snippet rather
-	// than hand-building markup here; keep the saved wishlist order.
 	try {
 		const ids = items.map((item) => item.id).join(',');
 		const response = await fetch(`/partials/wishlist-cards?ids=${encodeURIComponent(ids)}`);

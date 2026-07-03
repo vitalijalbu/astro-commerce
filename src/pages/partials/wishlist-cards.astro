@@ -1,11 +1,4 @@
 ---
-/**
- * HTML partial: product cards for a set of ids, rendered with the real
- * <ProductCard> snippet (not hand-built in JS). The wishlist page fetches
- * `/partials/wishlist-cards?ids=a,b,c` and injects the response, so the cards
- * stay identical to the rest of the storefront. Cards come back in the order
- * the ids are passed (i.e. the saved wishlist order).
- */
 import { getProducts } from '@lib/catalog'
 import ProductCard from '@snippets/product-card.astro'
 

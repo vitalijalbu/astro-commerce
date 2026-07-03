@@ -1,10 +1,3 @@
-/**
- * Static fallback catalog.
- *
- * Stored in a plain JSON file so merchandising can adjust the mock catalog
- * without editing TypeScript code. This stays the build-time fallback when
- * PrestaShop is not configured or unreachable.
- */
 import storeData from '../data/mock-store.json';
 
 import type { Collection, Product, ProductImage } from './types';

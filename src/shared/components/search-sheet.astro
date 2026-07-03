@@ -32,19 +32,28 @@ const popular = ['Linen', 'Knitwear', 'Loafers', 'Tote bag', 'Sale']
 </dialog>
 
 <script>
-    const trigger = document.querySelector<HTMLElement>('[data-search-toggle]')
-    const dialog = document.querySelector<HTMLDialogElement>('#search-sheet')
+    import { initDrawerCancel, initDrawerBackdrop } from '@utils/dom'
 
-    if (trigger && dialog) {
-        trigger.addEventListener('click', () => dialog.showModal())
+    const initSearchSheet = () => {
+        const trigger = document.querySelector<HTMLElement>('[data-search-toggle]')
+        const dialog = document.querySelector<HTMLDialogElement>('#search-sheet')
+
+        if (!trigger || !dialog) return
+
+        initDrawerCancel(dialog)
+        initDrawerBackdrop(dialog)
+
+        if (trigger.dataset.bound !== 'true') {
+            trigger.dataset.bound = 'true'
+            trigger.addEventListener('click', () => dialog.showModal())
+        }
 
         dialog.addEventListener('close', () => {
             trigger.setAttribute('aria-expanded', 'false')
             trigger.focus()
         })
-
-        dialog.addEventListener('click', (e) => {
-            if (e.target === dialog) dialog.close()
-        })
     }
+
+    initSearchSheet()
+    document.addEventListener('astro:after-swap', initSearchSheet)
 </script>

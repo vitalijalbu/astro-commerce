@@ -1,10 +1,5 @@
 ---
 import { Image } from 'astro:assets'
-/**
- * Product detail page (PDP), rendered on demand (SSR).
- *
- * Uses basecoat CSS classes and native HTML5 elements.
- */
 import Layout from '@components/layout.astro'
 import { getProductByHandle } from '@lib/catalog'
 import EmptyState from '@snippets/empty-state.astro'
@@ -63,9 +58,6 @@ const accordionItems = product ? [
     { title: 'Materials & care', content: 'Made from premium natural materials. Follow the care label; cool wash and lay flat to dry where possible.' }
 ] : []
 
-// Build selectable option groups (e.g. Size, Colour) from the variants.
-// With single-variant products this is empty and the selector is hidden —
-// it lights up automatically once PrestaShop returns real variant options.
 const optionGroups = product
     ? [...product.variants.reduce((groups, variant) => {
         for (const option of variant.options ?? []) {
@@ -77,7 +69,6 @@ const optionGroups = product
     }, new Map<string, Set<string>>())].map(([name, values]) => ({ name, values: [...values] }))
     : []
 
-// Estimated delivery window (2–4 working days), formatted server-side.
 const fmtDay = (date: Date): string =>
     date.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' })
 const deliveryEstimate = `${fmtDay(new Date(Date.now() + 2 * 86_400_000))} – ${fmtDay(new Date(Date.now() + 4 * 86_400_000))}`
@@ -117,7 +108,6 @@ const pdpWishlistItem = product
         </nav>
 
         <div class="grid md:grid-cols-2 gap-8 lg:gap-14 mt-6">
-            <!-- Gallery -->
             <div>
                 <div class="product-gallery overflow-hidden rounded-[--radius-card] border border-line bg-paper-soft" aria-label="Product gallery">
                     <div class="flex overflow-x-auto snap-x snap-mandatory scrollbar-hide" style="scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch;">
@@ -155,7 +145,6 @@ const pdpWishlistItem = product
                 </ul>
             </div>
 
-            <!-- Info -->
             <div class="flex flex-col">
                 {product.vendor && <span class="eyebrow mb-2">{product.vendor}</span>}
                 <h1 class="text-3xl md:text-4xl font-semibold tracking-tight m-0">{product.title}</h1>
@@ -224,7 +213,6 @@ const pdpWishlistItem = product
 
                 <p class="text-ink-soft mt-4 leading-relaxed">{product.description}</p>
 
-                <!-- Variant options (size / colour …) — render only when present -->
                 {optionGroups.map(group => (
                     <fieldset class="mt-6 m-0 border-0 p-0">
                         <legend class="mb-2 flex w-full items-center justify-between gap-2 text-sm font-medium">
@@ -250,7 +238,6 @@ const pdpWishlistItem = product
                     </fieldset>
                 ))}
 
-                <!-- Quantity + add to cart + wishlist -->
                 <div class="flex items-center gap-3 mt-8">
                     <QuantityPicker id="pdp-quantity" name="quantity" value={1} min={1} max={12} />
                     <button
@@ -283,7 +270,6 @@ const pdpWishlistItem = product
                     </button>
                 </div>
 
-                <!-- Delivery estimate + share -->
                 <div class="mt-4 flex flex-wrap items-center justify-between gap-x-4 gap-y-2 text-sm">
                     <p class="m-0 flex items-center gap-2 text-ink-soft">
                         <Icon type="truck" size={16} />
@@ -294,7 +280,6 @@ const pdpWishlistItem = product
                     </button>
                 </div>
 
-                <!-- Trust badges -->
                 <ul role="list" class="grid grid-cols-3 gap-3 mt-6 text-center text-xs text-ink-soft">
                     <li class="flex flex-col items-center gap-1.5"><Icon type="truck" size={20} /><span>Free shipping €100+</span></li>
                     <li class="flex flex-col items-center gap-1.5"><Icon type="refresh" size={20} /><span>30-day returns</span></li>
@@ -314,7 +299,6 @@ const pdpWishlistItem = product
             </div>
         </div>
 
-        <!-- Recommendations (deferred: streams in after the product shell) -->
         <section class="mt-16 md:mt-24">
             <h2 class="text-2xl font-semibold tracking-tight mb-8">You may also like</h2>
             <ProductRecommendations
@@ -395,7 +379,6 @@ const pdpWishlistItem = product
     initStickyBar()
     document.addEventListener('astro:after-swap', initStickyBar)
 
-    // Variant pills: single-select per group; reflect choice on the cart buttons.
     const initVariantSelector = () => {
         document.querySelectorAll<HTMLElement>('[role="radiogroup"]').forEach(group => {
             if (group.dataset.bound === 'true') return
@@ -418,7 +401,6 @@ const pdpWishlistItem = product
     initVariantSelector()
     document.addEventListener('astro:after-swap', initVariantSelector)
 
-    // Share: native share sheet when available, clipboard copy as a fallback.
     const initShare = () => {
         const button = document.querySelector<HTMLButtonElement>('[data-pdp-share]')
         if (!button || button.dataset.bound === 'true') return

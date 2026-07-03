@@ -1,15 +1,6 @@
 ---
 import AccountNav from '@components/account-nav.astro'
 import AddressModal from '@components/address-modal.astro'
-/**
- * Profile settings (protected). Handles three POST intents via SSR, each using
- * Post/Redirect/Get so reloads don't resubmit:
- *   - `profile`        update name/email (auth_user cookie)
- *   - `password`       validate + change password (stubbed; PrestaShop in prod)
- *   - `address-save`   create or update an address (modal form)
- *   - `address-delete` remove an address
- * A real integration swaps the cookie writes for PrestaShop customer/address API.
- */
 import Layout from '@components/layout.astro'
 import { deleteAddress, getAddresses, upsertAddress } from '@lib/addresses'
 import { getCurrentUser, requireAuth } from '@lib/auth'
@@ -101,7 +92,6 @@ const passwordError = passwordErrors[params.get('err') ?? '']
 
         {okMessage && <div class="mb-6 max-w-lg"><div class="alert"><div class="alert-title">{okMessage}</div></div></div>}
 
-        <!-- Personal details -->
         <section class="max-w-lg">
             <h2 class="text-xl font-semibold mb-4">Personal details</h2>
             <form method="post" class="flex flex-col gap-4">
@@ -127,7 +117,6 @@ const passwordError = passwordErrors[params.get('err') ?? '']
             </form>
         </section>
 
-        <!-- Change password -->
         <section id="password" class="max-w-lg mt-12 pt-12 border-t border-line">
             <h2 class="text-xl font-semibold mb-4">Change password</h2>
             {passwordError && <div class="mb-4"><div class="alert" data-variant="destructive"><div class="alert-title">{passwordError}</div></div></div>}
@@ -150,7 +139,6 @@ const passwordError = passwordErrors[params.get('err') ?? '']
             </form>
         </section>
 
-        <!-- Addresses -->
         <section id="addresses" data-address-section class="max-w-lg mt-12 pt-12 border-t border-line">
             <div class="flex items-center justify-between mb-4">
                 <h2 class="text-xl font-semibold">Addresses</h2>

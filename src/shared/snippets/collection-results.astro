@@ -1,12 +1,4 @@
 ---
-/**
- * Deferred collection results region (server island).
- *
- * Owns the heavy catalog fetch (products + collections) and all facet/filter/
- * sort/pagination derivation, so the collection page shell (breadcrumb, title,
- * sort control) paints instantly. Raw filter values are passed in as
- * serializable props and clamped here against the fetched price range.
- */
 import { getCollectionProducts, getCollections, getProducts } from '@lib/catalog'
 import { paginateItems } from '@lib/paginate'
 import CatalogPagination from '@snippets/catalog-pagination.astro'
@@ -116,7 +108,6 @@ const products = [...filteredProducts].sort((a, b) => {
 
 const paginated = paginateItems(products, page, 24)
 
-// Active-filter chips: each links back to the page with that one filter removed.
 const buildHref = (mutate: (next: URLSearchParams) => void): string => {
     const next = new URLSearchParams(params)
     next.delete('page')

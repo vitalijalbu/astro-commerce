@@ -1,16 +1,3 @@
-/**
- * Page-builder section model.
- *
- * The homepage is composed from an ordered list of "sections" — exactly the
- * shape a Statamic page-builder (Bard/Replicator) would emit. Today the data
- * lives in `homepageSections` below (static), but the contract is identical
- * to what a CMS would return, so swapping `homepageSections` for a CMS fetch
- * requires no changes to the section components or the renderer.
- *
- * Each section has a `type` (which component renders it) and a `settings`
- * object. `section-renderer.astro` maps `type` -> component.
- */
-
 import { getLatestBlogSummaries } from './blog';
 
 export const homepageBrands = [
@@ -23,12 +10,9 @@ export const homepageBrands = [
 ];
 
 export interface BaseSection {
-	/** Stable id, used as the DOM anchor / React-less key. */
 	id: string;
 	type: SectionType;
-	/** Optional vertical rhythm override (maps to Tailwind padding scale). */
 	spacing?: 'none' | 'sm' | 'md' | 'lg';
-	/** Optional background treatment. */
 	background?: 'default' | 'muted' | 'dark';
 }
 
@@ -226,10 +210,6 @@ export type Section =
 	| BlogPostsSection
 	| FaqSection
 	| ContactSection;
-
-/* -------------------------------------------------------------------------- */
-/* Homepage content (would be supplied by Statamic in production)              */
-/* -------------------------------------------------------------------------- */
 
 const latestBlogPosts = getLatestBlogSummaries(3);
 

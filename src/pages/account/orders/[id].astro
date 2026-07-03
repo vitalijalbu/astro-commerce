@@ -1,10 +1,5 @@
 ---
 import AccountNav from '@components/account-nav.astro'
-/**
- * Order detail (protected). Shows line items, totals, shipping address and
- * tracking for a single order. Data comes from the shared demo order list;
- * a real integration resolves `GET /api/orders/:id` for the signed-in customer.
- */
 import Layout from '@components/layout.astro'
 import { requireAuth } from '@lib/auth'
 import { getOrderById, orderItemCount, orderSubtotal, orderTotal } from '@lib/orders'

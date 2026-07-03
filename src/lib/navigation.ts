@@ -1,9 +1,3 @@
-/**
- * Storefront navigation + shop metadata.
- *
- * Like `sections.ts`, this is the kind of data Statamic would own. Menu
- * structure supports one level of dropdown (Dawn's mega-menu style).
- */
 import type { MenuItem } from './types';
 
 export const shop = {

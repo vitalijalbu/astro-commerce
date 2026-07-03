@@ -1,12 +1,4 @@
 ---
-/**
- * Deferred search results region (server island).
- *
- * Owns the catalog fetch, filtering, sorting and pagination so the search page
- * shell (hero + search box) paints instantly. All inputs are passed as
- * serializable props; the original query string is passed through so pagination
- * links can be rebuilt without access to the page URL.
- */
 import { getProducts } from '@lib/catalog'
 import { paginateItems } from '@lib/paginate'
 import CatalogPagination from '@snippets/catalog-pagination.astro'
@@ -111,8 +103,7 @@ const paginated = paginateItems(results, page, 24)
                 <select
                     id="search-sort"
                     name="sort"
-                    class="h-10 rounded-[--radius-card] border border-line bg-paper px-3 text-sm"
-                    onchange="this.form.submit()"
+                    class="select"
                 >
                     <option value="relevance" selected={sort === 'relevance'}>Relevance</option>
                     <option value="price-asc" selected={sort === 'price-asc'}>Price low to high</option>

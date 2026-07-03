@@ -1,19 +1,9 @@
-/**
- * Customer orders (demo data).
- *
- * In production these come from PrestaShop's `orders` resource filtered by the
- * signed-in customer id (`GET /api/orders?filter[id_customer]=...`), with the
- * line items resolved from the order details. Here we expose a static list plus
- * small helpers so both the orders list and the order detail page share one
- * source of truth.
- */
 export type OrderStatus = 'Processing' | 'Shipped' | 'Delivered' | 'Cancelled';
 
 export interface OrderLine {
 	title: string;
 	variant?: string;
 	quantity: number;
-	/** Unit price. */
 	price: number;
 	imageSeed: string;
 }
@@ -27,9 +17,7 @@ export interface OrderAddress {
 }
 
 export interface Order {
-	/** URL-safe id used in the route (`/account/orders/:id`). */
 	id: string;
-	/** Human-facing order number (e.g. `#10245`). */
 	number: string;
 	date: string;
 	status: OrderStatus;
@@ -134,12 +122,10 @@ export const orderTotal = (order: Order): number => orderSubtotal(order) + order
 export const orderItemCount = (order: Order): number =>
 	order.lines.reduce((sum, line) => sum + line.quantity, 0);
 
-/** All orders for the signed-in customer, newest first. */
 export function getOrders(): Order[] {
 	return ORDERS;
 }
 
-/** A single order by its URL-safe id, or `undefined` when not found. */
 export function getOrderById(id: string): Order | undefined {
 	return ORDERS.find((order) => order.id === id);
 }

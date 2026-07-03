@@ -1,12 +1,4 @@
 ---
-/**
- * Deferred product recommendations (server island).
- *
- * Rendered with `server:defer` so the parent page paints immediately with a
- * skeleton fallback while this component fetches the catalog out-of-band and
- * streams the real carousel in when ready. All props are serializable so the
- * island can be rendered from its own request.
- */
 import { getProducts } from '@lib/catalog'
 import ProductCarousel from '@snippets/product-carousel.astro'
 

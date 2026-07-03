@@ -1,19 +1,3 @@
-/**
- * PrestaShop Webservice client.
- *
- * Talks to the PrestaShop REST webservice (the `/api` endpoint) using an
- * API key as HTTP Basic auth username (blank password), requesting JSON via
- * `output_format=JSON` and full resources via `display=full`.
- *
- * Configure with environment variables:
- *   PRESTASHOP_API_URL   e.g. https://shop.example.com/api
- *   PRESTASHOP_API_KEY   the webservice key generated in the PS back office
- *   PUBLIC_SHOP_URL      e.g. https://shop.example.com  (for image URLs)
- *   PUBLIC_CURRENCY      ISO currency code, defaults to EUR
- *
- * Everything is best-effort: callers (see `catalog.ts`) fall back to the
- * static mock catalog when the webservice is unconfigured or fails.
- */
 import type { Collection, Money, Product, ProductImage, ProductVariant } from './types';
 
 const API_URL = import.meta.env.PRESTASHOP_API_URL?.replace(/\/$/, '');
@@ -23,7 +7,6 @@ const CURRENCY = import.meta.env.PUBLIC_CURRENCY || 'EUR';
 
 export const isPrestashopConfigured = Boolean(API_URL && API_KEY);
 
-/** Build the Basic auth header from the webservice key. */
 function authHeader(): string {
 	const token = btoa(`${API_KEY}:`);
 	return `Basic ${token}`;
@@ -56,10 +39,6 @@ async function psFetch<T>(resource: string, query: Query = {}): Promise<T> {
 	return res.json() as Promise<T>;
 }
 
-/**
- * PrestaShop multilang fields are serialized as `[{ id, value }]` in JSON
- * (or a plain string when a language filter is applied). Normalize both.
- */
 function lang(value: unknown): string {
 	if (typeof value === 'string') return value;
 	if (Array.isArray(value) && value.length) {
@@ -73,16 +52,11 @@ function money(amount: string | number | undefined): Money {
 	return { amount: Number(amount || 0), currencyCode: CURRENCY };
 }
 
-/** Best-effort front-office image URL: `{shop}/{idImage}-large_default/{handle}.jpg`. */
 function imageUrl(idImage: string | number, handle: string): string {
 	if (!idImage) return '';
 	const base = SHOP_URL || API_URL?.replace(/\/api$/, '') || '';
 	return `${base}/${idImage}-large_default/${handle}.jpg`;
 }
-
-/* -------------------------------------------------------------------------- */
-/* Raw payload shapes (loosely typed — PrestaShop is permissive)              */
-/* -------------------------------------------------------------------------- */
 
 interface RawProduct {
 	id: string | number;
@@ -109,10 +83,6 @@ interface RawCategory {
 	id_image?: string | number;
 	nb_products_recursive?: string | number;
 }
-
-/* -------------------------------------------------------------------------- */
-/* Mappers                                                                     */
-/* -------------------------------------------------------------------------- */
 
 function mapProduct(raw: RawProduct): Product {
 	const handle = lang(raw.link_rewrite) || String(raw.id);
@@ -177,10 +147,6 @@ function mapCategory(raw: RawCategory): Collection {
 		productCount: raw.nb_products_recursive ? Number(raw.nb_products_recursive) : undefined,
 	};
 }
-
-/* -------------------------------------------------------------------------- */
-/* Public API                                                                  */
-/* -------------------------------------------------------------------------- */
 
 export async function fetchProducts(limit = 12): Promise<Product[]> {
 	const data = await psFetch<{ products?: RawProduct[] }>('products', {

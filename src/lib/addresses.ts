@@ -1,17 +1,8 @@
-/**
- * Customer addresses (SSR, cookie-backed demo store).
- *
- * In production these map to PrestaShop's `addresses` resource for the signed-in
- * customer (`GET/POST/PUT/DELETE /api/addresses`). Here they live in a single
- * cookie so the CRUD flow is fully testable without a backend — swap the
- * read/persist helpers for real API calls to go live.
- */
 import type { AstroCookies } from 'astro';
 
 const COOKIE = 'account_addresses';
 const MAX_AGE = 60 * 60 * 24 * 30;
 
-/** Country options for the address form (extend as markets are added). */
 export const COUNTRIES = [
 	'Ireland',
 	'United Kingdom',
@@ -51,13 +42,11 @@ export interface Address {
 	isDefault: boolean;
 }
 
-/** Fields accepted from the form; `id` empty means "create". */
 export type AddressInput = Omit<Address, 'id' | 'isDefault'> & {
 	id?: string;
 	isDefault?: boolean;
 };
 
-/* Seed shown until the customer saves their own (mirrors the demo order). */
 const SEED: Address[] = [
 	{
 		id: 'addr-default',
@@ -74,7 +63,6 @@ const SEED: Address[] = [
 const newId = (): string =>
 	`addr-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
 
-/** Guarantee exactly one default when the list is non-empty. */
 function normalizeDefault(list: Address[], preferredId?: string): Address[] {
 	if (list.length === 0) return list;
 	const target =
@@ -100,7 +88,6 @@ export function getAddresses(cookies: AstroCookies): Address[] {
 	}
 }
 
-/** Create (empty id) or update (existing id) an address. */
 export function upsertAddress(cookies: AstroCookies, input: AddressInput): Address {
 	const list = getAddresses(cookies);
 	const id = input.id || newId();

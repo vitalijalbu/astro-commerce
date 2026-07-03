@@ -1,9 +1,4 @@
 ---
-/**
- * Search results page (SSR). The hero + search box paint immediately; the
- * results region (filters, grid, pagination) is a deferred server island that
- * owns the catalog fetch, so slow backends never block the shell.
- */
 import Layout from '@components/layout.astro'
 import { parsePageParam } from '@lib/paginate'
 import SearchResults from '@snippets/search-results.astro'
@@ -30,7 +25,6 @@ const maxPrice = parsePrice(params.get('max'))
 
 <Layout title={query ? `Search: ${query} — ATELIER` : 'Search — ATELIER'} noindex>
     <div class="page py-12 md:py-16">
-        <!-- Centered search hero -->
         <div class="mx-auto max-w-2xl text-center mb-12 md:mb-16">
             <h1 class="text-3xl md:text-5xl font-semibold tracking-tight m-0">Search</h1>
             <p class="text-muted mt-3 mb-0">Find products by name, brand or category.</p>

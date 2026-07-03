@@ -1,21 +1,5 @@
-/**
- * Client-side cart — vanilla JS, no framework.
- *
- * State lives in localStorage so it survives reloads without a backend.
- * The module is loaded once from the Layout and wires up event delegation:
- *
- *   - `[data-add-to-cart]`  add the encoded product to the cart + open drawer
- *   - `[data-cart-toggle]`  open the cart Sheet
- *   - `[data-cart-remove]`  remove a line
- *   - `[data-cart-qty]`     change a line quantity (input event)
- *
- * It keeps the cart Sheet (`#cart-drawer`) and the header badge
- * (`[data-cart-count]`) in sync, and re-renders line items into
- * `[data-cart-lines]`.
- *
- * Real checkout should POST this cart to PrestaShop (cart + cart rules API);
- * `checkout()` is the single integration point for that.
- */
+import { closeDrawer, initDrawerCancel } from '@utils/dom';
+
 export interface ClientCartLine {
 	id: string;
 	handle: string;
@@ -80,11 +64,9 @@ function setQuantity(id: string, quantity: number) {
 	write(lines);
 }
 
-/** Render the badge, the drawer lines and the subtotal. */
 function render() {
 	const lines = read();
 
-	// Hydration done: drop the loading skeleton(s).
 	document.querySelectorAll<HTMLElement>('[data-cart-loading]').forEach((el) => {
 		el.toggleAttribute('hidden', true);
 	});
@@ -168,7 +150,6 @@ function render() {
 	}
 }
 
-/** Placeholder checkout — wire to PrestaShop cart/order API here. */
 function checkout() {
 	const lines = read();
 	if (!lines.length) return;
@@ -179,28 +160,32 @@ function checkout() {
 
 export function initCart() {
 	const toggle = document.querySelector<HTMLElement>('[data-cart-toggle]');
+	const drawer = document.querySelector<HTMLDialogElement>('#cart-drawer');
 
 	if (toggle && toggle.dataset.cartBound !== 'true') {
 		toggle.dataset.cartBound = 'true';
 
-		const drawer = document.querySelector<HTMLDialogElement>('#cart-drawer');
-		const setOpen = (open: boolean) => {
-			if (!drawer) return;
-			if (open) {
-				drawer.showModal();
+		toggle.addEventListener('click', () => {
+			if (drawer?.hasAttribute('open')) {
+				closeDrawer(drawer);
 			} else {
-				drawer.close();
+				drawer?.showModal();
 			}
-		};
-
-		toggle.addEventListener('click', () => setOpen(true));
+		});
 
 		drawer?.addEventListener('close', () => {
 			toggle.setAttribute('aria-expanded', 'false');
 			toggle.focus();
 		});
 
-		openDrawer = () => setOpen(true);
+		openDrawer = () => {
+			if (drawer && !drawer.hasAttribute('open')) drawer.showModal();
+		};
+	}
+
+	if (drawer && drawer.dataset.cartCancelBound !== 'true') {
+		drawer.dataset.cartCancelBound = 'true';
+		initDrawerCancel(drawer);
 	}
 
 	if (!listenersBound) {

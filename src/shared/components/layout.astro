@@ -1,9 +1,4 @@
 ---
-/**
- * Base HTML shell: global styles + native Inter font, announcement bar,
- * header (auth-aware), the three Sheets (mobile menu, search, cart) and
- * footer. Page content goes in the slot. Light theme only.
- */
 import '@styles/global.css'
 import { Font } from 'astro:assets'
 import { getCurrentUser, isAuthenticated } from '@lib/auth'
@@ -72,6 +67,8 @@ const orgSchema = {
         <meta name="theme-color" content="#181516" />
 
         <link rel="canonical" href={canonicalUrl} />
+        <link rel="preconnect" href="https://picsum.photos" />
+        <link rel="preconnect" href="https://fastly.picsum.photos" />
 
         <meta property="og:site_name" content={shop.name} />
         <meta property="og:locale" content="en_US" />
@@ -105,7 +102,6 @@ const orgSchema = {
 
         <Footer />
 
-        <!-- Drawers / overlays -->
         <MobileMenu user={user} />
         <SearchSheet />
         <CartDrawer />

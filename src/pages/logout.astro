@@ -1,8 +1,4 @@
 ---
-/**
- * Clears the session and returns home. GET is fine for a template; production
- * should prefer a POST + CSRF token.
- */
 import { logout } from '@lib/auth'
 
 logout(Astro)

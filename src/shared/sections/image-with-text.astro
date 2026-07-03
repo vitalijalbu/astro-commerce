@@ -1,6 +1,7 @@
 ---
 import type { ImageWithTextSection } from '@lib/sections'
 import Section from '@snippets/section.astro'
+import { parseImgDimensions } from '@utils/images'
 
 interface Props {
     section: ImageWithTextSection
@@ -9,6 +10,7 @@ interface Props {
 const { section } = Astro.props
 const s = section.settings
 const imageRight = s.imageSide === 'right'
+const imgSize = parseImgDimensions(s.image)
 ---
 
 <Section spacing="lg" background={section.background} id={section.id}>
@@ -17,6 +19,7 @@ const imageRight = s.imageSide === 'right'
             <img
                 src={s.image}
                 alt={s.heading}
+                {...imgSize}
                 loading="lazy"
                 class="w-full h-full object-cover aspect-[4/5]"
             />

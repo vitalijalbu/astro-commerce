@@ -96,16 +96,29 @@ const panels = mainMenu
 </dialog>
 
 <script>
+    import { closeDrawer, initDrawerCancel, initDrawerBackdrop } from '@utils/dom'
+
     const initMobileNav = () => {
         const nav = document.querySelector<HTMLElement>('[data-mobile-nav]')
         if (!nav || nav.dataset.bound === 'true') return
         nav.dataset.bound = 'true'
 
         const dialog = document.querySelector<HTMLDialogElement>('#mobile-menu')
+        if (!dialog) return
 
-        document.querySelector<HTMLElement>('[data-menu-toggle]')?.addEventListener('click', () => {
-            dialog?.showModal()
-        })
+        const toggle = document.querySelector<HTMLElement>('[data-menu-toggle]')
+        if (toggle) {
+            toggle.addEventListener('click', () => {
+                if (dialog.hasAttribute('open')) {
+                    closeDrawer(dialog)
+                } else {
+                    dialog.showModal()
+                }
+            })
+        }
+
+        initDrawerCancel(dialog)
+        initDrawerBackdrop(dialog)
 
         const closeAll = () => {
             nav.querySelectorAll('.mobile-panel--child.is-active').forEach(p => p.classList.remove('is-active'))
@@ -123,7 +136,7 @@ const panels = mainMenu
             if (closer) closer.closest('.mobile-panel--child')?.classList.remove('is-active')
         })
 
-        dialog?.addEventListener('close', () => {
+        dialog.addEventListener('close', () => {
             const trigger = document.querySelector<HTMLElement>('[data-menu-toggle]')
             trigger?.setAttribute('aria-expanded', 'false')
             trigger?.focus()
