@@ -1,0 +1,242 @@
+---
+import { getCollectionProducts, getCollections, getProducts } from '@lib/catalog'
+import { paginateItems } from '@lib/paginate'
+import CatalogPagination from '@snippets/catalog-pagination.astro'
+import EmptyState from '@snippets/empty-state.astro'
+import FiltersForm from '@snippets/filters-form.astro'
+import FiltersSheet from '@snippets/filters-sheet.astro'
+import ProductGrid from '@snippets/product-grid.astro'
+import type { Product } from '@lib/types'
+
+interface Props {
+    mode: 'collection' | 'search'
+    handle?: string
+    selectedTags?: string[]
+    sort?: string
+    query?: string
+    selectedVendors?: string[]
+    page?: number
+    onlyAvailable?: boolean
+    minPrice?: number | null
+    maxPrice?: number | null
+    search?: string
+    notFound?: boolean
+}
+
+const {
+    mode,
+    handle = '',
+    selectedTags = [],
+    sort = mode === 'collection' ? 'featured' : 'relevance',
+    query = '',
+    selectedVendors = [],
+    page = 1,
+    onlyAvailable = false,
+    minPrice: minPriceRaw = null,
+    maxPrice: maxPriceRaw = null,
+    search: searchStr = '',
+    notFound = false
+} = Astro.props
+
+const params = new URLSearchParams(searchStr)
+
+const humanize = (value: string): string => value
+    .split('-').filter(Boolean).map(part => part.charAt(0).toUpperCase() + part.slice(1)).join(' ')
+
+let minPrice = minPriceRaw
+let maxPrice = maxPriceRaw
+
+// -- data fetching --
+const allProducts = await getProducts(500)
+const allCollections = mode === 'collection' ? await getCollections(120) : []
+const baseCollectionProducts = mode === 'collection' && handle !== 'all'
+    ? await getCollectionProducts(handle, 500)
+    : []
+
+const basePull = mode === 'collection'
+    ? (handle === 'all' ? allProducts : baseCollectionProducts)
+    : allProducts
+
+// -- collection-specific computation --
+const priceFloor = basePull.length > 0
+    ? Math.floor(Math.min(...basePull.map(p => p.price.amount)))
+    : 0
+const priceCeiling = basePull.length > 0
+    ? Math.ceil(Math.max(...basePull.map(p => p.price.amount)))
+    : 500
+
+if (minPrice !== null) minPrice = Math.max(priceFloor, Math.min(minPrice, priceCeiling))
+if (maxPrice !== null) maxPrice = Math.max(priceFloor, Math.min(maxPrice, priceCeiling))
+if (minPrice !== null && maxPrice !== null && minPrice > maxPrice) {
+    [minPrice, maxPrice] = [maxPrice, minPrice]
+}
+
+const sliderMin = minPrice ?? priceFloor
+const sliderMax = maxPrice ?? priceCeiling
+
+const vendors = [...new Set(allProducts.map(p => p.vendor).filter((v): v is string => Boolean(v)))].sort()
+
+const subCollectionLinks = mode === 'collection'
+    ? [{ handle: 'all', title: 'All products' }, ...allCollections.map(item => ({ handle: item.handle, title: item.title }))]
+        .filter(item => item.handle !== handle)
+    : []
+
+const allTags = mode === 'collection'
+    ? [...new Set(basePull.flatMap(p => p.tags.map(t => t.toLowerCase())))].sort((a, b) => a.localeCompare(b))
+    : []
+
+// -- filtering --
+const baseFiltered: Product[] = mode === 'collection'
+    ? basePull
+        .filter(p => selectedTags.length ? selectedTags.some(t => p.tags.map(t => t.toLowerCase()).includes(t)) : true)
+    : (query
+        ? basePull.filter(p => {
+            const haystack = `${p.title} ${p.vendor ?? ''} ${p.tags.join(' ')}`.toLowerCase()
+            return query.toLowerCase().split(/\s+/).every(term => haystack.includes(term))
+        })
+        : basePull
+    ).filter(p => selectedVendors.length ? selectedVendors.includes(p.vendor ?? '') : true)
+
+const filtered = baseFiltered
+    .filter(p => onlyAvailable ? p.available : true)
+    .filter(p => minPrice !== null ? p.price.amount >= minPrice : true)
+    .filter(p => maxPrice !== null ? p.price.amount <= maxPrice : true)
+
+const sorted = [...filtered].sort((a, b) => {
+    if (sort === 'price-asc') return a.price.amount - b.price.amount
+    if (sort === 'price-desc') return b.price.amount - a.price.amount
+    if (mode === 'collection') {
+        if (sort === 'title-asc') return a.title.localeCompare(b.title)
+        if (sort === 'title-desc') return b.title.localeCompare(a.title)
+        if (sort === 'newest') {
+            const aNew = a.tags.some(t => t.toLowerCase() === 'new') ? 1 : 0
+            const bNew = b.tags.some(t => t.toLowerCase() === 'new') ? 1 : 0
+            return bNew - aNew
+        }
+        if (sort === 'best-selling') {
+            const aScore = (a.reviewCount || 0) * (a.rating || 0)
+            const bScore = (b.reviewCount || 0) * (b.rating || 0)
+            return bScore - aScore
+        }
+    }
+    if (mode === 'search' && sort === 'name-asc') return a.title.localeCompare(b.title)
+    return 0
+})
+
+const paginated = paginateItems(sorted, page, 24)
+
+const buildHref = (mutate: (next: URLSearchParams) => void): string => {
+    const next = new URLSearchParams(params)
+    next.delete('page')
+    mutate(next)
+    const base = mode === 'collection' ? `/collections/${handle}` : '/search'
+    const qs = next.toString()
+    return qs ? `${base}?${qs}` : base
+}
+
+const activeFilters = mode === 'collection'
+    ? [
+        ...selectedTags.map(tag => ({
+            label: humanize(tag),
+            href: buildHref(next => {
+                const remaining = next.getAll('tag').filter(v => v.toLowerCase() !== tag)
+                next.delete('tag')
+                for (const v of remaining) next.append('tag', v)
+            })
+        })),
+        ...(onlyAvailable ? [{ label: 'In stock', href: buildHref(next => next.delete('available')) }] : []),
+        ...((minPrice !== null || maxPrice !== null)
+            ? [{ label: `€${sliderMin} – €${sliderMax}`, href: buildHref(next => { next.delete('price'); next.delete('min'); next.delete('max') }) }]
+            : [])
+    ]
+    : []
+
+const filterSheetId = mode === 'collection' ? 'collection-filters-sheet' : 'search-filters-sheet'
+const filterTitle = mode === 'collection' ? 'Collection filters' : 'Search filters'
+const filterDesc = mode === 'collection'
+    ? 'Filter by tag, availability, price and linked subcollections.'
+    : 'Refine results by availability, brand and price.'
+
+const filterFormProps = mode === 'collection'
+    ? { mode: 'collection' as const, action: `/collections/${handle}`, clearHref: `/collections/${handle}`, sort, subCollectionLinks, allTags, selectedTags, onlyAvailable, priceFloor, priceCeiling, sliderMin, sliderMax }
+    : { mode: 'search' as const, action: '/search', clearHref: query ? `/search?q=${encodeURIComponent(query)}` : '/search', query, vendors, selectedVendors, onlyAvailable, sliderMin: 0, sliderMax: 500 }
+---
+
+<div class={mode === 'collection' ? 'mt-5 lg:hidden' : 'mb-5 lg:hidden'}>
+    <FiltersSheet id={filterSheetId} title={filterTitle} description={filterDesc} buttonLabel="Open filters">
+        <FiltersForm {...filterFormProps} />
+    </FiltersSheet>
+</div>
+
+<div class="grid lg:grid-cols-[280px_1fr] gap-8 items-start">
+    <aside class="hidden lg:block rounded-[--radius-card] border border-line bg-paper-soft p-5 md:p-6 h-fit" aria-label={filterTitle}>
+        <FiltersForm {...filterFormProps} />
+    </aside>
+
+    <div>
+        {mode === 'collection' && activeFilters.length > 0 && (
+            <div class="mb-4 flex flex-wrap items-center gap-2" aria-label="Active filters">
+                {activeFilters.map(f => (
+                    <a href={f.href} class="inline-flex items-center gap-1.5 rounded-full border border-line bg-paper-soft px-3 py-1 text-xs transition hover:border-ink" aria-label={`Remove filter ${f.label}`}>
+                        {f.label} <span aria-hidden="true">×</span>
+                    </a>
+                ))}
+                <a href={`/collections/${handle}`} class="text-xs text-muted link-underline ml-1">Clear all</a>
+            </div>
+        )}
+
+        {mode === 'search' ? (
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
+                <p class="text-ink-soft m-0" aria-live="polite">
+                    {paginated.totalItems} result{paginated.totalItems === 1 ? '' : 's'}
+                    {query ? <> for <strong>"{query}"</strong></> : ' in catalog'}
+                </p>
+                <form action="/search" method="get" class="flex items-center gap-2" aria-label="Sort search results">
+                    {query && <input type="hidden" name="q" value={query} />}
+                    {selectedVendors.map(v => <input type="hidden" name="vendor" value={v} />)}
+                    {onlyAvailable && <input type="hidden" name="available" value="1" />}
+                    {minPrice !== null && <input type="hidden" name="min" value={String(minPrice)} />}
+                    {maxPrice !== null && <input type="hidden" name="max" value={String(maxPrice)} />}
+                    <label for="results-sort" class="text-sm text-muted">Sort</label>
+                    <select id="results-sort" name="sort" class="select">
+                        <option value="relevance" selected={sort === 'relevance'}>Relevance</option>
+                        <option value="price-asc" selected={sort === 'price-asc'}>Price low to high</option>
+                        <option value="price-desc" selected={sort === 'price-desc'}>Price high to low</option>
+                        <option value="name-asc" selected={sort === 'name-asc'}>Name A-Z</option>
+                    </select>
+                </form>
+            </div>
+        ) : (
+            <p class="text-ink-soft m-0 mb-6" aria-live="polite">
+                {paginated.totalItems} product{paginated.totalItems === 1 ? '' : 's'}
+            </p>
+        )}
+
+        {paginated.totalItems > 0 ? (
+            <>
+                <ProductGrid products={paginated.items} eagerCount={4} columns={3} />
+                <CatalogPagination
+                    basePath={mode === 'collection' ? `/collections/${handle}` : '/search'}
+                    params={params}
+                    currentPage={paginated.currentPage}
+                    totalPages={paginated.totalPages}
+                    ariaLabel={mode === 'collection' ? `${humanize(handle)} pages` : 'Search results pages'}
+                />
+            </>
+        ) : (
+            <EmptyState
+                title={notFound && mode === 'collection' ? 'Collection not found' : 'No products found'}
+                text={notFound && mode === 'collection'
+                    ? 'This collection does not exist. Browse the full catalog or return to the collections index.'
+                    : mode === 'search'
+                    ? 'No products matched your current search or filters. Try a broader term or reset the filters.'
+                    : 'No products matched your current filters. Reset them or explore the full catalog.'}
+                image="/images/placeholder.png"
+                actionHref="/collections/all"
+                actionLabel="Browse all products"
+                secondaryHref={notFound && mode === 'collection' ? '/collections' : mode === 'search' ? '/search' : `/collections/${handle}`}
+                secondaryLabel={notFound && mode === 'collection' ? 'View collections' : 'Reset filters'}
+            />
+        )}
+    </div>
+</div>

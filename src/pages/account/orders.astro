@@ -5,7 +5,6 @@ import { requireAuth } from '@lib/auth'
 import { getOrders, orderItemCount, orderTotal } from '@lib/orders'
 import { formatMoney } from '@utils/format'
 
-
 const guard = requireAuth(Astro)
 if (guard) return guard
 
@@ -13,26 +12,53 @@ const orders = getOrders()
 const statusTheme: Record<string, string> = {
     Delivered: 'default', Shipped: 'secondary', Processing: 'outline', Cancelled: 'destructive'
 }
+
+const breadcrumbs = [
+    { name: 'Home', item: '/' },
+    { name: 'Account', item: '/account' },
+    { name: 'Orders', item: '/account/orders' }
+]
 ---
 
-<Layout title="Orders — ATELIER">
+<Layout
+    title="Orders — ATELIER"
+    breadcrumbs={breadcrumbs}
+>
     <div class="page py-10 md:py-14">
-        <h1 class="text-3xl font-semibold tracking-tight mb-6">Orders</h1>
+        <nav class="breadcrumb" aria-label="Breadcrumb">
+            <ol>
+                <li><a href="/">Home</a></li>
+                <li><a href="/account">Account</a></li>
+                <li aria-current="page">Orders</li>
+            </ol>
+        </nav>
+
+        <h1 class="text-3xl font-semibold tracking-tight mb-6 mt-6">Orders</h1>
         <AccountNav active="/account/orders" />
 
-        <div class="border border-line rounded-[--radius-card] overflow-hidden">
-            <div class="hidden sm:grid grid-cols-[1fr_1fr_1fr_1fr_auto] gap-4 px-5 py-3 bg-paper-soft text-xs uppercase tracking-wide text-muted font-semibold">
-                <span>Order</span><span>Date</span><span>Status</span><span>Total</span><span></span>
+        <div class="border border-line rounded-[--radius-card] overflow-hidden" role="table" aria-label="Order history">
+            <div class="hidden sm:grid grid-cols-[1fr_1fr_1fr_1fr_auto] gap-4 px-5 py-3 bg-paper-soft text-xs uppercase tracking-wide text-muted font-semibold" role="row">
+                <span role="columnheader">Order</span>
+                <span role="columnheader">Date</span>
+                <span role="columnheader">Status</span>
+                <span role="columnheader">Total</span>
+                <span role="columnheader"><span class="sr-only">Actions</span></span>
             </div>
             {orders.map(o => (
-                <div class="grid sm:grid-cols-[1fr_1fr_1fr_1fr_auto] gap-2 sm:gap-4 px-5 py-4 border-t border-line items-center">
-                    <span class="font-medium">{o.number}</span>
-                    <span class="text-sm text-ink-soft">{o.date}</span>
-                    <span><span class="badge" data-variant={statusTheme[o.status]}>{o.status}</span></span>
-                    <span class="text-sm">{formatMoney({ amount: orderTotal(o), currencyCode: o.currency })} · {orderItemCount(o)} items</span>
-                    <a href={`/account/orders/${o.id}`} class="btn justify-self-start sm:justify-self-end" data-variant="secondary">View</a>
+                <div class="grid sm:grid-cols-[1fr_1fr_1fr_1fr_auto] gap-2 sm:gap-4 px-5 py-4 border-t border-line items-center" role="row">
+                    <span class="font-medium" role="cell">{o.number}</span>
+                    <span class="text-sm text-ink-soft" role="cell">{o.date}</span>
+                    <span role="cell"><span class="badge" data-variant={statusTheme[o.status]}>{o.status}</span></span>
+                    <span class="text-sm" role="cell">{formatMoney({ amount: orderTotal(o), currencyCode: o.currency })} &middot; {orderItemCount(o)} items</span>
+                    <a href={`/account/orders/${o.id}`} class="btn justify-self-start sm:justify-self-end" data-variant="secondary" aria-label={`View order ${o.number}`}>View</a>
                 </div>
             ))}
+            {orders.length === 0 && (
+                <div class="px-5 py-8 text-center text-ink-soft">
+                    <p class="m-0">No orders yet.</p>
+                    <a href="/collections/all" class="btn mt-4" data-variant="secondary">Start shopping</a>
+                </div>
+            )}
         </div>
     </div>
 </Layout>

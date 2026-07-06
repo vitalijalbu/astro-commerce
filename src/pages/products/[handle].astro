@@ -6,6 +6,8 @@ import EmptyState from '@snippets/empty-state.astro'
 import Icon from '@snippets/icon.astro'
 import JsonLd from '@snippets/json-ld.astro'
 import Price from '@snippets/price.astro'
+import ProductGallery from '@snippets/product-gallery.astro'
+import ProductInfoTabs from '@snippets/product-info-tabs.astro'
 import ProductRecommendations from '@snippets/product-recommendations.astro'
 import QuantityPicker from '@snippets/quantity-picker.astro'
 import SkeletonProductGrid from '@snippets/skeleton-product-grid.astro'
@@ -52,10 +54,22 @@ const productSchema = product ? {
     } : undefined
 } : null
 
-const accordionItems = product ? [
-    { title: 'Description', content: product.descriptionHtml, expanded: true },
-    { title: 'Shipping & returns', content: 'Free standard shipping on orders over €100. Easy 30-day returns — items must be unworn with tags attached.' },
-    { title: 'Materials & care', content: 'Made from premium natural materials. Follow the care label; cool wash and lay flat to dry where possible.' }
+const specRows = product ? [
+    { label: 'Brand', value: product.vendor ?? '—' },
+    { label: 'Availability', value: product.available ? 'In stock' : 'Sold out' },
+    { label: 'SKU', value: productVariantId },
+    ...(product.tags.length > 0 ? [{ label: 'Tags', value: product.tags.join(', ') }] : []),
+    ...(product.rating ? [{ label: 'Rating', value: `${product.rating.toFixed(1)}${product.reviewCount ? ` (${product.reviewCount} reviews)` : ''}` }] : [])
+] : []
+
+const specsContent = specRows.length > 0
+    ? `<table class="specs-table w-full text-sm"><tbody>${specRows.map(row => `<tr><td class="py-2 pr-4 text-ink-soft font-medium w-32 align-top">${row.label}</td><td class="py-2 align-top">${row.value}</td></tr>`).join('')}</tbody></table>`
+    : '<p class="text-ink-soft">No technical specifications available.</p>'
+
+const tabItems = product ? [
+    { id: 'description', label: 'Description', content: product.descriptionHtml },
+    { id: 'specs', label: 'Technical Specs', content: specsContent },
+    { id: 'shipping', label: 'Shipping & Returns', content: '<p>Free standard shipping on orders over €100. Easy 30-day returns — items must be unworn with tags attached.</p><p class="mt-3">For more details, visit our <a href="/pages/shipping" class="link-underline">Shipping Policy</a> and <a href="/pages/returns" class="link-underline">Returns & Exchanges</a> pages.</p>' }
 ] : []
 
 const optionGroups = product
@@ -109,40 +123,7 @@ const pdpWishlistItem = product
 
         <div class="grid md:grid-cols-2 gap-8 lg:gap-14 mt-6">
             <div>
-                <div class="product-gallery overflow-hidden rounded-[--radius-card] border border-line bg-paper-soft" aria-label="Product gallery">
-                    <div class="flex overflow-x-auto snap-x snap-mandatory scrollbar-hide" style="scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch;">
-                        {galleryImages.map((image, i) => (
-                            <div class="min-w-full snap-start basis-full shrink-0">
-                                <Image
-                                    src={image.url}
-                                    alt={image.alt || `${product.title} image ${i + 1}`}
-                                    width={image.width ?? 1000}
-                                    height={image.height ?? 1250}
-                                    loading={i === 0 ? 'eager' : 'lazy'}
-                                    fetchpriority={i === 0 ? 'high' : 'auto'}
-                                    sizes="(min-width: 768px) 50vw, 100vw"
-                                    class="w-full object-cover aspect-4/5"
-                                />
-                            </div>
-                        ))}
-                    </div>
-                </div>
-
-                <ul role="list" class="mt-3 grid grid-cols-5 gap-2">
-                    {galleryImages.slice(0, 5).map((image, i) => (
-                        <li class="overflow-hidden rounded-[--radius-card] border border-line bg-paper-soft">
-                            <Image
-                                src={image.url}
-                                alt={image.alt || `${product.title} thumbnail ${i + 1}`}
-                                width={image.width ?? 200}
-                                height={image.height ?? 250}
-                                loading="lazy"
-                                sizes="20vw"
-                                class="aspect-4/5 w-full object-cover"
-                            />
-                        </li>
-                    ))}
-                </ul>
+                <ProductGallery images={galleryImages} title={product.title} />
             </div>
 
             <div class="flex flex-col">
@@ -187,7 +168,7 @@ const pdpWishlistItem = product
                             <p class="m-0 text-sm text-ink-soft">{product.price.currencyCode} {product.price.amount}</p>
                         </div>
                         <button
-                            class="btn"
+                            class="btn shrink-0"
                             data-variant="secondary"
                             data-add-to-cart
                             data-id={productVariantId}
@@ -200,7 +181,6 @@ const pdpWishlistItem = product
                             data-quantity="1"
                             aria-label={`Add ${product.title} to cart`}
                             disabled={!product.available}
-                            class="shrink-0"
                         >
                             {product.available ? 'Add to cart' : 'Sold out'}
                         </button>
@@ -275,7 +255,7 @@ const pdpWishlistItem = product
                         <Icon type="truck" size={16} />
                         <span>Estimated delivery <strong class="font-medium text-ink">{deliveryEstimate}</strong></span>
                     </p>
-                    <button type="button" data-pdp-share class="inline-flex items-center gap-1.5 text-muted link-underline">
+                    <button type="button" data-pdp-share class="btn" data-variant="ghost" data-size="sm">
                         <Icon type="share" size={15} /> Share
                     </button>
                 </div>
@@ -286,16 +266,7 @@ const pdpWishlistItem = product
                     <li class="flex flex-col items-center gap-1.5"><Icon type="shield" size={20} /><span>Secure checkout</span></li>
                 </ul>
 
-                <div class="mt-8 border-t border-line pt-2">
-                    <div class="flex flex-col border-t border-line">
-                        {accordionItems.map(item => (
-                            <details class="accordion border-b border-line" open={item.expanded}>
-                                <summary class="accordion-trigger">{item.title}</summary>
-                                <div class="accordion-content prose-sm" set:html={item.content} />
-                            </details>
-                        ))}
-                    </div>
-                </div>
+                <ProductInfoTabs items={tabItems} />
             </div>
         </div>
 

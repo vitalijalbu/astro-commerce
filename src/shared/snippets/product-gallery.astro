@@ -1,0 +1,266 @@
+---
+import { Image } from 'astro:assets'
+import type { ProductImage } from '@lib/types'
+
+interface Props {
+    images: ProductImage[]
+    title: string
+}
+
+const { images, title } = Astro.props
+---
+
+<div class="product-gallery" data-gallery>
+    <div class="overflow-hidden rounded-[--radius-card] border border-line bg-paper-soft">
+        <div class="embla__viewport" data-gallery-main>
+            <div class="embla__container flex">
+                {images.map((image, i) => (
+                    <div class="embla__slide min-w-full shrink-0" data-gallery-slide={i}>
+                        <button
+                            type="button"
+                            class="block w-full cursor-zoom-in"
+                            data-gallery-trigger={i}
+                            aria-label={`View ${title} image ${i + 1} in lightbox`}
+                        >
+                            <Image
+                                src={image.url}
+                                alt={image.alt || `${title} image ${i + 1}`}
+                                width={image.width ?? 1000}
+                                height={image.height ?? 1250}
+                                loading={i === 0 ? 'eager' : 'lazy'}
+                                fetchpriority={i === 0 ? 'high' : 'auto'}
+                                sizes="(min-width: 768px) 50vw, 100vw"
+                                class="w-full object-cover aspect-4/5"
+                            />
+                        </button>
+                    </div>
+                ))}
+            </div>
+        </div>
+    </div>
+
+    <div class="embla-thumbs mt-3 overflow-hidden" data-gallery-thumbs>
+        <div class="embla-thumbs__container flex gap-2">
+            {images.map((image, i) => (
+                <button
+                    type="button"
+                    class="embla-thumbs__slide shrink-0 w-[60px] md:w-[76px] overflow-hidden rounded-[--radius-card] border border-line bg-paper-soft transition-opacity data-[active]:opacity-100 opacity-60 hover:opacity-90"
+                    data-gallery-thumb={i}
+                    aria-label={`Select ${title} thumbnail ${i + 1}`}
+                >
+                    <Image
+                        src={image.url}
+                        alt={image.alt || `${title} thumbnail ${i + 1}`}
+                        width={image.width ?? 200}
+                        height={image.height ?? 250}
+                        loading="lazy"
+                        sizes="76px"
+                        class="aspect-4/5 w-full object-cover"
+                    />
+                </button>
+            ))}
+        </div>
+    </div>
+</div>
+
+<div
+    data-gallery-lightbox
+    hidden
+    class="fixed inset-0 z-50 flex flex-col bg-black/92 backdrop-blur-sm"
+    role="dialog"
+    aria-modal="true"
+    aria-label={`${title} images lightbox`}
+>
+    <div class="flex items-center justify-between shrink-0 px-4 py-3">
+        <span class="text-white/70 text-sm" data-lightbox-counter></span>
+        <button
+            type="button"
+            class="btn text-white/80 hover:text-white"
+            data-variant="ghost"
+            data-lightbox-close
+            aria-label="Close lightbox"
+        >
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+        </button>
+    </div>
+
+    <div class="flex-1 flex items-center justify-center min-h-0 px-4 relative">
+        <button
+            type="button"
+            class="btn text-white/80 hover:text-white absolute left-2 md:left-6 z-10"
+            data-variant="ghost"
+            data-lightbox-prev
+            aria-label="Previous image"
+        >
+            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+        </button>
+        <div class="overflow-hidden w-full max-w-4xl" data-lightbox-main>
+            <div class="flex">
+                {images.map((image, i) => (
+                    <div class="min-w-full shrink-0 flex items-center justify-center">
+                        <img
+                            src={image.url}
+                            alt={image.alt || `${title} image ${i + 1}`}
+                            class="max-h-[75vh] w-auto max-w-full object-contain"
+                            loading={i === 0 ? 'eager' : 'lazy'}
+                        />
+                    </div>
+                ))}
+            </div>
+        </div>
+        <button
+            type="button"
+            class="btn text-white/80 hover:text-white absolute right-2 md:right-6 z-10"
+            data-variant="ghost"
+            data-lightbox-next
+            aria-label="Next image"
+        >
+            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+        </button>
+    </div>
+
+    <div class="shrink-0 px-4 py-4">
+        <div class="overflow-hidden max-w-2xl mx-auto" data-lightbox-thumbs>
+            <div class="flex gap-2 justify-center">
+                {images.map((image, i) => (
+                    <button
+                        type="button"
+                        class="shrink-0 w-16 h-16 md:w-20 md:h-20 overflow-hidden rounded-lg border-2 transition-all data-[active]:border-white data-[active]:opacity-100 opacity-50 hover:opacity-80"
+                        data-lightbox-thumb={i}
+                        aria-label={`Select image ${i + 1}`}
+                    >
+                        <img
+                            src={image.url}
+                            alt={image.alt || `${title} thumbnail ${i + 1}`}
+                            class="w-full h-full object-cover"
+                            loading="lazy"
+                        />
+                    </button>
+                ))}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    import emblaCarousel from 'embla-carousel'
+
+    const initGallery = (galleryRoot: HTMLElement) => {
+        if (galleryRoot.dataset.bound === 'true') return
+        galleryRoot.dataset.bound = 'true'
+
+        const mainViewport = galleryRoot.querySelector<HTMLElement>('[data-gallery-main]')
+        const thumbButtons = [...galleryRoot.querySelectorAll<HTMLElement>('[data-gallery-thumb]')]
+        const triggerButtons = [...galleryRoot.querySelectorAll<HTMLElement>('[data-gallery-trigger]')]
+        const lightbox = document.querySelector<HTMLElement>('[data-gallery-lightbox]')
+        if (!mainViewport || !lightbox) return
+
+        const totalSlides = lightbox.querySelectorAll('[data-lightbox-thumb]').length
+
+        const mainApi = emblaCarousel(mainViewport, {
+            align: 'start',
+            dragFree: false,
+            containScroll: 'trimSnaps'
+        })
+
+        const syncThumbs = () => {
+            const index = mainApi.selectedScrollSnap()
+            thumbButtons.forEach((btn, i) => {
+                btn.toggleAttribute('data-active', i === index)
+            })
+        }
+        mainApi.on('select', syncThumbs)
+        mainApi.on('init', syncThumbs)
+
+        thumbButtons.forEach((btn, i) => {
+            btn.addEventListener('click', () => mainApi.scrollTo(i))
+        })
+
+        const lightboxCounter = lightbox.querySelector<HTMLElement>('[data-lightbox-counter]')
+        const lightboxMainViewport = lightbox.querySelector<HTMLElement>('[data-lightbox-main]')
+        const lightboxPrev = lightbox.querySelector<HTMLElement>('[data-lightbox-prev]')
+        const lightboxNext = lightbox.querySelector<HTMLElement>('[data-lightbox-next]')
+        const lightboxClose = lightbox.querySelector<HTMLElement>('[data-lightbox-close]')
+        const lightboxThumbButtons = [...lightbox.querySelectorAll<HTMLElement>('[data-lightbox-thumb]')]
+        if (!lightboxMainViewport) return
+
+        const lbApi = emblaCarousel(lightboxMainViewport, {
+            align: 'start',
+            containScroll: 'trimSnaps',
+            loop: true
+        })
+
+        const syncLightbox = () => {
+            const index = lbApi.selectedScrollSnap()
+            lightboxThumbButtons.forEach((btn, i) => {
+                btn.toggleAttribute('data-active', i === index)
+            })
+            if (lightboxCounter) {
+                lightboxCounter.textContent = `${index + 1} / ${totalSlides}`
+            }
+        }
+        lbApi.on('select', syncLightbox)
+        lbApi.on('init', syncLightbox)
+
+        lightboxThumbButtons.forEach((btn, i) => {
+            btn.addEventListener('click', () => lbApi.scrollTo(i))
+        })
+
+        const openLightbox = (index: number) => {
+            lbApi.scrollTo(index, true)
+            lightbox.removeAttribute('hidden')
+            document.body.style.overflow = 'hidden'
+            if (lightboxCounter) {
+                lightboxCounter.textContent = `${index + 1} / ${totalSlides}`
+            }
+            setTimeout(() => lightboxClose?.focus(), 50)
+        }
+
+        const closeLightboxFn = () => {
+            lightbox.setAttribute('hidden', '')
+            document.body.style.overflow = ''
+        }
+
+        triggerButtons.forEach((btn, i) => {
+            btn.addEventListener('click', () => openLightbox(i))
+        })
+
+        lightboxClose?.addEventListener('click', closeLightboxFn)
+        lightboxPrev?.addEventListener('click', () => lbApi.scrollPrev())
+        lightboxNext?.addEventListener('click', () => lbApi.scrollNext())
+
+        lightbox.addEventListener('keydown', (e: Event) => {
+            const ke = e as KeyboardEvent
+            if (ke.key === 'Escape') closeLightboxFn()
+            if (ke.key === 'ArrowLeft') lbApi.scrollPrev()
+            if (ke.key === 'ArrowRight') lbApi.scrollNext()
+        })
+
+        lightbox.addEventListener('click', (e: Event) => {
+            if (e.target === lightbox) closeLightboxFn()
+        })
+
+        // Trap focus
+        lightbox.addEventListener('keydown', (e: Event) => {
+            const ke = e as KeyboardEvent
+            if (ke.key !== 'Tab') return
+            const focusable = lightbox.querySelectorAll<HTMLElement>('button:not([hidden])')
+            if (focusable.length === 0) return
+            const first = focusable[0]
+            const last = focusable[focusable.length - 1]
+            if (ke.shiftKey && document.activeElement === first) {
+                e.preventDefault()
+                last.focus()
+            } else if (!ke.shiftKey && document.activeElement === last) {
+                e.preventDefault()
+                first.focus()
+            }
+        })
+    }
+
+    const galleries = document.querySelectorAll('[data-gallery]')
+    galleries.forEach(el => initGallery(el as HTMLElement))
+    document.addEventListener('astro:after-swap', () => {
+        document.querySelectorAll('[data-gallery]').forEach(el => initGallery(el as HTMLElement))
+    })
+</script>

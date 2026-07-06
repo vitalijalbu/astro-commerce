@@ -1,0 +1,153 @@
+---
+interface SubCollectionLink {
+    handle: string
+    title: string
+}
+
+interface Props {
+    mode: 'collection' | 'search'
+    action: string
+    clearHref: string
+
+    // collection
+    sort?: string
+    subCollectionLinks?: SubCollectionLink[]
+    allTags?: string[]
+    selectedTags?: string[]
+
+    // search
+    query?: string
+    vendors?: string[]
+    selectedVendors?: string[]
+
+    // shared
+    onlyAvailable?: boolean
+    priceFloor?: number
+    priceCeiling?: number
+    sliderMin?: number
+    sliderMax?: number
+}
+
+const {
+    mode,
+    action,
+    clearHref,
+
+    sort = 'featured',
+    subCollectionLinks = [],
+    allTags = [],
+    selectedTags = [],
+
+    query = '',
+    vendors = [],
+    selectedVendors = [],
+
+    onlyAvailable = false,
+    priceFloor = 0,
+    priceCeiling = 500,
+    sliderMin = 0,
+    sliderMax = 500
+} = Astro.props
+
+const formatTag = (tag: string): string => tag
+    .split('-')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ')
+---
+
+<form action={action} method="get" class="flex flex-col gap-6" aria-label={`${mode === 'collection' ? 'Collection' : 'Search'} filters`}>
+    {mode === 'search' && query && <input type="hidden" name="q" value={query} />}
+    {mode === 'collection' && <input type="hidden" name="sort" value={sort} />}
+
+    <div class="flex items-center justify-between gap-3">
+        <h2 class="m-0 text-base font-semibold">Filters</h2>
+        <a href={clearHref} class="link-underline text-xs text-muted-foreground">Clear all</a>
+    </div>
+
+    {mode === 'collection' && subCollectionLinks.length > 0 && (
+        <div class="flex flex-col gap-2">
+            <h3 class="m-0 text-sm font-medium" id="subcollections-heading">Subcollections</h3>
+            <ul class="list-none p-0 m-0 flex flex-col gap-1" aria-labelledby="subcollections-heading">
+                {subCollectionLinks.slice(0, 12).map(sub => (
+                    <li>
+                        <a href={`/collections/${sub.handle}`} class="link-underline text-sm text-ink-soft hover:text-ink">
+                            {sub.title}
+                        </a>
+                    </li>
+                ))}
+            </ul>
+        </div>
+    )}
+
+    {mode === 'collection' && allTags.length > 0 && (
+        <fieldset class="m-0 flex flex-col gap-2 border-0 p-0">
+            <legend class="mb-1 text-sm font-medium">Tags</legend>
+            <div class="flex flex-col gap-2">
+                {allTags.map(tag => (
+                    <label class="checkbox">
+                        <input type="checkbox" name="tag" value={tag} checked={selectedTags.includes(tag)} />
+                        <span>{formatTag(tag)}</span>
+                    </label>
+                ))}
+            </div>
+        </fieldset>
+    )}
+
+    {mode === 'search' && (
+        <fieldset class="m-0 flex flex-col gap-2 border-0 p-0">
+            <legend class="mb-1 text-sm font-medium">Brand</legend>
+            {vendors.length > 0 ? vendors.map(vendor => (
+                <label class="checkbox">
+                    <input type="checkbox" name="vendor" value={vendor} checked={selectedVendors.includes(vendor)} />
+                    <span>{vendor}</span>
+                </label>
+            )) : <p class="m-0 text-sm text-muted-foreground">No vendor filters available.</p>}
+        </fieldset>
+    )}
+
+    <fieldset class="m-0 flex flex-col gap-2 border-0 p-0">
+        <legend class="mb-1 text-sm font-medium">Availability</legend>
+        <label class="checkbox">
+            <input type="checkbox" name="available" value="1" checked={onlyAvailable} />
+            <span>In stock only</span>
+        </label>
+    </fieldset>
+
+    <fieldset class="m-0 border-0 p-0">
+        <legend class="mb-2 text-sm font-medium">Price range</legend>
+        {mode === 'collection' ? (
+            <>
+                <div class="flex items-center justify-between text-sm text-ink-soft mb-2">
+                    <span>€{sliderMin}</span>
+                    <span>€{sliderMax}</span>
+                </div>
+                <div class="flex flex-col gap-2">
+                    <label class="flex flex-col gap-1 text-xs text-muted-foreground">
+                        Min
+                        <input type="range" min={priceFloor} max={priceCeiling} step={1} value={sliderMin} data-price-min class="range" aria-label="Minimum price" />
+                    </label>
+                    <label class="flex flex-col gap-1 text-xs text-muted-foreground">
+                        Max
+                        <input type="range" min={priceFloor} max={priceCeiling} step={1} value={sliderMax} data-price-max class="range" aria-label="Maximum price" />
+                    </label>
+                </div>
+                <input type="hidden" name="price" value={sliderMin} data-price-min />
+                <input type="hidden" name="price" value={sliderMax} data-price-max />
+            </>
+        ) : (
+            <div class="input-group">
+                <label class="flex flex-col gap-1 text-xs text-muted-foreground flex-1">
+                    Min
+                    <input type="number" min="0" step="1" name="min" value={sliderMin || ''} class="input" inputmode="numeric" aria-label="Minimum price" />
+                </label>
+                <span class="self-end pb-2 text-muted-foreground" aria-hidden="true">—</span>
+                <label class="flex flex-col gap-1 text-xs text-muted-foreground flex-1">
+                    Max
+                    <input type="number" min="0" step="1" name="max" value={sliderMax || ''} class="input" inputmode="numeric" aria-label="Maximum price" />
+                </label>
+            </div>
+        )}
+    </fieldset>
+
+    <button type="submit" class="btn w-full">Apply filters</button>
+</form>

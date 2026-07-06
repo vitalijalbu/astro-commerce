@@ -1,7 +1,7 @@
 ---
 import Layout from '@components/layout.astro'
 import { parsePageParam } from '@lib/paginate'
-import SearchResults from '@snippets/search-results.astro'
+import Results from '@snippets/results.astro'
 import SkeletonProductGrid from '@snippets/skeleton-product-grid.astro'
 
 
@@ -37,7 +37,8 @@ const maxPrice = parsePrice(params.get('max'))
             </form>
         </div>
 
-        <SearchResults
+        <Results
+            mode="search"
             query={query}
             sort={sort}
             page={page}
@@ -59,6 +60,6 @@ const maxPrice = parsePrice(params.get('max'))
                 </aside>
                 <SkeletonProductGrid count={6} columns={3} />
             </div>
-        </SearchResults>
+        </Results>
     </div>
 </Layout>

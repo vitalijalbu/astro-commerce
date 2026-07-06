@@ -1,0 +1,88 @@
+---
+import Layout from '@components/layout.astro'
+import { requireGuest } from '@lib/auth'
+
+const guard = requireGuest(Astro)
+if (guard) return guard
+
+let sent = false
+let error: string | null = null
+
+if (Astro.request.method === 'POST') {
+  const form = await Astro.request.formData()
+  const email = String(form.get('email') || '')
+
+  if (!email) {
+    error = 'Please enter your email address.'
+  } else {
+    try {
+      const apiUrl = import.meta.env.PUBLIC_API_URL?.replace(/\/$/, '')
+      if (apiUrl) {
+        await fetch(`${apiUrl}/auth/forgot-password`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email }),
+        })
+      }
+      sent = true
+    } catch (e) {
+      error = 'Could not send reset email. Please try again.'
+    }
+  }
+}
+---
+
+<Layout title="Reset password — ATELIER">
+  <div class="page py-16 md:py-24 flex justify-center">
+    <div class="w-full max-w-md">
+      {sent ? (
+        <>
+          <h1 class="text-3xl font-semibold tracking-tight text-center mb-2">Check your email</h1>
+          <p class="text-center text-ink-soft mb-8">
+            If an account exists with that email, we've sent a password reset link.
+          </p>
+          <div class="alert mb-6">
+            <div class="alert-title">Reset link sent</div>
+            <p class="text-sm mt-1">Please check your inbox and follow the instructions to reset your password. The link expires in 1 hour.</p>
+          </div>
+          <p class="text-center text-sm text-ink-soft mt-6">
+            <a href="/login" class="link-underline font-medium">Back to sign in</a>
+          </p>
+        </>
+      ) : (
+        <>
+          <h1 class="text-3xl font-semibold tracking-tight text-center mb-2">Forgot password</h1>
+          <p class="text-center text-ink-soft mb-8">
+            Enter your email and we'll send you a reset link.
+          </p>
+
+          {error && <div class="mb-4"><div class="alert" data-variant="destructive">{error}</div></div>}
+
+          <form method="post" class="flex flex-col gap-4">
+            <label class="flex flex-col gap-1.5 text-sm font-medium">
+              Email
+              <input
+                type="email"
+                name="email"
+                placeholder="you@example.com"
+                required
+                autocomplete="email"
+                class="input"
+                aria-describedby="email-hint"
+              />
+              <span id="email-hint" class="text-xs text-muted-foreground">
+                We'll send a reset link to this address if an account exists.
+              </span>
+            </label>
+
+            <button type="submit" class="btn w-full">Send reset link</button>
+          </form>
+
+          <p class="text-center text-sm text-ink-soft mt-6">
+            Remember your password? <a href="/login" class="link-underline font-medium">Sign in</a>
+          </p>
+        </>
+      )}
+    </div>
+  </div>
+</Layout>

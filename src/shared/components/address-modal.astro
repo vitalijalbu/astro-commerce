@@ -15,46 +15,46 @@ const countryOptions =
     selectedCountry && !COUNTRIES.includes(selectedCountry) ? [selectedCountry, ...COUNTRIES] : COUNTRIES
 ---
 
-<dialog id={id} class="dialog" aria-labelledby={`${id}-title`}>
+<dialog id={id} class="dialog" aria-labelledby={`${id}-title`} aria-modal="true">
     <div class="sm:max-w-lg">
         <header>
             <h2 id={`${id}-title`}>{title}</h2>
         </header>
         <section>
-            <form method="post" class="flex flex-col gap-4">
+            <form method="post" class="flex flex-col gap-4" novalidate>
                 <input type="hidden" name="intent" value="address-save" />
                 {address && <input type="hidden" name="id" value={address.id} />}
 
                 <div class="grid grid-cols-2 gap-4">
                     <label class="flex flex-col gap-1.5 text-sm font-medium">
                         First name
-                        <input class="input" name="firstName" value={address?.firstName} required />
+                        <input class="input" name="firstName" value={address?.firstName} required autocomplete="given-name" />
                     </label>
                     <label class="flex flex-col gap-1.5 text-sm font-medium">
                         Last name
-                        <input class="input" name="lastName" value={address?.lastName} required />
+                        <input class="input" name="lastName" value={address?.lastName} required autocomplete="family-name" />
                     </label>
                 </div>
                 <label class="flex flex-col gap-1.5 text-sm font-medium">
                     Company (optional)
-                    <input class="input" name="company" value={address?.company} />
+                    <input class="input" name="company" value={address?.company} autocomplete="organization" />
                 </label>
                 <label class="flex flex-col gap-1.5 text-sm font-medium">
                     Address
-                    <input class="input" name="line1" value={address?.line1} required />
+                    <input class="input" name="line1" value={address?.line1} required autocomplete="address-line1" />
                 </label>
                 <label class="flex flex-col gap-1.5 text-sm font-medium">
                     Apartment, suite, etc. (optional)
-                    <input class="input" name="line2" value={address?.line2} />
+                    <input class="input" name="line2" value={address?.line2} autocomplete="address-line2" />
                 </label>
                 <div class="grid grid-cols-2 gap-4">
                     <label class="flex flex-col gap-1.5 text-sm font-medium">
                         City
-                        <input class="input" name="city" value={address?.city} required />
+                        <input class="input" name="city" value={address?.city} required autocomplete="address-level2" />
                     </label>
                     <label class="flex flex-col gap-1.5 text-sm font-medium">
                         Postcode
-                        <input class="input" name="postcode" value={address?.postcode} required />
+                        <input class="input" name="postcode" value={address?.postcode} required autocomplete="postal-code" />
                     </label>
                 </div>
                 <div class="grid grid-cols-2 gap-4">
@@ -65,25 +65,26 @@ const countryOptions =
                                 name="country"
                                 required
                                 class="select"
+                                autocomplete="country-name"
                             >
                                 <option value="" disabled selected={!selectedCountry}>Select a country</option>
                                 {countryOptions.map(country => (
                                     <option value={country} selected={country === selectedCountry}>{country}</option>
                                 ))}
                             </select>
-                            <span class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                            <span class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground" aria-hidden="true">
                                 <Icon type="chevron-down" size={16} />
                             </span>
                         </div>
                     </label>
                     <label class="flex flex-col gap-1.5 text-sm font-medium">
                         Phone (optional)
-                        <input class="input" name="phone" value={address?.phone} />
+                        <input class="input" name="phone" value={address?.phone} type="tel" autocomplete="tel" />
                     </label>
                 </div>
-                <label class="flex items-center gap-2 text-sm font-medium">
-                    <input type="checkbox" class="input" name="isDefault" checked={address?.isDefault} />
-                    Set as default address
+                <label class="checkbox">
+                    <input type="checkbox" name="isDefault" checked={address?.isDefault} />
+                    <span>Set as default address</span>
                 </label>
 
                 <div class="flex gap-2 mt-2">
@@ -93,7 +94,7 @@ const countryOptions =
             </form>
         </section>
         <button type="button" class="btn" data-variant="ghost" data-size="icon-sm" aria-label="Close dialog" onclick="this.closest('dialog').close()">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
         </button>
     </div>
 </dialog>

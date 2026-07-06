@@ -26,16 +26,18 @@ const contentAlignMap = {
     <div class="flex overflow-x-auto snap-x snap-mandatory scrollbar-none">
         {slides.map((slide, i) => (
             <article class="w-full shrink-0 snap-start relative isolate aspect-4/5 overflow-hidden bg-paper-dark md:aspect-video xl:aspect-2/1">
-                <Image
-                    src={slide.image}
-                    alt={slide.heading}
-                    width={2000}
-                    height={1100}
-                    loading={i === 0 ? 'eager' : 'lazy'}
-                    fetchpriority={i === 0 ? 'high' : 'auto'}
-                    sizes="100vw"
-                    class="absolute inset-0 h-full w-full object-cover"
-                />
+                <div class="absolute inset-0 overflow-hidden">
+                    <Image
+                        src={slide.image}
+                        alt={slide.heading}
+                        width={2000}
+                        height={1100}
+                        loading={i === 0 ? 'eager' : 'lazy'}
+                        fetchpriority={i === 0 ? 'high' : 'auto'}
+                        sizes="100vw"
+                        class="h-full w-full object-cover"
+                    />
+                </div>
                 <div class="absolute inset-0 bg-linear-to-r from-black/60 via-black/25 to-black/10"></div>
                 <div class="absolute inset-0 bg-linear-to-t from-black/35 via-transparent to-transparent"></div>
 

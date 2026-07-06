@@ -1,4 +1,4 @@
-import { closeDrawer, initDrawerCancel } from '@utils/dom';
+import { closeDrawer, initDrawerBackdrop, initDrawerCancel } from '@utils/dom';
 
 export interface ClientCartLine {
 	id: string;
@@ -186,6 +186,16 @@ export function initCart() {
 	if (drawer && drawer.dataset.cartCancelBound !== 'true') {
 		drawer.dataset.cartCancelBound = 'true';
 		initDrawerCancel(drawer);
+		if (!drawer.dataset.cartBackdropBound) {
+			drawer.dataset.cartBackdropBound = 'true';
+			initDrawerBackdrop(drawer);
+		}
+
+		drawer.querySelectorAll<HTMLElement>('[data-drawer-close]').forEach(btn => {
+			if (btn.dataset.bound === 'true') return
+			btn.dataset.bound = 'true'
+			btn.addEventListener('click', () => closeDrawer(drawer!))
+		})
 	}
 
 	if (!listenersBound) {

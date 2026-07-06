@@ -12,7 +12,9 @@
 			"@snippets/*": ["src/shared/snippets/*"],
 			"@utils/*": ["src/shared/utils/*"],
 			"@lib/*": ["src/lib/*"],
-			"@styles/*": ["src/styles/*"]
+			"@styles/*": ["src/styles/*"],
+		"@stores/*": ["src/lib/stores/*"],
+		"@query": ["src/lib/query"]
 		}
 	}
 }

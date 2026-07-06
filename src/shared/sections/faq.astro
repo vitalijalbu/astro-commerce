@@ -12,13 +12,49 @@ const s = section.settings
 ---
 
 <Section spacing="md" background={section.background} id={section.id}>
-    <div class="max-w-3xl mx-auto">
+    <div class="max-w-3xl mx-auto" data-accordion>
         <SectionHeading heading={s.heading} subheading={s.subheading} align="center" />
-        {s.items.map(item => (
-            <details class="accordion">
-                <summary>{item.title}</summary>
-                <p>{item.content}</p>
+        {s.items.map((item, i) => (
+            <details class="accordion border-b border-line" open={i === 0}>
+                <summary class="accordion-trigger">{item.title}</summary>
+                <div class="accordion-content"><p>{item.content}</p></div>
             </details>
         ))}
     </div>
 </Section>
+
+<script>
+    const initAccordion = (root: HTMLElement) => {
+        if (root.dataset.bound === 'true') return
+        root.dataset.bound = 'true'
+
+        const details = [...root.querySelectorAll<HTMLElement>('details.accordion')]
+
+        details.forEach(detail => {
+            const summary = detail.querySelector('summary')
+            if (!summary) return
+
+            summary.addEventListener('click', (e: Event) => {
+                e.preventDefault()
+                const isOpen = detail.hasAttribute('open')
+
+                details.forEach(d => {
+                    if (d !== detail && d.hasAttribute('open')) {
+                        d.removeAttribute('open')
+                    }
+                })
+
+                if (isOpen) {
+                    detail.removeAttribute('open')
+                } else {
+                    detail.setAttribute('open', '')
+                }
+            })
+        })
+    }
+
+    document.querySelectorAll('[data-accordion]').forEach(el => initAccordion(el as HTMLElement))
+    document.addEventListener('astro:after-swap', () => {
+        document.querySelectorAll('[data-accordion]').forEach(el => initAccordion(el as HTMLElement))
+    })
+</script>

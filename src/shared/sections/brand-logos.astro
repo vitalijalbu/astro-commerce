@@ -1,9 +1,7 @@
 ---
-import { Image } from 'astro:assets'
 import type { BrandLogosSection } from '@lib/sections'
 import Section from '@snippets/section.astro'
 import SectionHeading from '@snippets/section-heading.astro'
-import brandPlaceholder from '../../assets/brand-placeholder.png'
 
 interface Props {
     section: BrandLogosSection
@@ -20,7 +18,7 @@ const s = section.settings
         {s.brands.map(brand => {
             const content = (
                 <div class="flex h-full min-h-28 flex-col items-center justify-center gap-3 rounded-[--radius-card] border border-line bg-paper px-4 py-6 text-center transition hover:border-line-strong hover:bg-paper-soft">
-                    <Image src={brandPlaceholder} alt={`${brand.name} logo`} width={120} height={48} class="h-10 w-auto object-contain opacity-80" />
+                    <img src={brand.logo} alt={`${brand.name} logo`} width="120" height="48" class="h-10 w-auto object-contain opacity-80" loading="lazy" />
                     <span class="text-sm font-medium text-ink-soft">{brand.name}</span>
                 </div>
             )

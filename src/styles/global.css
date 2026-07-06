@@ -16,9 +16,11 @@
 	--color-paper-dark: #181516;
 	--color-brand: #111111;
 	--color-brand-contrast: #ffffff;
-	--color-accent-old: #111111;
+	--color-accent: #111111;
 	--color-accent-soft: #ededed;
 	--color-sale: #9c2f2f;
+	--color-background: #ffffff;
+	--color-foreground: #111111;
 
 	--spacing-section: 5.5rem;
 	--container-page: 82rem;
@@ -118,11 +120,11 @@
 	.has-menu > .menu-panel {
 		opacity: 0;
 		visibility: hidden;
-		transform: translateY(6px);
+		transform: translateY(4px);
 		transition:
-			opacity 0.18s ease,
-			transform 0.18s ease,
-			visibility 0.18s;
+			opacity 0.1s cubic-bezier(0.22, 1, 0.36, 1),
+			transform 0.1s cubic-bezier(0.22, 1, 0.36, 1),
+			visibility 0.1s;
 	}
 	.has-menu:hover > .menu-panel,
 	.has-menu:focus-within > .menu-panel {

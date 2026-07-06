@@ -23,7 +23,13 @@ const panels = mainMenu
 <dialog id="mobile-menu" class="drawer lg:hidden" data-side="left" aria-labelledby="mobile-menu-title">
     <article class="max-w-sm">
         <header>
-            <h2 id="mobile-menu-title">{shop.name}</h2>
+            <h2 id="mobile-menu-title" class="flex items-center gap-2">
+                <Icon type="store" size={18} />
+                {shop.name}
+            </h2>
+            <button type="button" class="btn" data-variant="ghost" data-size="icon-sm" aria-label="Close menu" data-menu-close>
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+            </button>
         </header>
         <section class="px-4">
             <div data-mobile-nav class="relative min-h-0 overflow-x-hidden overflow-y-auto">
@@ -34,34 +40,63 @@ const panels = mainMenu
                                 type="button"
                                 data-open-panel={index}
                                 aria-expanded="false"
-                                class="flex items-center justify-between gap-2 py-3 text-base font-medium border-b border-line text-left w-full"
+                                class="flex items-center justify-between gap-2 py-3 text-base font-medium border-b border-line text-left w-full hover:text-accent transition"
                             >
-                                {item.label}
-                                <Icon type="chevron-right" size={18} />
+                                <span>{item.label}</span>
+                                <Icon type="chevron-right" size={18} class="text-muted shrink-0" />
                             </button>
                         ) : (
-                            <a href={item.href} class="block py-3 text-base font-medium border-b border-line">
+                            <a href={item.href} class="flex items-center justify-between gap-2 py-3 text-base font-medium border-b border-line hover:text-accent transition">
                                 {item.label}
+                                <Icon type="chevron-right" size={18} class="text-muted shrink-0" />
                             </a>
                         )
                     ))}
 
                     <div class="mt-6 pt-4 border-t border-line flex flex-col gap-1">
+                        <a href="/search" class="flex items-center gap-3 py-2.5 text-sm font-medium hover:text-accent transition">
+                            <Icon type="search" size={16} class="text-muted" />
+                            Search
+                        </a>
                         {user ? (
                             <>
-                                <a href="/account" class="py-2 text-sm font-medium">My account</a>
-                                <a href="/account/orders" class="py-2 text-sm text-ink-soft">Orders</a>
-                                <a href="/wishlist" class="py-2 text-sm text-ink-soft">Wishlist</a>
-                                <a href="/logout" class="py-2 text-sm text-sale">Sign out</a>
+                                <a href="/account" class="flex items-center gap-3 py-2.5 text-sm font-medium hover:text-accent transition">
+                                    <Icon type="user" size={16} class="text-muted" />
+                                    My account
+                                </a>
+                                <a href="/account/orders" class="flex items-center gap-3 py-2.5 text-sm text-ink-soft hover:text-accent transition">
+                                    <Icon type="cart" size={16} class="text-muted" />
+                                    Orders
+                                </a>
+                                <a href="/wishlist" class="flex items-center gap-3 py-2.5 text-sm text-ink-soft hover:text-accent transition">
+                                    <Icon type="heart" size={16} class="text-muted" />
+                                    Wishlist
+                                </a>
+                                <a href="/logout" class="flex items-center gap-3 py-2.5 text-sm text-sale hover:text-accent transition">
+                                    <Icon type="close" size={16} />
+                                    Sign out
+                                </a>
                             </>
                         ) : (
                             <>
-                                <a href="/login" class="py-2 text-sm font-medium">Sign in</a>
-                                <a href="/register" class="py-2 text-sm text-ink-soft">Create account</a>
-                                <a href="/wishlist" class="py-2 text-sm text-ink-soft">Wishlist</a>
+                                <a href="/login" class="flex items-center gap-3 py-2.5 text-sm font-medium hover:text-accent transition">
+                                    <Icon type="user" size={16} class="text-muted" />
+                                    Sign in
+                                </a>
+                                <a href="/register" class="flex items-center gap-3 py-2.5 text-sm text-ink-soft hover:text-accent transition">
+                                    <Icon type="plus" size={16} class="text-muted" />
+                                    Create account
+                                </a>
+                                <a href="/wishlist" class="flex items-center gap-3 py-2.5 text-sm text-ink-soft hover:text-accent transition">
+                                    <Icon type="heart" size={16} class="text-muted" />
+                                    Wishlist
+                                </a>
                             </>
                         )}
-                        <a href={`mailto:${shop.email}`} class="py-2 text-sm text-muted-foreground">{shop.email}</a>
+                        <a href={`mailto:${shop.email}`} class="flex items-center gap-3 py-2.5 text-sm text-muted-foreground hover:text-accent transition">
+                            <Icon type="mail" size={16} />
+                            {shop.email}
+                        </a>
                     </div>
                 </nav>
 
@@ -75,17 +110,19 @@ const panels = mainMenu
                         <button
                             type="button"
                             data-close-panel
-                            class="flex items-center gap-1.5 py-3 text-sm font-medium text-muted-foreground border-b border-line text-left w-full"
+                            class="flex items-center gap-2 py-3 text-sm font-medium text-muted-foreground border-b border-line text-left w-full hover:text-ink transition"
                         >
                             <Icon type="chevron-left" size={18} />
                             Back
                         </button>
-                        <a href={panel.href} class="py-3 text-base font-semibold border-b border-line">
+                        <a href={panel.href} class="flex items-center justify-between py-3 text-base font-semibold border-b border-line hover:text-accent transition">
                             All {panel.label}
+                            <Icon type="chevron-right" size={18} class="text-muted shrink-0" />
                         </a>
                         {panel.links.map(link => (
-                            <a href={link.href} class="py-2.5 text-sm text-ink-soft border-b border-line/60">
+                            <a href={link.href} class="flex items-center justify-between py-2.5 text-sm text-ink-soft border-b border-line/60 hover:text-accent transition">
                                 {link.label}
+                                <Icon type="chevron-right" size={16} class="text-muted shrink-0 opacity-50" />
                             </a>
                         ))}
                     </nav>
@@ -94,6 +131,12 @@ const panels = mainMenu
         </section>
     </article>
 </dialog>
+
+<style>
+    .mobile-panel--child {
+        transition: transform 0.22s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+</style>
 
 <script>
     import { closeDrawer, initDrawerCancel, initDrawerBackdrop } from '@utils/dom'
@@ -117,23 +160,40 @@ const panels = mainMenu
             })
         }
 
+        dialog.querySelectorAll<HTMLElement>('[data-menu-close]').forEach(btn => {
+            btn.addEventListener('click', () => closeDrawer(dialog))
+        })
+
         initDrawerCancel(dialog)
         initDrawerBackdrop(dialog)
 
         const closeAll = () => {
-            nav.querySelectorAll('.mobile-panel--child.is-active').forEach(p => p.classList.remove('is-active'))
+            nav.querySelectorAll('.mobile-panel--child.is-active').forEach(p => {
+                p.classList.remove('is-active')
+                p.setAttribute('aria-hidden', 'true')
+            })
             nav.querySelectorAll('[data-open-panel]').forEach(b => b.setAttribute('aria-expanded', 'false'))
         }
 
         nav.addEventListener('click', e => {
             const opener = (e.target as HTMLElement).closest<HTMLElement>('[data-open-panel]')
             if (opener) {
-                nav.querySelector(`[data-panel="${opener.dataset.openPanel}"]`)?.classList.add('is-active')
+                const panel = nav.querySelector<HTMLElement>(`[data-panel="${opener.dataset.openPanel}"]`)
+                if (panel) {
+                    panel.classList.add('is-active')
+                    panel.setAttribute('aria-hidden', 'false')
+                }
                 opener.setAttribute('aria-expanded', 'true')
                 return
             }
             const closer = (e.target as HTMLElement).closest<HTMLElement>('[data-close-panel]')
-            if (closer) closer.closest('.mobile-panel--child')?.classList.remove('is-active')
+            if (closer) {
+                const child = closer.closest('.mobile-panel--child')
+                if (child) {
+                    child.classList.remove('is-active')
+                    child.setAttribute('aria-hidden', 'true')
+                }
+            }
         })
 
         dialog.addEventListener('close', () => {

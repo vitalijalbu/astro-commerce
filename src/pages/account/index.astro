@@ -4,7 +4,6 @@ import Layout from '@components/layout.astro'
 import { getCurrentUser, requireAuth } from '@lib/auth'
 import Icon from '@snippets/icon.astro'
 
-
 const guard = requireAuth(Astro)
 if (guard) return guard
 const user = getCurrentUser(Astro)
@@ -15,11 +14,26 @@ const shortcuts = [
     { href: '/account/profile', icon: 'shield', title: 'Profile', text: 'Update your details and address.' },
     { href: '/collections/all', icon: 'truck', title: 'Keep shopping', text: 'Browse the latest arrivals.' }
 ]
+
+const breadcrumbs = [
+    { name: 'Home', item: '/' },
+    { name: 'Account', item: '/account' }
+]
 ---
 
-<Layout title="My account — ATELIER">
+<Layout
+    title="My account — ATELIER"
+    breadcrumbs={breadcrumbs}
+>
     <div class="page py-10 md:py-14">
-        <h1 class="text-3xl font-semibold tracking-tight mb-1">
+        <nav class="breadcrumb" aria-label="Breadcrumb">
+            <ol>
+                <li><a href="/">Home</a></li>
+                <li aria-current="page">Account</li>
+            </ol>
+        </nav>
+
+        <h1 class="text-3xl font-semibold tracking-tight mb-1 mt-6">
             Hi {user.firstName || user.name || 'there'}
         </h1>
         <p class="text-ink-soft mb-8">Welcome back to your account.</p>
@@ -31,7 +45,7 @@ const shortcuts = [
                 <div class="card border-border">
                     <div class="card-section">
                         <div class="flex items-start gap-3">
-                            <span class="grid place-items-center w-10 h-10 rounded-full bg-accent-soft text-accent-old shrink-0">
+                            <span class="grid place-items-center w-10 h-10 rounded-full bg-accent-soft text-accent-old shrink-0" aria-hidden="true">
                                 <Icon type={s.icon} size={18} />
                             </span>
                             <div>

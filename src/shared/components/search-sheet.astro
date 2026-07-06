@@ -6,6 +6,9 @@ const popular = ['Linen', 'Knitwear', 'Loafers', 'Tote bag', 'Sale']
     <article>
         <header>
             <h2 id="search-sheet-title">Search</h2>
+            <button type="button" class="btn" data-variant="ghost" data-size="icon-sm" aria-label="Close search" onclick="this.closest('dialog').close()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+            </button>
         </header>
         <section class="px-4">
             <form action="/search" method="get" class="flex gap-2">

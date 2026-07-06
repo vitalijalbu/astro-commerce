@@ -10,18 +10,13 @@ const { user } = Astro.props
 const label = user.name || user.firstName || user.email
 const initials = (user.name || user.email)
     .split(/\s+/).slice(0, 2).map(p => p[0]?.toUpperCase() ?? '').join('') || 'U'
-
-const links = [
-    { href: '/account', label: 'Overview', icon: 'user' },
-    { href: '/account/orders', label: 'Orders', icon: 'cart' },
-    { href: '/account/profile', label: 'Profile', icon: 'shield' }
-]
 ---
 
-<div class="has-menu relative">
+<div class="dropdown-menu">
     <button
         type="button"
         aria-haspopup="menu"
+        aria-expanded="false"
         class="flex items-center gap-2 rounded-full pl-1 pr-2 py-1 hover:bg-paper-soft transition"
     >
         <span class="grid place-items-center w-8 h-8 rounded-full bg-accent-soft text-accent text-xs font-semibold">
@@ -31,20 +26,26 @@ const links = [
         <Icon type="chevron-down" size={14} />
     </button>
 
-    <div class="menu-panel absolute right-0 top-full pt-2 z-50">
-        <div class="w-60 bg-paper border border-line rounded-[--radius-card] shadow-xl overflow-hidden" role="menu">
-            <div class="p-4 border-b border-line">
+    <div data-popover aria-hidden="true" data-align="end" class="mt-2">
+        <div role="menu" class="w-60 bg-paper border border-line rounded-[--radius-card] shadow-xl overflow-hidden" aria-label="User menu">
+            <div class="p-4 border-b border-line" role="heading" aria-level="2">
                 <p class="text-sm font-semibold m-0 truncate">{label}</p>
                 <p class="text-xs text-muted m-0 truncate">{user.email}</p>
             </div>
-            {links.map(l => (
-                <a href={l.href} role="menuitem" class="flex items-center gap-2.5 px-4 py-2.5 text-sm hover:bg-paper-soft">
-                    <Icon type={l.icon} size={16} />
-                    {l.label}
-                </a>
-            ))}
-            <hr class="border-line m-0" />
-            <a href="/logout" role="menuitem" class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-sale hover:bg-paper-soft">
+            <a href="/account" role="menuitem" class="flex items-center gap-2.5 px-4 py-2.5 text-sm hover:bg-paper-soft transition">
+                <Icon type="user" size={16} />
+                Overview
+            </a>
+            <a href="/account/orders" role="menuitem" class="flex items-center gap-2.5 px-4 py-2.5 text-sm hover:bg-paper-soft transition">
+                <Icon type="cart" size={16} />
+                Orders
+            </a>
+            <a href="/account/profile" role="menuitem" class="flex items-center gap-2.5 px-4 py-2.5 text-sm hover:bg-paper-soft transition">
+                <Icon type="shield" size={16} />
+                Profile
+            </a>
+            <div role="separator" class="border-t border-line my-0"></div>
+            <a href="/logout" role="menuitem" class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-sale hover:bg-paper-soft transition">
                 <Icon type="close" size={16} />
                 Sign out
             </a>

@@ -23,7 +23,9 @@ const { user } = Astro.props
                 aria-haspopup="dialog"
                 aria-controls="mobile-menu"
                 aria-expanded="false"
-                class="lg:hidden p-2 -ml-2"
+                class="btn lg:hidden -ml-2"
+                data-variant="ghost"
+                data-size="icon"
             >
                 <Icon type="menu" size={22} />
             </button>
@@ -98,12 +100,14 @@ const { user } = Astro.props
                 aria-haspopup="dialog"
                 aria-controls="search-sheet"
                 aria-expanded="false"
-                class="p-2 hover:text-accent transition"
+                class="btn"
+                data-variant="ghost"
+                data-size="icon"
             >
                 <Icon type="search" size={20} />
             </button>
 
-            <a href="/wishlist" aria-label="Wishlist" class="relative inline-flex p-2 transition hover:text-accent">
+            <a href="/wishlist" aria-label="Wishlist" class="btn relative" data-variant="ghost" data-size="icon">
                 <Icon type="heart" size={20} />
                 <span
                     data-wishlist-count
@@ -116,7 +120,7 @@ const { user } = Astro.props
             {user ? (
                 <UserDropdown user={user} />
             ) : (
-                <a href="/login" class="hidden sm:inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium hover:text-accent transition">
+                <a href="/login" class="btn hidden sm:inline-flex" data-variant="ghost">
                     <Icon type="user" size={18} />
                     <span class="hidden md:inline">Sign in</span>
                 </a>

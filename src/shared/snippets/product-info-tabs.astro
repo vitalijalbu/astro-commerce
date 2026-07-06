@@ -1,0 +1,99 @@
+---
+interface TabItem {
+    id: string
+    label: string
+    content: string
+}
+
+interface Props {
+    items: TabItem[]
+}
+
+const { items } = Astro.props
+---
+
+<div class="product-tabs border-t border-line mt-8" data-tabs>
+    <div class="flex border-b border-line" role="tablist" aria-label="Product information">
+        {items.map((item, i) => (
+            <button
+                type="button"
+                role="tab"
+                id={`tab-${item.id}`}
+                aria-controls={`tabpanel-${item.id}`}
+                aria-selected={i === 0 ? 'true' : 'false'}
+                tabindex={i === 0 ? '0' : '-1'}
+                class="btn flex-1 rounded-none border-b-2 border-transparent py-3 px-4 text-sm font-medium transition data-[selected]:border-ink data-[selected]:text-ink text-ink-soft"
+                data-variant="ghost"
+                data-tab-trigger={item.id}
+            >
+                {item.label}
+            </button>
+        ))}
+    </div>
+
+    {items.map((item, i) => (
+        <div
+            role="tabpanel"
+            id={`tabpanel-${item.id}`}
+            aria-labelledby={`tab-${item.id}`}
+            class="py-6 prose-sm max-w-none"
+            hidden={i !== 0}
+            data-tab-panel={item.id}
+        >
+            <div set:html={item.content} />
+        </div>
+    ))}
+</div>
+
+<script>
+    const initTabs = (root: HTMLElement) => {
+        if (root.dataset.bound === 'true') return
+        root.dataset.bound = 'true'
+
+        const triggers = [...root.querySelectorAll<HTMLElement>('[data-tab-trigger]')]
+        const panels = [...root.querySelectorAll<HTMLElement>('[data-tab-panel]')]
+
+        const activate = (id: string) => {
+            triggers.forEach(btn => {
+                const isActive = btn.dataset.tabTrigger === id
+                btn.setAttribute('aria-selected', String(isActive))
+                btn.setAttribute('tabindex', isActive ? '0' : '-1')
+                btn.toggleAttribute('data-selected', isActive)
+            })
+            panels.forEach(panel => {
+                panel.hidden = panel.dataset.tabPanel !== id
+            })
+        }
+
+        triggers.forEach(btn => {
+            btn.addEventListener('click', () => activate(btn.dataset.tabTrigger ?? ''))
+            btn.addEventListener('keydown', (e: Event) => {
+                const ke = e as KeyboardEvent
+                const currentIdx = triggers.indexOf(btn)
+                let nextIdx = -1
+                if (ke.key === 'ArrowRight') nextIdx = (currentIdx + 1) % triggers.length
+                if (ke.key === 'ArrowLeft') nextIdx = (currentIdx - 1 + triggers.length) % triggers.length
+                if (nextIdx !== -1) {
+                    e.preventDefault()
+                    triggers[nextIdx].focus()
+                    activate(triggers[nextIdx].dataset.tabTrigger ?? '')
+                }
+                if (ke.key === 'Home') {
+                    e.preventDefault()
+                    triggers[0].focus()
+                    activate(triggers[0].dataset.tabTrigger ?? '')
+                }
+                if (ke.key === 'End') {
+                    e.preventDefault()
+                    triggers[triggers.length - 1].focus()
+                    activate(triggers[triggers.length - 1].dataset.tabTrigger ?? '')
+                }
+            })
+        })
+    }
+
+    document.querySelectorAll('[data-tabs]').forEach(el => initTabs(el as HTMLElement))
+    document.addEventListener('astro:after-swap', () => {
+        document.querySelectorAll('[data-tabs]').forEach(el => initTabs(el as HTMLElement))
+    })
+</script>

@@ -5,6 +5,9 @@ import tailwindcss from '@tailwindcss/vite';
 import { defineConfig, fontProviders, memoryCache } from 'astro/config';
 
 export default defineConfig({
+	devToolbar: {
+		enabled: false
+	},
 	output: 'server',
 	adapter: vercel(),
 	server: { host: true, port: Number(process.env.PORT) || 4321 },

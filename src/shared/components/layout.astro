@@ -17,7 +17,12 @@ interface Props {
     image?: string
     canonical?: string
     noindex?: boolean
+    nofollow?: boolean
     type?: 'website' | 'article' | 'product'
+    publishedTime?: string
+    author?: string
+    breadcrumbs?: { name: string; item: string }[]
+    locale?: string
 }
 
 const {
@@ -26,24 +31,33 @@ const {
     image,
     canonical,
     noindex = false,
-    type = 'website'
+    nofollow = false,
+    type = 'website',
+    publishedTime,
+    author,
+    breadcrumbs,
+    locale = 'en_US'
 } = Astro.props
 
 const authed = isAuthenticated(Astro)
 const user = authed ? getCurrentUser(Astro) : null
 const canonicalUrl = canonical ? new URL(canonical, Astro.url).toString() : Astro.url.href
-const imageUrl = image ? new URL(image, Astro.url).toString() : undefined
-const robots = noindex ? 'noindex,nofollow' : 'index,follow,max-image-preview:large'
+const origin = Astro.url.origin
+const imageUrl = image ? (image.startsWith('http') ? image : new URL(image, origin).toString()) : undefined
+const robots = noindex && nofollow ? 'noindex,nofollow'
+    : noindex ? 'noindex,follow'
+    : nofollow ? 'index,nofollow'
+    : 'index,follow,max-image-preview:large'
 
 const websiteSchema = {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
     name: shop.name,
-    url: Astro.url.origin,
+    url: origin,
     description,
     potentialAction: {
         '@type': 'SearchAction',
-        target: `${Astro.url.origin}/search?q={search_term_string}`,
+        target: `${origin}/search?q={search_term_string}`,
         'query-input': 'required name=search_term_string'
     }
 }
@@ -52,9 +66,21 @@ const orgSchema = {
     '@context': 'https://schema.org',
     '@type': 'Organization',
     name: shop.name,
-    url: Astro.url.origin,
-    email: shop.email
+    url: origin,
+    email: shop.email,
+    logo: `${origin}/logo.svg`
 }
+
+const breadcrumbSchema = breadcrumbs && breadcrumbs.length > 0 ? {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: breadcrumbs.map((crumb, i) => ({
+        '@type': 'ListItem',
+        position: i + 1,
+        name: crumb.name,
+        item: crumb.item.startsWith('http') ? crumb.item : `${origin}${crumb.item}`
+    }))
+} : null
 ---
 
 <!doctype html>
@@ -65,18 +91,23 @@ const orgSchema = {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="robots" content={robots} />
         <meta name="theme-color" content="#181516" />
+        <meta name="format-detection" content="telephone=no" />
 
         <link rel="canonical" href={canonicalUrl} />
         <link rel="preconnect" href="https://picsum.photos" />
         <link rel="preconnect" href="https://fastly.picsum.photos" />
 
         <meta property="og:site_name" content={shop.name} />
-        <meta property="og:locale" content="en_US" />
+        <meta property="og:locale" content={locale} />
         <meta property="og:type" content={type} />
         <meta property="og:title" content={title} />
         <meta property="og:description" content={description} />
         <meta property="og:url" content={canonicalUrl} />
         {imageUrl && <meta property="og:image" content={imageUrl} />}
+        {imageUrl && <meta property="og:image:width" content="1200" />}
+        {imageUrl && <meta property="og:image:height" content="630" />}
+        {type === 'article' && publishedTime && <meta property="article:published_time" content={publishedTime} />}
+        {type === 'article' && author && <meta property="article:author" content={author} />}
 
         <meta name="twitter:card" content={imageUrl ? 'summary_large_image' : 'summary'} />
         <meta name="twitter:title" content={title} />
@@ -89,6 +120,7 @@ const orgSchema = {
 
         <JsonLd data={websiteSchema} />
         <JsonLd data={orgSchema} />
+        {breadcrumbSchema && <JsonLd data={breadcrumbSchema} />}
         <slot name="structured-data" />
     </head>
     <body class="min-h-screen flex flex-col bg-paper text-ink">
@@ -109,10 +141,12 @@ const orgSchema = {
         <script>
             import { initCart } from '@utils/cart'
             import { initWishlist } from '@utils/wishlist'
+            import { initBasecoatDropdowns } from '@utils/dom'
 
             const initEnhancements = () => {
                 initCart()
                 initWishlist()
+                initBasecoatDropdowns()
             }
 
             initEnhancements()

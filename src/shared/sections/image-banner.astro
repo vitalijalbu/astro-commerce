@@ -25,14 +25,16 @@ const align = {
 ---
 
 <section class:list={['relative w-full flex', height]}>
-    <Image
-        src={s.image}
-        alt={s.heading}
-        width={imgSize.width}
-        height={imgSize.height}
-        loading="eager"
-        class="absolute inset-0 w-full h-full object-cover"
-    />
+    <div class="absolute inset-0 overflow-hidden">
+        <Image
+            src={s.image}
+            alt={s.heading}
+            width={imgSize.width}
+            height={imgSize.height}
+            loading="eager"
+            class="h-full w-full object-cover"
+        />
+    </div>
     <div class="absolute inset-0 bg-black/30"></div>
     <div class="page relative z-10 flex flex-col justify-center w-full">
         <div class:list={['flex flex-col gap-4 max-w-xl text-white', align]}>

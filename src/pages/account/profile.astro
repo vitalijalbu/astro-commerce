@@ -5,7 +5,6 @@ import Layout from '@components/layout.astro'
 import { deleteAddress, getAddresses, upsertAddress } from '@lib/addresses'
 import { getCurrentUser, requireAuth } from '@lib/auth'
 
-
 const guard = requireAuth(Astro)
 if (guard) return guard
 let user = getCurrentUser(Astro)
@@ -83,14 +82,35 @@ const passwordErrors: Record<string, string> = {
 }
 const okMessage = okMessages[params.get('ok') ?? '']
 const passwordError = passwordErrors[params.get('err') ?? '']
+
+const breadcrumbs = [
+    { name: 'Home', item: '/' },
+    { name: 'Account', item: '/account' },
+    { name: 'Profile', item: '/account/profile' }
+]
 ---
 
-<Layout title="Profile — ATELIER">
+<Layout
+    title="Profile — ATELIER"
+    breadcrumbs={breadcrumbs}
+>
     <div class="page py-10 md:py-14">
-        <h1 class="text-3xl font-semibold tracking-tight mb-6">Profile</h1>
+        <nav class="breadcrumb" aria-label="Breadcrumb">
+            <ol>
+                <li><a href="/">Home</a></li>
+                <li><a href="/account">Account</a></li>
+                <li aria-current="page">Profile</li>
+            </ol>
+        </nav>
+
+        <h1 class="text-3xl font-semibold tracking-tight mb-6 mt-6">Profile</h1>
         <AccountNav active="/account/profile" />
 
-        {okMessage && <div class="mb-6 max-w-lg"><div class="alert"><div class="alert-title">{okMessage}</div></div></div>}
+        {okMessage && (
+            <div class="mb-6 max-w-lg" role="status">
+                <div class="alert"><div class="alert-title">{okMessage}</div></div>
+            </div>
+        )}
 
         <section class="max-w-lg">
             <h2 class="text-xl font-semibold mb-4">Personal details</h2>
@@ -99,16 +119,16 @@ const passwordError = passwordErrors[params.get('err') ?? '']
                 <div class="grid grid-cols-2 gap-4">
                     <label class="flex flex-col gap-1.5 text-sm font-medium">
                         First name
-                        <input class="input" name="firstName" value={user.firstName} />
+                        <input class="input" name="firstName" value={user.firstName} autocomplete="given-name" />
                     </label>
                     <label class="flex flex-col gap-1.5 text-sm font-medium">
                         Last name
-                        <input class="input" name="lastName" value={user.lastName} />
+                        <input class="input" name="lastName" value={user.lastName} autocomplete="family-name" />
                     </label>
                 </div>
                 <label class="flex flex-col gap-1.5 text-sm font-medium">
                     Email
-                    <input class="input" type="email" name="email" value={user.email} />
+                    <input class="input" type="email" name="email" value={user.email} autocomplete="email" />
                 </label>
                 <div class="flex gap-2 mt-2">
                     <button type="submit" class="btn">Save changes</button>
@@ -119,21 +139,25 @@ const passwordError = passwordErrors[params.get('err') ?? '']
 
         <section id="password" class="max-w-lg mt-12 pt-12 border-t border-line">
             <h2 class="text-xl font-semibold mb-4">Change password</h2>
-            {passwordError && <div class="mb-4"><div class="alert" data-variant="destructive"><div class="alert-title">{passwordError}</div></div></div>}
+            {passwordError && (
+                <div class="mb-4" role="alert">
+                    <div class="alert" data-variant="destructive"><div class="alert-title">{passwordError}</div></div>
+                </div>
+            )}
             <form method="post" class="flex flex-col gap-4">
                 <input type="hidden" name="intent" value="password" />
                 <label class="flex flex-col gap-1.5 text-sm font-medium">
                     Current password
-                    <input class="input" type="password" name="currentPassword" required {...{ autocomplete: 'current-password' }} />
+                    <input class="input" type="password" name="currentPassword" required autocomplete="current-password" />
                 </label>
                 <label class="flex flex-col gap-1.5 text-sm font-medium">
                     New password
-                    <input class="input" type="password" name="newPassword" required {...{ autocomplete: 'new-password' }} />
-                    <span class="text-xs font-normal text-ink-soft">At least 8 characters.</span>
+                    <input class="input" type="password" name="newPassword" required autocomplete="new-password" aria-describedby="new-password-hint" />
+                    <span id="new-password-hint" class="text-xs font-normal text-ink-soft">At least 8 characters.</span>
                 </label>
                 <label class="flex flex-col gap-1.5 text-sm font-medium">
                     Confirm new password
-                    <input class="input" type="password" name="confirmPassword" required {...{ autocomplete: 'new-password' }} />
+                    <input class="input" type="password" name="confirmPassword" required autocomplete="new-password" />
                 </label>
                 <div class="mt-2"><button type="submit" class="btn">Update password</button></div>
             </form>
@@ -171,6 +195,7 @@ const passwordError = passwordErrors[params.get('err') ?? '']
                                     data-size="sm"
                                     data-delete-id={a.id}
                                     data-delete-label={`${a.firstName} ${a.lastName}`}
+                                    aria-haspopup="dialog"
                                 >Delete</button>
                             </div>
                         </div>
@@ -183,7 +208,7 @@ const passwordError = passwordErrors[params.get('err') ?? '']
                 <AddressModal id={`addr-edit-${a.id}`} title="Edit address" address={a} />
             ))}
 
-            <dialog class="dialog" id="addr-delete-confirm" aria-labelledby="addr-delete-title">
+            <dialog class="dialog" id="addr-delete-confirm" aria-labelledby="addr-delete-title" aria-modal="true">
                 <article>
                     <header>
                         <h3 id="addr-delete-title">Remove address</h3>
@@ -200,7 +225,7 @@ const passwordError = passwordErrors[params.get('err') ?? '']
                         </form>
                     </section>
                     <button type="button" class="btn" data-variant="ghost" data-size="icon-sm" aria-label="Close dialog" onclick="this.closest('dialog').close()">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
                     </button>
                 </article>
             </dialog>

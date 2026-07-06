@@ -3,7 +3,7 @@ import Layout from '@components/layout.astro'
 import { getCollectionByHandle } from '@lib/catalog'
 import { parsePageParam } from '@lib/paginate'
 import type { Collection } from '@lib/types'
-import CollectionResults from '@snippets/collection-results.astro'
+import Results from '@snippets/results.astro'
 import SkeletonProductGrid from '@snippets/skeleton-product-grid.astro'
 
 
@@ -116,7 +116,8 @@ const sortItems = [
             </form>
         </div>
 
-        <CollectionResults
+        <Results
+            mode="collection"
             handle={handle}
             sort={sort}
             selectedTags={selectedTags}
@@ -139,7 +140,7 @@ const sortItems = [
                 </aside>
                 <SkeletonProductGrid count={6} columns={3} />
             </div>
-        </CollectionResults>
+        </Results>
     </div>
 </Layout>
 

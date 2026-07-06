@@ -12,11 +12,16 @@
 	"dependencies": {
 		"@astrojs/check": "0.9.9",
 		"@astrojs/node": "^11.0.2",
+		"@astrojs/react": "^6.0.1",
 		"@astrojs/vercel": "^11.0.2",
+		"@nanostores/query": "^0.3.4",
 		"@tailwindcss/vite": "^4.3.2",
 		"astro": "7.0.6",
-		"basecoat-css": "^1.0.1",
-		"lucide-static": "^1.23.0",
+		"basecoat-css": "^1.0.2",
+		"embla-carousel": "^8.6.0",
+		"nanostores": "^1.4.0",
+		"react": "^19.2.7",
+		"react-dom": "^19.2.7",
 		"tailwindcss": "^4.3.2",
 		"typescript": "6.0.3"
 	},
